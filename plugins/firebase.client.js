@@ -6,12 +6,12 @@ export default defineNuxtPlugin(() => {
     const runtimeConfig = useRuntimeConfig()
 
     const firebaseConfig = {
-    apiKey: runtimeConfig.public.firebaseAuthApiKey,
-    authDomain: "spring-nuxt-auth.firebaseapp.com",
-    projectId: "spring-nuxt-auth",
-    storageBucket: "spring-nuxt-auth.firebasestorage.app",
-    messagingSenderId: "434727826873",
-    appId: "1:434727826873:web:fd03bd3d2915ca6e34b268"
+        apiKey: runtimeConfig.public.firebaseAuthApiKey,
+        authDomain: "fir-auth-2b651.firebaseapp.com",
+        projectId: "fir-auth-2b651",
+        storageBucket: "fir-auth-2b651.firebasestorage.app",
+        messagingSenderId: "661832924829",
+        appId: "1:661832924829:web:466dca9206d6da37b29e74"
     };
 
     const app = initializeApp(firebaseConfig)

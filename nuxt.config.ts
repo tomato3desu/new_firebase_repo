@@ -14,7 +14,7 @@ export default defineNuxtConfig({
     },
   runtimeConfig: {
         public: {
-            firebaseaAuthApiKey: process.env.FIREBASE_AUTH_API_KEY
+            firebaseAuthApiKey: process.env.FIREBASE_AUTH_API_KEY
         }
     }
 })
