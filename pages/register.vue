@@ -1,18 +1,17 @@
 <script setup>
-import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth'
+import { useAuthStore } from '~/composables/stores/auth'
 
-const { $auth } = useNuxtApp()
+const authStore = useAuthStore()
 const email = ref('')
 const password = ref('')
 
 const register = async() => {
     try {
-        const userCred = await createUserWithEmailAndPassword($auth, email.value, password.value)
-        await sendEmailVerification(userCred.user)
+        await authStore.register(email.value, password.value)
         alert("確認メールを送信しました。メール内のリンクをクリックし、登録を完了させてください")
     } catch(error) {
         console.log(error)
-        alert('エラーが発生しました', error.message)
+        alert('登録中にエラーが発生しました', error.message)
     } 
 }
 </script>

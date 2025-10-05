@@ -1,39 +1,19 @@
 <script setup>
-import { signInWithEmailAndPassword } from 'firebase/auth'
+import { useAuthStore } from '~/composables/stores/auth';
 
-const { $auth } = useNuxtApp()
+const authStore = useAuthStore()
+
 const email = ref('')
 const password = ref('')
 
 const login = async() => {
-    let userCred;
     try {
-        userCred = await signInWithEmailAndPassword($auth, email.value, password.value) 
+        await authStore.login(email.value, password.value)
+        console.log('ログイン成功', authStore.loginUser)
     } catch(error) {
         console.log(error)
         alert('メールアドレスまたはパスワードが違います')
-        return
     }
-    const user = userCred.user
-    
-    if(!user.emailVerified){
-        alert('認証が完了していません')
-        return
-    }
-    try {
-        const token = await user.getIdToken()
-        const res = await $fetch('http://localhost:8080/api/auth/login', {
-            method: "POST",
-            body: {
-                token: token
-            }
-        })
-        console.log(res.nickname)
-    } catch(error) {
-        console.log(error)
-        alert("ログインエラー", error.message)
-    }
-    
 }
 </script>
 
