@@ -15,7 +15,9 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         public: {
-            firebaseAuthApiKey: process.env.FIREBASE_AUTH_API_KEY
+            firebaseAuthApiKey: process.env.FIREBASE_AUTH_API_KEY,
+            googleMapApiKey: process.env.GOOGLE_MAP_API_KEY,
+            googleMapId: process.env.GOOGLE_MAP_ID
         }
     }
 })

@@ -44,7 +44,7 @@ const login = async () => {
     try {
         await authStore.login(email.value, password.value)
         console.log('ログイン成功', authStore.loginUser)
-        await navigateTo('/home')
+        await navigateTo('/')
     }
     catch (error) {
         console.log(error)
