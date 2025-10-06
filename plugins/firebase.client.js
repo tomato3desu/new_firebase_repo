@@ -1,6 +1,5 @@
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-
+import { initializeApp } from "firebase/app"
+import { getAuth } from "firebase/auth"
 
 export default defineNuxtPlugin(() => {
     const runtimeConfig = useRuntimeConfig()
@@ -12,11 +11,10 @@ export default defineNuxtPlugin(() => {
         storageBucket: "fir-auth-2b651.firebasestorage.app",
         messagingSenderId: "661832924829",
         appId: "1:661832924829:web:466dca9206d6da37b29e74"
-    };
+    }
 
     const app = initializeApp(firebaseConfig)
     const auth = getAuth(app)
 
     return { provide: { auth } }
 })
-

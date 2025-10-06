@@ -2,8 +2,8 @@
 import withNuxt from './.nuxt/eslint.config.mjs'
 
 export default withNuxt(
-  // Your custom configs here
-  {
+    // Your custom configs here
+    {
         files: ["**/*.vue", "**/*.ts", "**/*.js", "**/*.mjs"],
         rules: {
             "no-console": "off",

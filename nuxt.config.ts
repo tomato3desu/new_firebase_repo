@@ -1,9 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss', '@nuxt/eslint', '@pinia/nuxt'],
-  eslint: {
+    compatibilityDate: '2025-07-15',
+    devtools: { enabled: true },
+    modules: ['@nuxtjs/tailwindcss', '@nuxt/eslint', '@pinia/nuxt'],
+    eslint: {
         config: {
             stylistic: {
                 blockSpacing: true,
@@ -12,7 +12,7 @@ export default defineNuxtConfig({
             }
         }
     },
-  runtimeConfig: {
+    runtimeConfig: {
         public: {
             firebaseAuthApiKey: process.env.FIREBASE_AUTH_API_KEY
         }
