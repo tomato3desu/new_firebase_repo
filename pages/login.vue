@@ -63,7 +63,7 @@ const cancel = () => {
 </script>
 
 <template>
-    <div class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-gray-100 h-full w-full flex items-center justify-center">
         <div class="bg-white p-8 rounded-lg shadow-lg w-96">
             <p class="text-2xl font-bold mb-6 text-center text-gray-800">
                 ログイン
@@ -110,16 +110,16 @@ const cancel = () => {
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <button
-                        type="submit"
-                        class="w-full bg-sky-500 text-white py-2 px-4 rounded-md shadow hover:bg-sky-600"
-                    >
-                        ログイン
-                    </button>
-                    <button
                         class="w-full bg-gray-400 text-white py-2 px-4 rounded-md shadow hover:bg-gray-600"
                         @click="cancel"
                     >
                         キャンセル
+                    </button>
+                    <button
+                        type="submit"
+                        class="w-full bg-sky-500 text-white py-2 px-4 rounded-md shadow hover:bg-sky-600"
+                    >
+                        ログイン
                     </button>
                 </div>
             </form>

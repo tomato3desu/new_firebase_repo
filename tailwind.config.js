@@ -1,8 +1,17 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-    content: [],
+    content: [
+        "./components/**/*.{vue,js,ts}",
+        "./layouts/**/*.vue",
+        "./pages/**/*.vue",
+        "./app.vue",
+    ],
     theme: {
-        extend: {},
+        extend: {
+            fontFamily: {
+                bit: ['"Bitcount Grid Double"', 'sans-serif'],
+            },
+        },
     },
     plugins: [],
 }
