@@ -46,14 +46,32 @@ const updateProfile = async () => {
         const payload = {
             nickname: nickname.value,
             comment: comment.value,
-            icon_image_path: iconUrl
+            iconImagePath: iconUrl
         }
 
-        console.log(token)
-        console.log(payload)
+        const data = await $fetch('http://localhost:8080/api/auth/updateProfile', {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            body: payload
+        })
+        
+        authStore.loginUser = {
+            id: data.id,
+            nickname: data.nickname,
+            comment: data.comment,
+            iconImagePath: data.iconImagePath
+        }
     }
     catch (err) {
         console.error(err)
+        if (err?.data) {
+            error.value = `更新に失敗しました: ${err.data}`
+        }
+        else {
+            error.value = "サーバーとの通信に失敗しました"
+        }
     }
     finally {
         isSaving.value = false
@@ -67,62 +85,59 @@ const updateProfile = async () => {
             プロフィール編集
         </p>
 
-        <div>
-            <!-- Nickname -->
-            <label class="block mb-2 font-semibold">ニックネーム</label>
-            <input
-                v-model="nickname"
-                type="text"
-                class="w-full border rounded p-2 mb-4"
-            >
-
-            <!-- Comment -->
-            <label class="block mb-2 font-semibold">コメント</label>
-            <input
-                v-model="comment"
-                type="text"
-                class="w-full border rounded p-2 mb-4"
-            >
-
-            <!-- Image -->
-            <label class="block mb-2 font-semibold">アイコン画像</label>
-            <input
-                type="file"
-                accept="image/*"
-                class="mb-4 w-full border p-2 rounded"
-                @change="handleFileChange"
-            >
-
-            <div
-                v-if="previewUrl"
-                class="mb-4"
-            >
-                <p class="font-semibold">
-                    プレビュー:
-                </p>
-                <img
-                    :src="previewUrl"
-                    alt="Preview"
-                    class="w-32 h-32 object-cover rounded-full"
+        <client-only>
+            <div>
+                <!-- Nickname -->
+                <label class="block mb-2 font-semibold">ニックネーム</label>
+                <input
+                    v-model="nickname"
+                    type="text"
+                    class="w-full border rounded p-2 mb-4"
                 >
+                <!-- Comment -->
+                <label class="block mb-2 font-semibold">コメント</label>
+                <input
+                    v-model="comment"
+                    type="text"
+                    class="w-full border rounded p-2 mb-4"
+                >
+                <!-- Image -->
+                <label class="block mb-2 font-semibold">アイコン画像</label>
+                <input
+                    type="file"
+                    accept="image/*"
+                    class="mb-4 w-full border p-2 rounded"
+                    @change="handleFileChange"
+                >
+                <div
+                    v-if="previewUrl"
+                    class="mb-4"
+                >
+                    <p class="font-semibold">
+                        プレビュー:
+                    </p>
+                    <img
+                        :src="previewUrl"
+                        alt="Preview"
+                        class="w-32 h-32 object-cover rounded-full"
+                    >
+                </div>
+                <!-- Error -->
+                <p
+                    v-if="error"
+                    class="text-red-500 mb-2"
+                >
+                    {{ error }}
+                </p>
+                <!-- Save Button -->
+                <button
+                    :disabled="isSaving"
+                    class="w-full bg-emerald-500 text-white py-2 rounded"
+                    @click="updateProfile"
+                >
+                    {{ isSaving ? '保存中...' : '変更を保存' }}
+                </button>
             </div>
-
-            <!-- Error -->
-            <p
-                v-if="error"
-                class="text-red-500 mb-2"
-            >
-                {{ error }}
-            </p>
-
-            <!-- Save Button -->
-            <button
-                :disabled="isSaving"
-                class="w-full bg-emerald-500 text-white py-2 rounded"
-                @click="updateProfile"
-            >
-                {{ isSaving ? '保存中...' : '変更を保存' }}
-            </button>
-        </div>
+        </client-only>
     </div>
 </template>
