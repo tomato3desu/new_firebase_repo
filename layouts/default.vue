@@ -2,8 +2,10 @@
 </script>
 
 <template>
-    <div class="flex flex-col h-screen">
-        <HeaderBar />
+    <div class="flex flex-col min-h-screen">
+        <client-only>
+            <HeaderBar />
+        </client-only>
         <div class="flex-1">
             <slot />
         </div>

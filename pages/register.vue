@@ -61,7 +61,7 @@ const cancel = () => {
 </script>
 
 <template>
-    <div class="bg-gray-100 h-full w-full flex items-center justify-center">
+    <div class="bg-gray-100 min-h-[calc(100vh-4rem)] flex items-center justify-center">
         <div class="bg-white p-8 rounded-lg shadow-lg w-96">
             <p class="text-2xl font-bold mb-6 text-center text-gray-800">
                 新規登録

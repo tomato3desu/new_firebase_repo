@@ -1,16 +1,11 @@
 <script setup>
-import { setOptions, importLibrary } from "@googlemaps/js-api-loader"
+import { importLibrary } from "@googlemaps/js-api-loader"
 import { usePinStore } from "~/composables/stores/pin"
 
 const config = useRuntimeConfig()
 const mapElement = ref(null)
 
 onMounted(async () => {
-    setOptions({
-        key: config.public.googleMapApiKey,
-        v: "weekly"
-    })
-
     const { Map } = await importLibrary("maps")
     const { AdvancedMarkerElement, PinElement } = await importLibrary("marker")
     
@@ -44,6 +39,6 @@ onMounted(async () => {
 <template>
     <div
         ref="mapElement"
-        class="h-full w-full"
+        class="h-full w-full min-h-[calc(100vh-4rem)]"
     />
 </template>

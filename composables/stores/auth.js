@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
-import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, getAuth } from 'firebase/auth'
 
 export const useAuthStore = defineStore('auth', () => {
     const { $auth } = useNuxtApp()
 
-    const loginUser = ref(null)
+    const loginUser = ref(null) // 表示用user情報
     const isLoggedIn = ref(false)
 
     const login = async (email, password) => {
@@ -13,6 +13,7 @@ export const useAuthStore = defineStore('auth', () => {
             userCred = await signInWithEmailAndPassword($auth, email, password)
         }
         catch (error) {
+            console.log(error)
             throw new Error('メールアドレスまたはパスワードが違います')
         }
         const user = userCred.user
@@ -24,14 +25,26 @@ export const useAuthStore = defineStore('auth', () => {
 
         const token = await user.getIdToken()
 
-        const res = await $fetch('http://localhost:8080/api/auth/login', {
+        const res = await fetch('http://localhost:8080/api/auth/login', {
             method: "POST",
-            body: { token: token }
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
         })
 
+        if (!res.ok) {
+            console.error('ログイン失敗', await res.text())
+            return
+        }
+
+        const data = await res.json()
+
         loginUser.value = {
-            id: res.id,
-            nickname: res.nickname
+            id: data.id,
+            nickname: data.nickname,
+            iconImagePath: data.iconImagePath,
+            comment: data.comment
         }
         isLoggedIn.value = true
     }
@@ -49,11 +62,23 @@ export const useAuthStore = defineStore('auth', () => {
         return $auth.signOut()
     }
 
+    const getIdToken = async () => {
+        const auth = getAuth()
+        const user = auth.currentUser
+        if (!user) throw new Error('No authenticated user')
+        return await user.getIdToken()
+    }
+
     return {
         loginUser,
         isLoggedIn,
         login,
         register,
-        logout
+        logout,
+        getIdToken
     }
-})
+},
+{
+    persist: true
+}
+)
