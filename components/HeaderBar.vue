@@ -11,7 +11,7 @@ const logout = () => {
 </script>
 
 <template>
-    <div class="border-b-4 shadow-md border-gray-300 h-16 flex items-center justify-between px-6 sticky top-0">
+    <div class="bg-white border-b-4 shadow-md border-gray-300 h-16 flex items-center justify-between px-6 sticky top-0 z-50">
         <p class="text-4xl font-bit text-emerald-300">
             tomato
         </p>

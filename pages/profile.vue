@@ -1,20 +1,27 @@
 <script setup>
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { useAuthStore } from '~/composables/stores/auth'
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { Cropper } from 'vue-advanced-cropper'
+import 'vue-advanced-cropper/dist/style.css'
 
-const { $storage } = useNuxtApp()
 const authStore = useAuthStore()
+const { $storage } = useNuxtApp()
 
-const isLoggedIn = computed(() => authStore.isLoggedIn)
-const loginUser = computed(() => authStore.loginUser)
+const currentProfile = computed(() => authStore.loginUser || {
+    nickname: '',
+    comment: '',
+    iconImagePath: ''
+})
 
-const nickname = ref(loginUser.value?.nickname || '')
-const comment = ref(loginUser.value?.comment || '')
+const nickname = ref('')
+const comment = ref('')
 
 const file = ref(null)
-const previewUrl = ref(loginUser.value?.iconImagePath || null)
+const previewUrl = ref(null)
+const cropper = ref(null)
+const isUploading = ref(null)
+const uploadedUrl = ref(null)
 const error = ref(null)
-const isSaving = ref(false)
 
 const handleFileChange = (event) => {
     const target = event.target
@@ -24,120 +31,153 @@ const handleFileChange = (event) => {
     }
 }
 
-const updateProfile = async () => {
-    if (!isLoggedIn.value) {
-        error.value = 'ログインしてください'
-        return
-    }
-
-    isSaving.value = true
-    error.value = null
-    let iconUrl = loginUser.value?.iconImagePath || null
-
+const sendToBackend = async (profileData) => {
+    const token = await authStore.getIdToken()
     try {
-        if (file.value) {
-            const fileRef = storageRef($storage, `profileImage/${file.value.name}`)
-            await uploadBytes(fileRef, file.value)
-            iconUrl = await getDownloadURL(fileRef)
-        }
-        const token = await authStore.getIdToken()
-        console.log(iconUrl)
-
-        const payload = {
-            nickname: nickname.value,
-            comment: comment.value,
-            iconImagePath: iconUrl
-        }
-
-        const data = await $fetch('http://localhost:8080/api/auth/updateProfile', {
+        const res = await $fetch('http://localhost:8080/api/auth/updateProfile', {
             method: 'PUT',
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`
             },
-            body: payload
+            body: profileData
         })
-        
-        authStore.loginUser = {
-            id: data.id,
-            nickname: data.nickname,
-            comment: data.comment,
-            iconImagePath: data.iconImagePath
-        }
+
+        authStore.loginUser = res
     }
     catch (err) {
-        console.error(err)
-        if (err?.data) {
-            error.value = `更新に失敗しました: ${err.data}`
+        console.error('バックエンド送信エラー', err)
+    }
+}
+
+const uploadImage = async () => {
+    if (!cropper.value) return
+    isUploading.value = true
+    error.value = false
+
+    try {
+        // Cropperからcanvasを取得
+        const { canvas } = cropper.value.getResult()
+        if (!canvas) {
+            throw new Error('画像の切り抜きに失敗しました')
         }
-        else {
-            error.value = "サーバーとの通信に失敗しました"
-        }
+
+        canvas.toBlob(async (blob) => {
+            if (!blob) {
+                throw new Error('blobの作成に失敗しました')
+            }
+
+            const fileName = `${Date.now()}-cropped.jpg`
+            const fileRef = storageRef($storage, `profileImage/${fileName}`)
+
+            await uploadBytes(fileRef, blob)
+            const url = await getDownloadURL(fileRef)
+            uploadedUrl.value = url
+
+            await sendToBackend({
+                nickname: nickname.value,
+                comment: comment.value,
+                iconImagePath: uploadedUrl.value
+            })
+
+            nickname.value = ''
+            comment.value = ''
+            previewUrl.value = null
+        }, 'image/jpg')
+    }
+    catch (err) {
+        error.value = err.message
     }
     finally {
-        isSaving.value = false
+        isUploading.value = false
     }
 }
 </script>
 
 <template>
-    <div class="max-w-md mx-auto mt-10 p-6 border rounded shadow">
-        <p class="text-xl font-bold mb-4">
-            プロフィール編集
+    <div class="max-w-md mx-auto mt-10 p-6 border rounded-2xl shadow">
+        <h2 class="text-2xl font-bold mb-4 text-center">
+            プロフィール
+        </h2>
+        <p
+            v-if="currentProfile.nickname"
+            class="text-gray-500"
+        >
+            ニックネーム：{{ currentProfile.nickname }}
         </p>
-
-        <client-only>
-            <div>
-                <!-- Nickname -->
-                <label class="block mb-2 font-semibold">ニックネーム</label>
-                <input
-                    v-model="nickname"
-                    type="text"
-                    class="w-full border rounded p-2 mb-4"
-                >
-                <!-- Comment -->
-                <label class="block mb-2 font-semibold">コメント</label>
-                <input
-                    v-model="comment"
-                    type="text"
-                    class="w-full border rounded p-2 mb-4"
-                >
-                <!-- Image -->
-                <label class="block mb-2 font-semibold">アイコン画像</label>
-                <input
-                    type="file"
-                    accept="image/*"
-                    class="mb-4 w-full border p-2 rounded"
-                    @change="handleFileChange"
-                >
-                <div
-                    v-if="previewUrl"
-                    class="mb-4"
-                >
-                    <p class="font-semibold">
-                        プレビュー:
-                    </p>
-                    <img
-                        :src="previewUrl"
-                        alt="Preview"
-                        class="w-32 h-32 object-cover rounded-full"
-                    >
-                </div>
-                <!-- Error -->
-                <p
-                    v-if="error"
-                    class="text-red-500 mb-2"
-                >
-                    {{ error }}
-                </p>
-                <!-- Save Button -->
-                <button
-                    :disabled="isSaving"
-                    class="w-full bg-emerald-500 text-white py-2 rounded"
-                    @click="updateProfile"
-                >
-                    {{ isSaving ? '保存中...' : '変更を保存' }}
-                </button>
-            </div>
-        </client-only>
+        <input
+            v-model="nickname"
+            type="text"
+            placeholder="ニックネーム編集"
+            class="mb-4 w-full border p-2 rounded"
+        >
+        <p
+            v-if="currentProfile.comment"
+            class="text-gray-500"
+        >
+            コメント：{{ currentProfile.comment }}
+        </p>
+        <textarea
+            v-model="comment"
+            placeholder="コメント編集"
+            class="mb-4 w-full border p-2 rounded"
+        />
+        <img
+            v-if="currentProfile?.iconImagePath"
+            :src="currentProfile.iconImagePath"
+            alt="プロフィール画像"
+            class="w-32 h-32 object-cover rounded-none mb-4"
+        >
+        <input
+            type="file"
+            accept="image/*"
+            class="mb-4 w-full border p-2 rounded"
+            @change="handleFileChange"
+        >
+        <div
+            v-if="previewUrl"
+            class="mb-4"
+        >
+            <p class="font-semibold">
+                プレビュー:
+            </p>
+            <Cropper
+                ref="cropper"
+                :src="previewUrl"
+                :stencil-props="{
+                    aspectRatio: 1,
+                    movable: true,
+                    resizable: true,
+                }"
+                class="rounded-lg shadow w-full z-0"
+            />
+        </div>
+        <button
+            :disabled="!file || isUploading"
+            class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded disabled:opacity-50"
+            @click="uploadImage"
+        >
+            {{ isUploading ? "アップロード中..." : "アップロード" }}
+        </button>
+        <p
+            v-if="error"
+            class="text-red-500 mt-3"
+        >
+            {{ error }}
+        </p>
+        <div
+            v-if="uploadedUrl"
+            class="mt-6"
+        >
+            <p class="font-semibold">
+                アップロード完了！
+            </p>
+            <a
+                :href="uploadedUrl"
+                target="_blank"
+                class="text-blue-600 underline break-all"
+            >
+                {{ uploadedUrl }}
+            </a>
+        </div>
     </div>
 </template>
