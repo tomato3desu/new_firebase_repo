@@ -12,9 +12,12 @@ const logout = () => {
 
 <template>
     <div class="bg-white border-b-4 shadow-md border-gray-300 h-16 flex items-center justify-between px-6 sticky top-0 z-50">
-        <p class="text-4xl font-bit text-emerald-300">
+        <NuxtLink
+            to="/"
+            class="text-4xl font-bit text-emerald-300"
+        >
             tomato
-        </p>
+        </NuxtLink>
         <div class=" flex items-center justify-between gap-6 px-6">
             <NuxtLink
                 v-if="!isLoggedIn"
@@ -36,9 +39,13 @@ const logout = () => {
             >新規登録</NuxtLink>
             <NuxtLink
                 v-else
-                to="/"
+                to="/profile"
                 class="text-2xl text-yellow-300"
-            >{{ user.nickname }}</NuxtLink>
+            ><img
+                :src="user.iconImagePath"
+                alt="icon"
+                class="w-12 h-12 object-cover rounded-none"
+            ></NuxtLink>
         </div>
     </div>
 </template>
