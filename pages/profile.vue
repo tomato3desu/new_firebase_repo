@@ -45,34 +45,46 @@ const sendToBackend = async (profileData) => {
         authStore.loginUser = res
     }
     catch (err) {
-        console.error('バックエンド送信エラー', err)
+        console.error('エラー', err)
     }
 }
 
-const uploadImage = async () => {
-    if (!cropper.value) return
+const updateProfile = async () => {
     isUploading.value = true
     error.value = false
 
     try {
-        // Cropperからcanvasを取得
-        const { canvas } = cropper.value.getResult()
-        if (!canvas) {
-            throw new Error('画像の切り抜きに失敗しました')
-        }
-
-        canvas.toBlob(async (blob) => {
-            if (!blob) {
-                throw new Error('blobの作成に失敗しました')
+        if (cropper.value) {
+            // Cropperからcanvasを取得
+            const { canvas } = cropper.value.getResult()
+            if (!canvas) {
+                throw new Error('画像の切り抜きに失敗しました')
             }
 
-            const fileName = `${Date.now()}-cropped.jpg`
-            const fileRef = storageRef($storage, `profileImage/${fileName}`)
+            canvas.toBlob(async (blob) => {
+                if (!blob) {
+                    throw new Error('blobの作成に失敗しました')
+                }
 
-            await uploadBytes(fileRef, blob)
-            const url = await getDownloadURL(fileRef)
-            uploadedUrl.value = url
+                const fileName = `${Date.now()}-cropped.jpg`
+                const fileRef = storageRef($storage, `profileImage/${fileName}`)
 
+                await uploadBytes(fileRef, blob)
+                const url = await getDownloadURL(fileRef)
+                uploadedUrl.value = url
+
+                await sendToBackend({
+                    nickname: nickname.value,
+                    comment: comment.value,
+                    iconImagePath: uploadedUrl.value
+                })
+
+                nickname.value = ''
+                comment.value = ''
+                previewUrl.value = null
+            }, 'image/jpg')
+        }
+        else {
             await sendToBackend({
                 nickname: nickname.value,
                 comment: comment.value,
@@ -81,8 +93,7 @@ const uploadImage = async () => {
 
             nickname.value = ''
             comment.value = ''
-            previewUrl.value = null
-        }, 'image/jpg')
+        }
     }
     catch (err) {
         error.value = err.message
@@ -152,9 +163,9 @@ const uploadImage = async () => {
             />
         </div>
         <button
-            :disabled="!file || isUploading"
+            :disabled="isUploading"
             class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded disabled:opacity-50"
-            @click="uploadImage"
+            @click="updateProfile"
         >
             {{ isUploading ? "アップロード中..." : "アップロード" }}
         </button>
