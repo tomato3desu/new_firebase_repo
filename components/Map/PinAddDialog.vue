@@ -21,12 +21,6 @@ const description = ref(null)
 const addPin = async () => {
     if (!props.latlng) return
 
-    const formData = new FormData()
-    formData.append("latitude", props.latlng.lat)
-    formData.append("longitude", props.latlng.lng)
-    formData.append("title", title.value)
-    formData.append("description", description.value)
-
     const addPinInfo = {
         latitude: props.latlng.lat,
         longitude: props.latlng.lng,
@@ -35,8 +29,8 @@ const addPin = async () => {
     }
 
     const token = await authStore.getIdToken()
-    await pinStore.addPin(addPinInfo, token)
-
+    const addedPin = await pinStore.addPin(addPinInfo, token)
+    renderMarker(addedPin)
     close()
 }
 

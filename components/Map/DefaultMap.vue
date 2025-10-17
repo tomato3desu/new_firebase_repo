@@ -4,18 +4,21 @@ import { usePinStore } from "~/composables/stores/pin"
 import { useAuthStore } from "~/composables/stores/auth"
 
 const authStore = useAuthStore()
+const pinStore = usePinStore()
 
 const config = useRuntimeConfig()
 const mapElement = ref(null)
 const isOpenPinAddDialog = ref(false)
 const clickedLatLng = ref(null)
 
+let map
+const markers = ref([])
+
 onMounted(async () => {
     const { Map } = await importLibrary("maps")
-    const { AdvancedMarkerElement, PinElement } = await importLibrary("marker")
-    
+
     // map
-    const map = new Map(mapElement.value, {
+    map = new Map(mapElement.value, {
         center: { lat: 34.700428654912486, lng: 135.4928556060951 },
         zoom: 12,
         mapId: config.public.googleMapId
@@ -31,25 +34,33 @@ onMounted(async () => {
         })
     }
     
-    const pinStore = usePinStore()
-
-    pinStore.pins.forEach(pin => {
-        const pinElement = new PinElement({
-            background: "#7fffbf",
-            borderColor: "#ff84ff",
-            scale: 1.5,
-            glyphColor: "#ff84ff",
-            glyph: String(pin.pinId),
-            
-        })
-
-        new AdvancedMarkerElement({
-            map,
-            position: { lat: pin.lat, lng: pin.lng },
-            content: pinElement.element,
-        })
-    })
+    await pinStore.getAllPins()
+    for (const pin of pinStore.pins) {
+        renderMarker(pin)
+    }
 })
+
+// マーカーを描画する関数
+const renderMarker = async (pin) => {
+    const { AdvancedMarkerElement, PinElement } = await importLibrary("marker")
+
+    const pinElement = new PinElement({
+        background: "#7fffbf",
+        borderColor: "#ff84ff",
+        scale: 1.5,
+        glyphColor: "#ff84ff",
+        glyph: String(pin.id),
+        
+    })
+
+    const marker = new AdvancedMarkerElement({
+        map,
+        position: { lat: pin.latitude, lng: pin.longitude },
+        content: pinElement.element,
+    })
+
+    markers.value.push(marker)
+}
 </script>
 
 <template>
