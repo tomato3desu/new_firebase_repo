@@ -9,6 +9,8 @@ const pinStore = usePinStore()
 const config = useRuntimeConfig()
 const mapElement = ref(null)
 const isOpenPinAddDialog = ref(false)
+const isOpenPinInfoDrawer = ref(false)
+const selectedPin = ref(null)
 const clickedLatLng = ref(null)
 
 let map
@@ -59,7 +61,16 @@ const renderMarker = async (pin) => {
         content: pinElement.element,
     })
 
+    marker.addListener('click', () => {
+        openDrawer(pin)
+    })
+
     markers.value.push(marker)
+}
+
+const openDrawer = (pin) => {
+    selectedPin.value = pin
+    isOpenPinInfoDrawer.value = true
 }
 </script>
 
@@ -71,5 +82,9 @@ const renderMarker = async (pin) => {
     <MapPinAddDialog
         v-model="isOpenPinAddDialog"
         :latlng="clickedLatLng"
+    />
+    <MapPinInfoDrawer
+        v-model="isOpenPinInfoDrawer"
+        :pin="selectedPin"
     />
 </template>

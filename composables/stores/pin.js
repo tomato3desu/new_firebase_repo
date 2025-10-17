@@ -26,20 +26,6 @@ export const usePinStore = defineStore('pinStore', () => {
                 body: addPinInfo
             })
 
-            // const newPin = {
-            //     id: res.id,
-            //     createdUser: {
-            //         id: res.createdUser.id,
-            //         nickname: res.createdUser.nickname,
-            //         comment: res.createdUser.comment,
-            //         iconImagePath: res.createdUser.iconImagePath
-            //     },
-            //     latitude: res.latitude,
-            //     longitude: res.longitude,
-            //     title: res.title,
-            //     description: res.description
-            // }
-
             pins.value.push(res)
 
             return res

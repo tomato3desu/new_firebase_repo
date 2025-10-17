@@ -1,6 +1,6 @@
 <script setup>
 import { useAuthStore } from '~/composables/stores/auth'
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { Cropper } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
 
@@ -54,7 +54,10 @@ const updateProfile = async () => {
     error.value = false
 
     try {
+        // 画像があればfirebase storageに保存
         if (cropper.value) {
+            const oldImageUrl = authStore.loginUser?.iconImagePath
+
             // Cropperからcanvasを取得
             const { canvas } = cropper.value.getResult()
             if (!canvas) {
@@ -83,7 +86,18 @@ const updateProfile = async () => {
                 comment.value = ''
                 previewUrl.value = null
             }, 'image/jpg')
+
+            try {
+                const path = extractPathFromUrl(oldImageUrl)
+                const oldRef = storageRef($storage, path)
+                await deleteObject(oldRef)
+                console.log('古い画像を削除しました')
+            }
+            catch (deleteError) {
+                console.warn('古い画像の削除に失敗:', deleteError)
+            }
         }
+        // なければ現在の画像パスをそのまま送信
         else {
             await sendToBackend({
                 nickname: nickname.value,
@@ -101,6 +115,12 @@ const updateProfile = async () => {
     finally {
         isUploading.value = false
     }
+}
+
+const extractPathFromUrl = (url) => {
+    const decoded = decodeURIComponent(url)
+    const matches = decoded.match(/\/o\/(.+)\?/)
+    return matches ? matches[1] : null
 }
 </script>
 

@@ -20,3 +20,13 @@ create table if not exists pin_info(
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS pin_image_info (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pin_id INT NOT NULL,
+    image_path VARCHAR(255) NOT NULL,
+    uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_pin FOREIGN KEY (pin_id) REFERENCES pin_info(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
