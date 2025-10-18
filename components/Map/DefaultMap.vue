@@ -15,11 +15,12 @@ const clickedLatLng = ref(null)
 
 let map
 const markers = ref([])
+let mapClickListener = null
 
 onMounted(async () => {
     const { Map } = await importLibrary("maps")
 
-    // map
+    // mapを作成
     map = new Map(mapElement.value, {
         center: { lat: 34.700428654912486, lng: 135.4928556060951 },
         zoom: 12,
@@ -27,20 +28,23 @@ onMounted(async () => {
     })
 
     if (authStore.isLoggedIn) {
-        map.addListener("click", (e) => {
-            const lat = e.latLng.lat()
-            const lng = e.latLng.lng()
-            console.log("MAP CLICK:", lat, lng)
-            clickedLatLng.value = { lat, lng }
-            isOpenPinAddDialog.value = true
-        })
+        mapClickListener = map.addListener('click', onMapClick)
     }
     
+    // ピン描画
     await pinStore.getAllPins()
     for (const pin of pinStore.pins) {
         renderMarker(pin)
     }
 })
+
+// マップクリック時に実行する関数
+const onMapClick = (e) => {
+    const lat = e.latLng.lat()
+    const lng = e.latLng.lng()
+    clickedLatLng.value = { lat, lng }
+    isOpenPinAddDialog.value = true
+}
 
 // マーカーを描画する関数
 const renderMarker = async (pin) => {
@@ -72,6 +76,25 @@ const openDrawer = (pin) => {
     selectedPin.value = pin
     isOpenPinInfoDrawer.value = true
 }
+
+watch(
+    () => authStore.isLoggedIn,
+    (isLoggedIn) => {
+        if (isLoggedIn) {
+            // クリックイベントを追加（重複防止）
+            if (!mapClickListener) {
+                mapClickListener = map.addListener("click", onMapClick)
+            }
+        }
+        else {
+            // ログアウト時はリスナーを削除
+            if (mapClickListener) {
+                google.maps.event.removeListener(mapClickListener)
+                mapClickListener = null
+            }
+        }
+    }
+)
 </script>
 
 <template>
