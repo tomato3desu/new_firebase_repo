@@ -152,12 +152,12 @@ const extractPathFromUrl = (url) => {
             placeholder="コメント編集"
             class="mb-4 w-full border p-2 rounded"
         />
-        <img
+        <NuxtImg
             v-if="currentProfile?.iconImagePath"
             :src="currentProfile.iconImagePath"
             alt="プロフィール画像"
             class="w-32 h-32 object-cover rounded-none mb-4"
-        >
+        />
         <input
             type="file"
             accept="image/*"

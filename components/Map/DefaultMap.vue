@@ -3,18 +3,19 @@ import { importLibrary } from "@googlemaps/js-api-loader"
 import { usePinStore } from "~/composables/stores/pin"
 import { useAuthStore } from "~/composables/stores/auth"
 
+// ストア
 const authStore = useAuthStore()
 const pinStore = usePinStore()
 
 const config = useRuntimeConfig()
+
 const mapElement = ref(null)
 const isOpenPinAddDialog = ref(false)
 const isOpenPinInfoDrawer = ref(false)
 const selectedPin = ref(null)
 const clickedLatLng = ref(null)
-
-let map
 const markers = ref([])
+let map
 let mapClickListener = null
 
 onMounted(async () => {
@@ -27,6 +28,7 @@ onMounted(async () => {
         mapId: config.public.googleMapId
     })
 
+    // clicklisterを追加
     if (authStore.isLoggedIn) {
         mapClickListener = map.addListener('click', onMapClick)
     }
@@ -72,11 +74,13 @@ const renderMarker = async (pin) => {
     markers.value.push(marker)
 }
 
+// 
 const openDrawer = (pin) => {
     selectedPin.value = pin
     isOpenPinInfoDrawer.value = true
 }
 
+// ログイン/非ログインで切り替え
 watch(
     () => authStore.isLoggedIn,
     (isLoggedIn) => {
@@ -105,6 +109,7 @@ watch(
     <MapPinAddDialog
         v-model="isOpenPinAddDialog"
         :latlng="clickedLatLng"
+        @pin-added="renderMarker"
     />
     <MapPinInfoDrawer
         v-model="isOpenPinInfoDrawer"

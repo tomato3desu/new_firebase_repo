@@ -40,11 +40,11 @@ const logout = () => {
             <NuxtLink
                 v-else
                 to="/profile"
-            ><img
+            ><NuxtImg
                 :src="user.iconImagePath"
                 alt="icon"
                 class="w-12 h-12 object-cover rounded-none"
-            ></NuxtLink>
+            /></NuxtLink>
         </div>
     </div>
 </template>
