@@ -87,14 +87,16 @@ const updateProfile = async () => {
                 previewUrl.value = null
             }, 'image/jpg')
 
-            try {
-                const path = extractPathFromUrl(oldImageUrl)
-                const oldRef = storageRef($storage, path)
-                await deleteObject(oldRef)
-                console.log('古い画像を削除しました')
-            }
-            catch (deleteError) {
-                console.warn('古い画像の削除に失敗:', deleteError)
+            if (currentProfile.value.iconImagePath !== '') {
+                try {
+                    const path = extractPathFromUrl(oldImageUrl)
+                    const oldRef = storageRef($storage, path)
+                    await deleteObject(oldRef)
+                    console.log('古い画像を削除しました')
+                }
+                catch (deleteError) {
+                    console.warn('古い画像の削除に失敗:', deleteError)
+                }
             }
         }
         // なければ現在の画像パスをそのまま送信

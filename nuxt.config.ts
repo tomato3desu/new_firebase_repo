@@ -4,7 +4,6 @@ export default defineNuxtConfig({
     devtools: { enabled: true },
     css: ['~/assets/css/tailwind.css'],
     modules: ['@nuxtjs/tailwindcss', '@nuxt/eslint', '@pinia/nuxt', '@nuxt/image'],
-    ssr: false,
     eslint: {
         config: {
             stylistic: {

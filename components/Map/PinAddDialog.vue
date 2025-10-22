@@ -23,9 +23,9 @@ const emit = defineEmits(['pin-added'])
 
 const title = ref(null)
 const description = ref(null)
-const files = ref([])
-const previewUrls = ref([])
-const uploadedUrls = ref([])
+const file = ref(null)
+const previewUrl = ref(null)
+const uploadedUrl = ref(null)
 const error = ref(null)
 
 const addPin = async () => {
@@ -38,7 +38,7 @@ const addPin = async () => {
         longitude: props.latlng.lng,
         title: title.value,
         description: description.value,
-        pinImages: uploadedUrls.value
+        thumbnailImagePath: uploadedUrl.value
     }
 
     const token = await authStore.getIdToken()
@@ -49,29 +49,27 @@ const addPin = async () => {
 }
 
 const handleFileChange = (event) => {
-    const selectedFiles = event.target.files
-    if (!selectedFiles || selectedFiles.length === 0) return
-
-    files.value = Array.from(selectedFiles)
-
-    previewUrls.value = files.value.map(file => URL.createObjectURL(file))
+    const target = event.target
+    if (target.files && target.files[0]) {
+        file.value = target.files[0]
+        previewUrl.value = URL.createObjectURL(file.value)
+    }
 }
 
 const addToStorage = async () => {
-    if (!files.value || files.value.length === 0) return
+    if (!file.value) return
         
     try {
-        for (const file of files.value) {
-            const fileRef = storageRef($storage, `pinImage/${file.name}`)
+        const fileName = `${Date.now()}-pinStore.jpg`
+        const fileRef = storageRef($storage, `pinImage/${fileName}`)
 
-            await uploadBytes(fileRef, file)
-            const url = await getDownloadURL(fileRef)
-            uploadedUrls.value.push(url)
-            console.log(uploadedUrls.value)
-        }
+        await uploadBytes(fileRef, file.value)
+        const url = await getDownloadURL(fileRef)
+        uploadedUrl.value = url
+        console.log(uploadedUrl.value)
     }
     catch (err) {
-        uploadedUrls.value = null
+        uploadedUrl.value = null
         error.value = err.message
     }
 }
@@ -80,9 +78,8 @@ const close = () => {
     title.value = null
     description.value = null
     isOpen.value = false
-    files.value = []
-    previewUrls.value = []
-    uploadedUrls.value = []
+    previewUrl.value = null
+    uploadedUrl.value = null
 }
 </script>
 
@@ -121,12 +118,11 @@ const close = () => {
                 <input
                     type="file"
                     accept="image/*"
-                    multiple
                     class="mb-4 w-full border p-2 rounded"
                     @change="handleFileChange"
                 >
                 <NuxtImg
-                    v-for="previewUrl in previewUrls"
+                    v-if="previewUrl"
                     :key="previewUrl"
                     :src="previewUrl"
                     class="mb-4"

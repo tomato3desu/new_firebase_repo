@@ -57,7 +57,7 @@ const renderMarker = async (pin) => {
         borderColor: "#ff84ff",
         scale: 1.5,
         glyphColor: "#ff84ff",
-        glyph: String(pin.id),
+        glyphText: String(pin.id),
         
     })
 
