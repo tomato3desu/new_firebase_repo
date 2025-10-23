@@ -1,4 +1,8 @@
 <script setup>
+import { useReviewStore } from '~/composables/stores/review'
+
+const reviewStore = useReviewStore()
+
 const isOpen = defineModel()
 const props = defineProps({
     pin: {
@@ -63,4 +67,5 @@ const close = () => {
             </button>
         </div>
     </div>
+    <MapCreateReviewDialog v-model="isOpenCreateReviewDialog" :pinId="props.pin?.id"/>
 </template>

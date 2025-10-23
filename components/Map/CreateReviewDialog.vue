@@ -1,8 +1,120 @@
 <script setup>
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { useAuthStore } from '~/composables/stores/auth'
+import { useReviewStore } from '~/composables/stores/review'
+
+const authStore = useAuthStore()
+const reviewStore = useReviewStore()
+const { $storage } = useNuxtApp()
+
 const isOpen = defineModel()
 const props = defineProps({
-    type: Number,
-    default: null
+    pinId: {
+        type: Number,
+        default: null
+    }
+})
+
+const darknessLevel = ref(3)
+const accessLevel = ref(3)
+const files = ref([])
+const previewUrls = ref([])
+const uploadedUrls = ref([])
+const error = ref('')
+const title = ref(null)
+const description = ref(null)
+const errorTitle = ref(null)
+const errorDesc = ref(null)
+const isValidTitle = ref(false)
+const isValidDesc = ref(false)
+const isActiveReviewBtn = computed(() => isValidTitle.value && isValidDesc.value)
+
+const handleFileChange = (event) => {
+    const selectedFiles = event.target.files
+    if (!selectedFiles || selectedFiles.length === 0) return
+
+    files.value = Array.from(selectedFiles) // fileList => arrayに変換して格納
+
+    previewUrls.value = files.value.map(file => URL.createObjectURL(file))
+}
+
+const createNewReview = async () => {
+    if (!title.value || !description.value) return
+
+    await addToStorage()
+
+    console.log(props.pinId)
+    console.log(uploadedUrls.value)
+
+    const addReviewInfo = {
+        reviewedPinId: props.pinId,
+        title: title.value,
+        description: description.value,
+        darknessLevel: darknessLevel.value,
+        accessLevel: accessLevel.value,
+        reviewImagePaths: uploadedUrls.value
+    }
+
+    const token = await authStore.getIdToken()
+    const addedReview = await reviewStore.addReview(addReviewInfo, token)
+    console.log(addedReview)
+    close()
+}
+
+const addToStorage = async () => {
+    if (!files.value || files.value.length === 0) return
+
+    try {
+        for (const file of files.value) {
+            const uuid = crypto.randomUUID()
+            const fileRef = storageRef($storage, `reviewImage/${uuid}.jpg`)
+
+            await uploadBytes(fileRef, file)
+            const url = await getDownloadURL(fileRef)
+            uploadedUrls.value.push(url)
+        }
+    }
+    catch (err) {
+        error.value = err.message
+    }
+}
+
+const close = () => {
+    isOpen.value = false
+    darknessLevel.value = 3
+    accessLevel.value = 3
+    files.value = []
+    previewUrls.value = []
+    uploadedUrls.value = []
+    error.value = ''
+    title.value = null
+    description.value = null
+    errorTitle.value = null
+    errorDesc.value = null
+    isValidTitle.value = false
+    isValidDesc.value = false
+}
+
+watch(title, (value) => {
+    if (!value) {
+        errorTitle.value = 'タイトルは必須です'
+        isValidTitle.value = false
+    }
+    else {
+        errorTitle.value = null
+        isValidTitle.value = true
+    }
+})
+
+watch(description, (value) => {
+    if (!value) {
+        errorDesc.value = '詳細を入力してください'
+        isValidDesc.value = false
+    }
+    else {
+        errorDesc.value = null
+        isValidDesc.value = true
+    }
 })
 </script>
 
@@ -17,8 +129,54 @@ const props = defineProps({
                     レビュー作成
                 </h2>
 
-                <div class="mb-4">
-                    
+                <div class="mb-4 flex items-center justify-center">
+                    <!-- TODO 星でレビューの評価を選択できる -->
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-1">暗さ</label>
+                        <select v-model="darknessLevel">
+                            <option :value="1">
+                                1
+                            </option>
+                            <option :value="2">
+                                2
+                            </option>
+                            <option
+                                :value="3"
+                                selected
+                            >
+                                3
+                            </option>
+                            <option :value="4">
+                                4
+                            </option>
+                            <option :value="5">
+                                5
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-1">アクセス</label>
+                        <select v-model="accessLevel">
+                            <option :value="1">
+                                1
+                            </option>
+                            <option :value="2">
+                                2
+                            </option>
+                            <option
+                                :value="3"
+                                selected
+                            >
+                                3
+                            </option>
+                            <option :value="4">
+                                4
+                            </option>
+                            <option :value="5">
+                                5
+                            </option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="mb-4">
@@ -29,6 +187,7 @@ const props = defineProps({
                         class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                         placeholder="タイトルを入力"
                     >
+                    <p v-if="errorTitle" class="text-red-400">{{ errorTitle }}</p>
                 </div>
 
                 <div class="mb-4">
@@ -39,6 +198,7 @@ const props = defineProps({
                         class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                         placeholder="説明を入力"
                     >
+                    <p v-if="errorDesc" class="text-red-400">{{ errorDesc }}</p>
                 </div>
 
                 <div class="mb-4">
@@ -46,11 +206,12 @@ const props = defineProps({
                     <input
                         type="file"
                         accept="image/*"
+                        multiple
                         class="mb-4 w-full border p-2 rounded"
                         @change="handleFileChange"
                     >
                     <NuxtImg
-                        v-if="previewUrl"
+                        v-for="previewUrl in previewUrls"
                         :key="previewUrl"
                         :src="previewUrl"
                         class="mb-4"
@@ -65,8 +226,9 @@ const props = defineProps({
                         キャンセル
                     </button>
                     <button
-                        class="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition"
-                        @click="addPin"
+                        class="px-4 py-2 rounded disabled:bg-blue-200  bg-blue-500 text-white hover:bg-blue-600 transition"
+                        :disabled="!isActiveReviewBtn"
+                        @click="createNewReview"
                     >
                         追加
                     </button>
