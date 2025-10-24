@@ -1,11 +1,12 @@
 import { defineStore } from "pinia"
 
 export const usePinStore = defineStore('pinStore', () => {
+    const config = useRuntimeConfig()
     const pins = ref([])
 
     const getAllPins = async () => {
         try {
-            const res = await $fetch('http://localhost:8080/api/pin/getAllPins', {
+            const res = await $fetch(`${config.public.apiBase}/api/pin/getAllPins`, {
                 method: 'GET'
             })
             pins.value = res
@@ -18,7 +19,7 @@ export const usePinStore = defineStore('pinStore', () => {
 
     const addPin = async (addPinInfo, token) => {
         try {
-            const res = await $fetch('http://localhost:8080/api/pin/addPin', {
+            const res = await $fetch(`${config.public.apiBase}/api/pin/addPin`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`

@@ -4,6 +4,7 @@ import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'fi
 import { Cropper } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
 
+const config = useRuntimeConfig()
 const authStore = useAuthStore()
 const { $storage } = useNuxtApp()
 
@@ -34,7 +35,7 @@ const handleFileChange = (event) => {
 const sendToBackend = async (profileData) => {
     const token = await authStore.getIdToken()
     try {
-        const res = await $fetch('http://localhost:8080/api/auth/updateProfile', {
+        const res = await $fetch(`${config.public.apiBase}/api/auth/updateProfile`, {
             method: 'PUT',
             headers: {
                 Authorization: `Bearer ${token}`

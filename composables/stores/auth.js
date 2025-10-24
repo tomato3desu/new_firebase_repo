@@ -3,6 +3,7 @@ import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailA
 
 export const useAuthStore = defineStore('auth', () => {
     const { $auth } = useNuxtApp()
+    const config = useRuntimeConfig()
 
     const loginUser = ref(null) // 表示用user情報
     const isLoggedIn = ref(false)
@@ -25,7 +26,7 @@ export const useAuthStore = defineStore('auth', () => {
 
         const token = await user.getIdToken()
 
-        const res = await fetch('http://localhost:8080/api/auth/login', {
+        const res = await fetch(`${config.public.apiBase}/api/auth/login`, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${token}`,

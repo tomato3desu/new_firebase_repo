@@ -1,16 +1,29 @@
 import { defineStore } from 'pinia'
 
 export const useReviewStore = defineStore('reviewStore', () => {
-    const reviewsByPinId = ref({}) // key: pinId, value: {review}
+    const config = useRuntimeConfig()
+
+    const reviewsByPinId = ref({}) // key: pinId, value: [reviews]
 
     const getReviewsByPin = async (pinId, force = false) => {
-        if (!force && reviewsByPinId.value[pinId]) return // 明示的にforce = trueを指定しない場合、初回以外はfetchしない
-        const res = await $fetch(`http://localhost:8080/api/review/pin/${pinId}`)
-        reviewsByPinId.value[pinId] = res
+        if (!force && reviewsByPinId.value[pinId]) { // 明示的にforce = trueを指定しない場合、初回以外はfetchしない
+            return reviewsByPinId.value[pinId]
+        } 
+
+        try {
+            const res = await $fetch(`${config.public.apiBase}/api/review/pin/${pinId}`)
+            reviewsByPinId.value[pinId] = Array.isArray(res) ? res : []
+        }
+        catch (e) {
+            console.error('レビュー取得エラー', e)
+            reviewsByPinId.value[pinId] = []
+        }
+
+        return reviewsByPinId.value[pinId]
     }
 
     const addReview = async (reviewInfo, token) => {
-        const res = await $fetch('http://localhost:8080/api/review/add', {
+        const res = await $fetch(`${config.public.apiBase}/api/review/add`, {
             method: 'POST',
             headers: { Authorization: `Bearer ${token}` },
             body: reviewInfo

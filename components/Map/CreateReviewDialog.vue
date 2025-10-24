@@ -187,7 +187,12 @@ watch(description, (value) => {
                         class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                         placeholder="タイトルを入力"
                     >
-                    <p v-if="errorTitle" class="text-red-400">{{ errorTitle }}</p>
+                    <p
+                        v-if="errorTitle"
+                        class="text-red-400"
+                    >
+                        {{ errorTitle }}
+                    </p>
                 </div>
 
                 <div class="mb-4">
@@ -198,7 +203,12 @@ watch(description, (value) => {
                         class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                         placeholder="説明を入力"
                     >
-                    <p v-if="errorDesc" class="text-red-400">{{ errorDesc }}</p>
+                    <p
+                        v-if="errorDesc"
+                        class="text-red-400"
+                    >
+                        {{ errorDesc }}
+                    </p>
                 </div>
 
                 <div class="mb-4">
