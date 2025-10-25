@@ -4,6 +4,10 @@ export const usePinStore = defineStore('pinStore', () => {
     const config = useRuntimeConfig()
     const pins = ref([])
 
+    const deletePinByThisPins = (deletePinInfo) => {
+        pins.value = pins.value.filter(pin => pin.id !== deletePinInfo.id)
+    }
+
     const getAllPins = async () => {
         try {
             const res = await $fetch(`${config.public.apiBase}/api/pin/getAllPins`, {
@@ -37,5 +41,22 @@ export const usePinStore = defineStore('pinStore', () => {
         }
     }
 
-    return { pins, getAllPins, addPin }
+    const deletePin = async (pinId, token) => {
+        try {
+            const res = await $fetch(`${config.public.apiBase}/api/pin/deletePin/${pinId}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            deletePinByThisPins(res)
+        }
+        catch (error) {
+            const msg = error?.data?.message || '不明なエラー'
+            alert(msg)
+        }
+    }
+
+    return { pins, getAllPins, addPin, deletePin }
 })

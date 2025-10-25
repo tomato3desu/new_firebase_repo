@@ -8,6 +8,8 @@ const config = useRuntimeConfig()
 const authStore = useAuthStore()
 const { $storage } = useNuxtApp()
 
+const isReady = ref(false) // ハイドレーションエラー回避用
+
 const currentProfile = computed(() => authStore.loginUser || {
     nickname: '',
     comment: '',
@@ -15,7 +17,9 @@ const currentProfile = computed(() => authStore.loginUser || {
 })
 
 const nickname = ref('')
+const nicknameError = ref('')
 const comment = ref('')
+const commentError = ref('')
 
 const file = ref(null)
 const previewUrl = ref(null)
@@ -23,6 +27,7 @@ const cropper = ref(null)
 const isUploading = ref(null)
 const uploadedUrl = ref(null)
 const error = ref(null)
+const isActiveUpdateBtn = computed(() => !isUploading.value && !nicknameError.value && !commentError.value)
 
 const handleFileChange = (event) => {
     const target = event.target
@@ -51,6 +56,7 @@ const sendToBackend = async (profileData) => {
 }
 
 const updateProfile = async () => {
+    if (nicknameError.value || commentError.value) return
     isUploading.value = true
     error.value = false
 
@@ -125,6 +131,28 @@ const extractPathFromUrl = (url) => {
     const matches = decoded.match(/\/o\/(.+)\?/)
     return matches ? matches[1] : null
 }
+
+onMounted(() => {
+    isReady.value = true
+})
+
+watch(nickname, () => {
+    if (nickname.value.length > 16) {
+        nicknameError.value = '16文字以内で入力してください'
+    }
+    else {
+        nicknameError.value = ''
+    }
+})
+
+watch(comment, () => {
+    if (comment.value.length > 100) {
+        commentError.value = '100文字以内で入力してください'
+    }
+    else {
+        commentError.value = ''
+    }
+})
 </script>
 
 <template>
@@ -133,10 +161,16 @@ const extractPathFromUrl = (url) => {
             プロフィール
         </h2>
         <p
-            v-if="currentProfile.nickname"
+            v-if="isReady"
             class="text-gray-500"
         >
-            ニックネーム：{{ currentProfile.nickname }}
+            ニックネーム：{{ currentProfile?.nickname }}
+        </p>
+        <p
+            v-if="nicknameError"
+            class="text-red-600"
+        >
+            {{ nicknameError }}
         </p>
         <input
             v-model="nickname"
@@ -145,22 +179,31 @@ const extractPathFromUrl = (url) => {
             class="mb-4 w-full border p-2 rounded"
         >
         <p
-            v-if="currentProfile.comment"
+            v-if="isReady"
             class="text-gray-500"
         >
-            コメント：{{ currentProfile.comment }}
+            コメント：{{ currentProfile?.comment }}
+        </p>
+        <p
+            v-if="commentError"
+            class="text-red-600"
+        >
+            {{ commentError }}
         </p>
         <textarea
             v-model="comment"
             placeholder="コメント編集"
             class="mb-4 w-full border p-2 rounded"
         />
-        <NuxtImg
-            v-if="currentProfile?.iconImagePath"
-            :src="currentProfile.iconImagePath"
-            alt="プロフィール画像"
-            class="w-32 h-32 object-cover rounded-none mb-4"
-        />
+        
+        <client-only>
+            <NuxtImg
+                v-if="isReady"
+                :src="currentProfile?.iconImagePath || '/images/default_user.jpeg'"
+                alt="プロフィール画像"
+                class="w-32 h-32 object-cover rounded-none mb-4"
+            />
+        </client-only>
         <input
             type="file"
             accept="image/*"
@@ -186,11 +229,11 @@ const extractPathFromUrl = (url) => {
             />
         </div>
         <button
-            :disabled="isUploading"
+            :disabled="!isActiveUpdateBtn"
             class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded disabled:opacity-50"
             @click="updateProfile"
         >
-            {{ isUploading ? "アップロード中..." : "アップロード" }}
+            {{ isUploading ? "更新中..." : "更新" }}
         </button>
         <p
             v-if="error"
@@ -203,7 +246,7 @@ const extractPathFromUrl = (url) => {
             class="mt-6"
         >
             <p class="font-semibold">
-                アップロード完了！
+                更新完了！
             </p>
             <a
                 :href="uploadedUrl"

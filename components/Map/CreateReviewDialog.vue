@@ -27,7 +27,7 @@ const errorTitle = ref(null)
 const errorDesc = ref(null)
 const isValidTitle = ref(false)
 const isValidDesc = ref(false)
-const isActiveReviewBtn = computed(() => isValidTitle.value && isValidDesc.value)
+const isActiveReviewBtn = computed(() => isValidTitle.value && isValidDesc.value && authStore.isLoggedIn)
 
 const handleFileChange = (event) => {
     const selectedFiles = event.target.files
@@ -197,12 +197,12 @@ watch(description, (value) => {
 
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-medium mb-1">詳細</label>
-                    <input
+                    <textarea
                         v-model="description"
                         type="text"
                         class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                         placeholder="説明を入力"
-                    >
+                    />
                     <p
                         v-if="errorDesc"
                         class="text-red-400"

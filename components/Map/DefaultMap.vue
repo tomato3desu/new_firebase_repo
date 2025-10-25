@@ -38,6 +38,8 @@ onMounted(async () => {
     for (const pin of pinStore.pins) {
         renderMarker(pin)
     }
+
+    console.log(markers.value)
 })
 
 // マップクリック時に実行する関数
@@ -67,6 +69,8 @@ const renderMarker = async (pin) => {
         content: pinElement.element,
     })
 
+    marker.pinId = pin.id // pinIdを保持（削除時に利用）
+
     marker.addListener('click', () => {
         openDrawer(pin)
     })
@@ -74,10 +78,26 @@ const renderMarker = async (pin) => {
     markers.value.push(marker)
 }
 
-// 
+// ドロワー表示
 const openDrawer = (pin) => {
     selectedPin.value = pin
     isOpenPinInfoDrawer.value = true
+}
+
+// ピン削除時に行う処理
+const onPinDeleted = (deletedPinId) => {
+    // drawerを閉じる
+    isOpenPinInfoDrawer.value = false
+    selectedPin.value = null
+
+    // marker削除
+    const markerIndex = markers.value.findIndex( // pinIdを使ってマーカーを探す
+        (m) => m.pinId === deletedPinId
+    )
+    if (markerIndex !== -1) {
+        markers.value[markerIndex].map = null // 地図から削除
+        markers.value.splice(markerIndex, 1)
+    }
 }
 
 // ログイン/非ログインで切り替え
@@ -114,5 +134,6 @@ watch(
     <MapPinInfoDrawer
         v-model="isOpenPinInfoDrawer"
         :pin="selectedPin"
+        @pin-deleted="onPinDeleted"
     />
 </template>

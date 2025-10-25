@@ -41,7 +41,7 @@ const logout = () => {
                 v-else
                 to="/profile"
             ><NuxtImg
-                :src="user.iconImagePath"
+                :src="user?.iconImagePath || 'images/default_user.jpeg'"
                 alt="icon"
                 class="w-12 h-12 object-cover rounded-none"
             /></NuxtLink>
