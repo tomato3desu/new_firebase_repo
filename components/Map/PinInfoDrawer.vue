@@ -2,10 +2,12 @@
 import { useReviewStore } from '~/composables/stores/review'
 import { useAuthStore } from '~/composables/stores/auth'
 import { usePinStore } from '~/composables/stores/pin'
+import { ref as storageRef, deleteObject } from 'firebase/storage'
 
 const authStore = useAuthStore()
 const pinStore = usePinStore()
 const reviewStore = useReviewStore()
+const { $storage } = useNuxtApp()
 
 const isOpen = defineModel()
 const props = defineProps({
@@ -29,14 +31,55 @@ const updatePin = () => {
     isOpenUpdatePinDialog.value = true
 }
 
+// TODO 後で動作確認
 const deletePin = async () => {
     const isConfirm = window.confirm("本当に削除しますか？")
     if (isConfirm) {
         const token = await authStore.getIdToken()
-        await pinStore.deletePin(pinId.value, token)
+        const deletedPin = await pinStore.deletePin(pinId.value, token)
+
+        // TODO firebase storageから画像削除
+        // TODO thubnailImage 削除
+        console.log(deletedPin)
+        if (deletedPin.thumbnailImagePath) {
+            try {
+                const path = extractPathFromUrl(deletedPin.thumbnailImagePath)
+                const oldRef = storageRef($storage, path)
+                await deleteObject(oldRef)
+                console.log('古い画像の削除に成功しました', oldRef)
+            }
+            catch (error) {
+                console.log('古い画像の削除に失敗しました', error)
+            }
+        }
+        // TODO reviews/imagepath 全削除
+        if (deletedPin.reviews !== null && deletedPin.reviews.length > 0) {
+            for (const review of deletedPin.reviews) {
+                if (review.reviewImages !== null && review.reviewImages.length > 0) {
+                    for (const reviewImage of review.reviewImages) {
+                        try {
+                            const path = extractPathFromUrl(reviewImage.imagePath)
+                            const oldRef = storageRef($storage, path)
+                            await deleteObject(oldRef)
+                            console.log('古い画像の削除に成功しました', oldRef)
+                        }
+                        catch (error) {
+                            console.log('古い画像の削除に失敗しました', error)
+                        }
+                    }
+                }
+            }
+        }
         
         emit('pin-deleted', props.pin.id)
     }
+}
+
+// URLからパスをデコード
+const extractPathFromUrl = (url) => {
+    const decoded = decodeURIComponent(url)
+    const matches = decoded.match(/\/o\/(.+)\?/)
+    return matches ? matches[1] : null
 }
 
 const createReview = () => {
@@ -81,10 +124,10 @@ watch(
 <template>
     <div
         v-if="isOpen"
-        class="fixed left-0 top-16 z-50 flex"
+        class="fixed left-0 top-16 z-50 flex "
     >
         <!-- Drawer本体 -->
-        <div class="w-80 bg-white shadow-lg relative h-[calc(100vh-4rem)] overflow-y-auto">
+        <div class="w-80 sm:w-[calc(max-28px)] bg-white shadow-lg relative h-[calc(100vh-4rem)] overflow-y-auto">
             <!-- コンテンツ -->
             <div
                 class="bg-cover bg-center rounded-none h-32 flex flex-col justify-center"
@@ -120,6 +163,7 @@ watch(
             <div v-if="isEditParmitted">
                 <button
                     class="text-lg text-yellow-300"
+                    :pin="props.pin"
                     @click="updatePin"
                 >
                     編集

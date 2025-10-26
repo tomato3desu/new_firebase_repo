@@ -25,9 +25,7 @@ const title = ref(null)
 const description = ref(null)
 const errorTitle = ref(null)
 const errorDesc = ref(null)
-const isValidTitle = ref(false)
-const isValidDesc = ref(false)
-const isActiveReviewBtn = computed(() => isValidTitle.value && isValidDesc.value && authStore.isLoggedIn)
+const isActiveReviewBtn = computed(() => !errorTitle.value && !errorDesc.value && authStore.isLoggedIn)
 
 const handleFileChange = (event) => {
     const selectedFiles = event.target.files
@@ -91,29 +89,29 @@ const close = () => {
     description.value = null
     errorTitle.value = null
     errorDesc.value = null
-    isValidTitle.value = false
-    isValidDesc.value = false
 }
 
 watch(title, (value) => {
     if (!value) {
         errorTitle.value = 'タイトルは必須です'
-        isValidTitle.value = false
+    }
+    else if (value.length >= 40) {
+        errorTitle.value = '1~40文字で入力してください'
     }
     else {
         errorTitle.value = null
-        isValidTitle.value = true
     }
 })
 
 watch(description, (value) => {
     if (!value) {
         errorDesc.value = '詳細を入力してください'
-        isValidDesc.value = false
+    }
+    else if (value.length >= 3000) {
+        errorDesc.value = '1~3000文字で入力してください'
     }
     else {
         errorDesc.value = null
-        isValidDesc.value = true
     }
 })
 </script>

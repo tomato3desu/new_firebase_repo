@@ -21,8 +21,11 @@ const props = defineProps({ // mapの:latlng(clickedLatLng)を受け取る
 
 const emit = defineEmits(['pin-added'])
 
-const title = ref(null)
-const description = ref(null)
+const title = ref('')
+const errorTitle = ref('')
+const description = ref('')
+const errorDesc = ref('')
+const isActiveAddBtn = computed(() => !errorTitle.value && !errorDesc.value && authStore.isLoggedIn)
 const file = ref(null)
 const previewUrl = ref(null)
 const uploadedUrl = ref(null)
@@ -30,6 +33,7 @@ const error = ref(null)
 
 const addPin = async () => {
     if (!props.latlng) return
+    if (errorTitle.value || errorDesc.value || !title.value || !description.value) return
 
     await addToStorage()
 
@@ -75,12 +79,39 @@ const addToStorage = async () => {
 }
 
 const close = () => {
-    title.value = null
-    description.value = null
+    title.value = ''
+    errorTitle.value = ''
+    description.value = ''
+    errorDesc.value = ''
     isOpen.value = false
     previewUrl.value = null
     uploadedUrl.value = null
 }
+
+// TODO バリデーションチェック
+watch(title, (value) => {
+    if (!value) {
+        errorTitle.value = 'タイトルは必須です'
+    }
+    else if (value.length > 20) {
+        errorTitle.value = '20文字以内で入力してください'
+    }
+    else {
+        errorTitle.value = null
+    }
+})
+
+watch(description, (value) => {
+    if (!value) {
+        errorDesc.value = '詳細を入力してください'
+    }
+    else if (value.length > 200) {
+        errorDesc.value = '200文字以内で入力してください'
+    }
+    else {
+        errorDesc.value = null
+    }
+})
 </script>
 
 <template>
@@ -95,21 +126,29 @@ const close = () => {
 
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-medium mb-1">タイトル</label>
+                <p class="text-red-600">
+                    {{ errorTitle }}
+                </p>
                 <input
                     v-model="title"
                     type="text"
                     class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                     placeholder="タイトルを入力"
+                    required
                 >
             </div>
 
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-medium mb-1">詳細</label>
+                <p class="text-red-600">
+                    {{ errorDesc }}
+                </p>
                 <textarea
                     v-model="description"
                     type="text"
                     class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                     placeholder="説明を入力"
+                    required
                 />
             </div>
 
@@ -137,7 +176,8 @@ const close = () => {
                     キャンセル
                 </button>
                 <button
-                    class="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition"
+                    class="px-4 py-2 rounded disabled:bg-blue-200 bg-blue-500 text-white hover:bg-blue-600 transition"
+                    :disabled="!isActiveAddBtn"
                     @click="addPin"
                 >
                     追加

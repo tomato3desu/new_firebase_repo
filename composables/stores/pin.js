@@ -51,6 +51,7 @@ export const usePinStore = defineStore('pinStore', () => {
             })
 
             deletePinByThisPins(res)
+            return res
         }
         catch (error) {
             const msg = error?.data?.message || '不明なエラー'
