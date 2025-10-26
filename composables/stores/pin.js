@@ -8,6 +8,13 @@ export const usePinStore = defineStore('pinStore', () => {
         pins.value = pins.value.filter(pin => pin.id !== deletePinInfo.id)
     }
 
+    const updatePinByThisPins = (updatePinInfo) => {
+        const index = pins.value.findIndex(pin => pin.id === updatePinInfo.id)
+        if (index !== -1) {
+            pins.value[index] = updatePinInfo
+        }
+    }
+
     const getAllPins = async () => {
         try {
             const res = await $fetch(`${config.public.apiBase}/api/pin/getAllPins`, {
@@ -41,6 +48,25 @@ export const usePinStore = defineStore('pinStore', () => {
         }
     }
 
+    const updatePin = async (updatePinInfo, token) => {
+        try {
+            const res = await $fetch(`${config.public.apiBase}/api/pin/updatePin`, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                body: updatePinInfo
+            })
+
+            updatePinByThisPins(res)
+            return res
+        }
+        catch (error) {
+            const msg = error?.data?.message || '不明なエラー'
+            alert(msg)
+        }
+    }
+
     const deletePin = async (pinId, token) => {
         try {
             const res = await $fetch(`${config.public.apiBase}/api/pin/deletePin/${pinId}`, {
@@ -59,5 +85,5 @@ export const usePinStore = defineStore('pinStore', () => {
         }
     }
 
-    return { pins, getAllPins, addPin, deletePin }
+    return { pins, getAllPins, addPin, deletePin, updatePin }
 })

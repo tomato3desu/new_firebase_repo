@@ -78,9 +78,10 @@ const renderMarker = async (pin) => {
     markers.value.push(marker)
 }
 
-// ドロワー表示
 const openDrawer = (pin) => {
-    selectedPin.value = pin
+    // store 内の同じ参照を取得
+    const storePin = pinStore.pins.find(p => p.id === pin.id)
+    selectedPin.value = storePin // ← store の参照を渡す！
     isOpenPinInfoDrawer.value = true
 }
 

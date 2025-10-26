@@ -88,7 +88,7 @@ const close = () => {
     uploadedUrl.value = null
 }
 
-// TODO バリデーションチェック
+// バリデーションチェック
 watch(title, (value) => {
     if (!value) {
         errorTitle.value = 'タイトルは必須です'

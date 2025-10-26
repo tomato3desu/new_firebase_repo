@@ -31,15 +31,14 @@ const updatePin = () => {
     isOpenUpdatePinDialog.value = true
 }
 
-// TODO 後で動作確認
 const deletePin = async () => {
     const isConfirm = window.confirm("本当に削除しますか？")
     if (isConfirm) {
         const token = await authStore.getIdToken()
         const deletedPin = await pinStore.deletePin(pinId.value, token)
 
-        // TODO firebase storageから画像削除
-        // TODO thubnailImage 削除
+        // firebase storageから画像削除
+        // thubnailImage 削除
         console.log(deletedPin)
         if (deletedPin.thumbnailImagePath) {
             try {
@@ -52,7 +51,7 @@ const deletePin = async () => {
                 console.log('古い画像の削除に失敗しました', error)
             }
         }
-        // TODO reviews/imagepath 全削除
+        // reviews/imagepath 全削除
         if (deletedPin.reviews !== null && deletedPin.reviews.length > 0) {
             for (const review of deletedPin.reviews) {
                 if (review.reviewImages !== null && review.reviewImages.length > 0) {
@@ -88,6 +87,10 @@ const createReview = () => {
         return
     }
     isOpenCreateReviewDialog.value = true
+}
+
+const onPinUpdated = (updatedPin) => {
+    Object.assign(props.pin, updatedPin)
 }
 
 const close = () => {
@@ -201,5 +204,10 @@ watch(
     <MapCreateReviewDialog
         v-model="isOpenCreateReviewDialog"
         :pin-id="props.pin?.id"
+    />
+    <MapUpdatePinDialog
+        v-model="isOpenUpdatePinDialog"
+        :pin="props.pin"
+        @pin-updated="onPinUpdated"
     />
 </template>
