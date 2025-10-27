@@ -5,6 +5,9 @@ export const useReviewStore = defineStore('reviewStore', () => {
 
     const reviewsByPinId = ref({}) // key: pinId, value: [reviews]
 
+    // pinが削除されたときpinが保持するreviewをすべて削除するためのメソッド
+    const deleteReviewsByPinId = (pinId) => delete reviewsByPinId.value[pinId]
+
     const getReviewsByPin = async (pinId, force = false) => {
         if (!force && reviewsByPinId.value[pinId]) { // 明示的にforce = trueを指定しない場合、初回以外はfetchしない
             return reviewsByPinId.value[pinId]
@@ -38,7 +41,8 @@ export const useReviewStore = defineStore('reviewStore', () => {
 
     return {
         reviewsByPinId,
+        deleteReviewsByPinId,
         getReviewsByPin,
-        addReview
+        addReview,
     }
 })

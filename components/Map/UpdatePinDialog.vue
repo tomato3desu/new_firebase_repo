@@ -1,10 +1,12 @@
 <script setup>
 import { usePinStore } from '~/composables/stores/pin'
 import { useAuthStore } from '~/composables/stores/auth'
+import { useReviewStore } from '~/composables/stores/review'
 import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 
 const pinStore = usePinStore()
 const authStore = useAuthStore()
+const reviewStore = useReviewStore()
 const { $storage } = useNuxtApp()
 
 const isOpen = defineModel()
@@ -15,7 +17,7 @@ const props = defineProps({
         default: null
     }
 })
-const emit = defineEmits(['pin-updated'])
+const emit = defineEmits(['pin-updated', 'pin-deleted'])
 
 const title = ref('')
 const errorTitle = ref('')
@@ -44,12 +46,34 @@ const updatePin = async () => {
         const updatedPin = await pinStore.updatePin(updatePinInfo, token)
         console.log('更新完了', updatedPin)
         // TODO 元の画像を削除
-        if (uploadedUrl.value) await deleteImage()
+        if (uploadedUrl.value && props.pin?.thumbnailImagePath) await deleteThumbnailImage(props.pin.thumbnailImagePath)
         emit('pin-updated', updatedPin)
         close()
     }
     catch (error) {
         console.error('更新失敗', error)
+    }
+}
+
+// TODO 削除をPinInfoDrawerからこのコンポーネントへ移行
+const deletePin = async () => {
+    const isConfirm = window.confirm("本当に削除しますか？")
+    if (isConfirm) {
+        const token = await authStore.getIdToken()
+        const deletedPin = await pinStore.deletePin(props.pin.id, token)
+        reviewStore.deleteReviewsByPinId(props.pin.id) //reviewStoreからreview削除
+
+        console.log(deletedPin)
+        // firebase storageから画像削除
+        // thubnailImage 削除
+        if (deletedPin?.thumbnailImagePath) {
+            await deleteThumbnailImage(deletedPin.thumbnailImagePath)
+        }
+        // reviews/imagepath 全削除
+        await deleteReviewImages(deletedPin)
+        
+        emit('pin-deleted', props.pin.id)
+        close()
     }
 }
 
@@ -79,15 +103,36 @@ const addToStorage = async () => {
     }
 }
 
-const deleteImage = async () => {
+const deleteThumbnailImage = async (thumbnailImagePath) => {
     try {
-        const path = extractPathFromUrl(props.pin.thumbnailImagePath)
+        const path = extractPathFromUrl(thumbnailImagePath)
         const oldRef = storageRef($storage, path)
         await deleteObject(oldRef)
         console.log('古い画像の削除に成功しました', oldRef)
     }
     catch (error) {
         console.log('古い画像の削除に失敗しました', error)
+    }
+}
+
+// reivewImagesをfirebase storageから削除
+const deleteReviewImages = async (deletedPin) => {
+    if (deletedPin.reviews !== null && deletedPin.reviews.length > 0) {
+        for (const review of deletedPin.reviews) {
+            if (review.reviewImages !== null && review.reviewImages.length > 0) {
+                for (const reviewImage of review.reviewImages) {
+                    try {
+                        const path = extractPathFromUrl(reviewImage.imagePath)
+                        const oldRef = storageRef($storage, path)
+                        await deleteObject(oldRef)
+                        console.log('古い画像の削除に成功しました', oldRef)
+                    }
+                    catch (error) {
+                        console.log('古い画像の削除に失敗しました', error)
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -210,6 +255,12 @@ watch(description, (value) => {
                     @click="updatePin"
                 >
                     更新
+                </button>
+                <button
+                    class="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 transition"
+                    @click="deletePin"
+                >
+                    削除
                 </button>
             </div>
         </div>

@@ -1,4 +1,8 @@
 <script setup>
+import { useAuthStore } from '~/composables/stores/auth'
+
+const authStore = useAuthStore()
+
 const props = defineProps({
     review: {
         type: Object,
@@ -6,6 +10,8 @@ const props = defineProps({
         default: null
     }
 })
+
+const isEditParmitted = computed(() => authStore.loginUser === props?.review.createdUser)
 
 // もっと見る制御
 const showFull = ref(false)
@@ -32,6 +38,7 @@ const truncatedText = computed(() => {
             <p class="text-gray-700 font-medium text-sm truncate">
                 {{ props.review.createdUser.nickname }}
             </p>
+            <button v-if="isEditParmitted"></button>
         </div>
         <!-- タイトル -->
         <p class="text-base font-semibold text-gray-900 break-words whitespace-pre-wrap">
