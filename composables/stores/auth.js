@@ -45,7 +45,14 @@ export const useAuthStore = defineStore('auth', () => {
             id: data.id,
             nickname: data.nickname,
             iconImagePath: data.iconImagePath,
-            comment: data.comment
+            comment: data.comment,
+            prefecture: {
+                id: data.prefecture.id,
+                name: data.prefecture.name,
+                latitude: data.prefecture.latitude,
+                longitude: data.prefecture.longitude
+            },
+            role: data.role
         }
         isLoggedIn.value = true
     }

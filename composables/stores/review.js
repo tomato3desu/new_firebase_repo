@@ -45,4 +45,6 @@ export const useReviewStore = defineStore('reviewStore', () => {
         getReviewsByPin,
         addReview,
     }
+}, {
+    persist: true
 })

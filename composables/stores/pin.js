@@ -86,4 +86,6 @@ export const usePinStore = defineStore('pinStore', () => {
     }
 
     return { pins, getAllPins, addPin, deletePin, updatePin }
+}, {
+    persist: true
 })

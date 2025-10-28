@@ -23,7 +23,7 @@ onMounted(async () => {
 
     // mapを作成
     map = new Map(mapElement.value, {
-        center: { lat: 34.700428654912486, lng: 135.4928556060951 },
+        center: { lat: authStore?.loginUser?.prefecture?.latitude || 34.700428654912486, lng: authStore?.loginUser?.prefecture?.longitude || 135.4928556060951 },
         zoom: 12,
         mapId: config.public.googleMapId
     })

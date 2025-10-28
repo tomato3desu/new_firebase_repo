@@ -61,7 +61,7 @@ const deletePin = async () => {
     if (isConfirm) {
         const token = await authStore.getIdToken()
         const deletedPin = await pinStore.deletePin(props.pin.id, token)
-        reviewStore.deleteReviewsByPinId(props.pin.id) //reviewStoreからreview削除
+        reviewStore.deleteReviewsByPinId(props.pin.id) // reviewStoreからreview削除
 
         console.log(deletedPin)
         // firebase storageから画像削除
@@ -138,9 +138,16 @@ const deleteReviewImages = async (deletedPin) => {
 
 // URLからパスをデコード
 const extractPathFromUrl = (url) => {
-    const decoded = decodeURIComponent(url)
-    const matches = decoded.match(/\/o\/(.+)\?/)
-    return matches ? matches[1] : null
+    try {
+        const decoded = decodeURIComponent(url)
+        const start = decoded.indexOf('/o/') + 3
+        const end = decoded.indexOf('?')
+        return decoded.substring(start, end)
+    }
+    catch (e) {
+        console.warn('URL解析失敗:', e)
+        return null
+    }
 }
 
 const close = () => {

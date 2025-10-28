@@ -1,25 +1,34 @@
 <script setup>
 import { useAuthStore } from '~/composables/stores/auth'
+import { usePrefStore } from '~/composables/stores/prefecture'
 import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { Cropper } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
 
 const config = useRuntimeConfig()
 const authStore = useAuthStore()
+const prefStore = usePrefStore()
 const { $storage } = useNuxtApp()
 
-const isReady = ref(false) // ハイドレーションエラー回避用
-
-const currentProfile = computed(() => authStore.loginUser || {
+const currentProfile = ref({
     nickname: '',
     comment: '',
+    prefecture: {
+        id: 13,
+        name: '',
+        latitude: '',
+        longitude: ''
+    },
     iconImagePath: ''
 })
+
+const prefs = prefStore.prefs
 
 const nickname = ref('')
 const nicknameError = ref('')
 const comment = ref('')
 const commentError = ref('')
+const prefId = ref(currentProfile.value.prefecture.id)
 
 const file = ref(null)
 const previewUrl = ref(null)
@@ -86,7 +95,8 @@ const updateProfile = async () => {
                 await sendToBackend({
                     nickname: nickname.value,
                     comment: comment.value,
-                    iconImagePath: uploadedUrl.value
+                    iconImagePath: uploadedUrl.value,
+                    prefId: prefId.value
                 })
 
                 nickname.value = ''
@@ -111,7 +121,8 @@ const updateProfile = async () => {
             await sendToBackend({
                 nickname: nickname.value,
                 comment: comment.value,
-                iconImagePath: uploadedUrl.value
+                iconImagePath: uploadedUrl.value,
+                prefId: prefId.value
             })
 
             nickname.value = ''
@@ -127,13 +138,20 @@ const updateProfile = async () => {
 }
 
 const extractPathFromUrl = (url) => {
-    const decoded = decodeURIComponent(url)
-    const matches = decoded.match(/\/o\/(.+)\?/)
-    return matches ? matches[1] : null
+    try {
+        const decoded = decodeURIComponent(url)
+        const start = decoded.indexOf('/o/') + 3
+        const end = decoded.indexOf('?')
+        return decoded.substring(start, end)
+    }
+    catch (e) {
+        console.warn('URL解析失敗:', e)
+        return null
+    }
 }
 
 onMounted(() => {
-    isReady.value = true
+    prefStore.setAllPrefs()
 })
 
 watch(nickname, () => {
@@ -153,6 +171,33 @@ watch(comment, () => {
         commentError.value = ''
     }
 })
+
+watch(() => authStore.loginUser,
+    (newVal) => {
+        if (newVal) {
+            currentProfile.value = authStore.loginUser
+            if (newVal.prefecture?.id) {
+                prefId.value = newVal.prefecture.id
+            }
+        }
+        else {
+            currentProfile.value = {
+                nickname: '',
+                comment: '',
+                prefecture: {
+                    id: 13,
+                    name: '',
+                    latitude: '',
+                    longitude: ''
+                },
+                iconImagePath: ''
+            }
+
+            prefId.value = 13
+        }
+    },
+    { immediate: true }
+)
 </script>
 
 <template>
@@ -160,12 +205,13 @@ watch(comment, () => {
         <h2 class="text-2xl font-bold mb-4 text-center">
             プロフィール
         </h2>
-        <p
-            v-if="isReady"
-            class="text-gray-500"
-        >
-            ニックネーム：{{ currentProfile?.nickname }}
-        </p>
+        <client-only>
+            <p
+                class="text-gray-500"
+            >
+                ニックネーム：{{ currentProfile.nickname }}
+            </p>
+        </client-only>
         <p
             v-if="nicknameError"
             class="text-red-600"
@@ -178,12 +224,13 @@ watch(comment, () => {
             placeholder="ニックネーム編集"
             class="mb-4 w-full border p-2 rounded"
         >
-        <p
-            v-if="isReady"
-            class="text-gray-500"
-        >
-            コメント：{{ currentProfile?.comment }}
-        </p>
+        <client-only>
+            <p
+                class="text-gray-500"
+            >
+                コメント：{{ currentProfile.comment }}
+            </p>
+        </client-only>
         <p
             v-if="commentError"
             class="text-red-600"
@@ -195,11 +242,33 @@ watch(comment, () => {
             placeholder="コメント編集"
             class="mb-4 w-full border p-2 rounded"
         />
+        <client-only>
+            <p
+                class="text-gray-500"
+            >
+                {{ currentProfile.prefecture.name }}
+            </p>
+        </client-only>
+        <client-only>
+            <div v-if="prefs && prefs.length > 0">
+                <select
+                    v-model="prefId"
+                    name="pref"
+                >
+                    <option
+                        v-for="pref in prefs"
+                        :key="pref.id"
+                        :value="pref.id"
+                    >
+                        {{ pref.name }}
+                    </option>
+                </select>
+            </div>
+        </client-only>
         
         <client-only>
             <NuxtImg
-                v-if="isReady"
-                :src="currentProfile?.iconImagePath || '/images/default_user.jpeg'"
+                :src="currentProfile.iconImagePath || '/images/default_user.jpeg'"
                 alt="プロフィール画像"
                 class="w-32 h-32 object-cover rounded-none mb-4"
             />

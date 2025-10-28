@@ -11,7 +11,7 @@ const props = defineProps({
     }
 })
 
-const isEditParmitted = computed(() => authStore.loginUser === props?.review.createdUser)
+const isOpenUpdateReviewDialog = ref(false)
 
 // もっと見る制御
 const showFull = ref(false)
@@ -24,12 +24,18 @@ const truncatedText = computed(() => {
         ? props.review?.description
         : props.review?.description?.slice(0, MAX_LENGTH) + '...'
 })
+
+const isEditParmitted = computed(() => authStore.loginUser.id === props?.review.createdUser.id)
+
+const updateReview = () => {
+    isOpenUpdateReviewDialog.value = true
+}
 </script>
 
 <template>
     <div class="rounded-sm border-b border-gray-300 flex flex-col">
         <!-- ユーザー情報 -->
-        <div class="flex items-center">
+        <div class="flex items-center justify-between">
             <NuxtImg
                 :src="props.review?.createdUser?.iconImagePath || '/images/default_user.jpeg'"
                 alt="icon"
@@ -38,7 +44,14 @@ const truncatedText = computed(() => {
             <p class="text-gray-700 font-medium text-sm truncate">
                 {{ props.review.createdUser.nickname }}
             </p>
-            <button v-if="isEditParmitted"></button>
+            <button
+                v-if="isEditParmitted"
+                :review="props.review" 
+                class="text-yellow-300"
+                @click="updateReview"
+            >
+                編集
+            </button>
         </div>
         <!-- タイトル -->
         <p class="text-base font-semibold text-gray-900 break-words whitespace-pre-wrap">
@@ -102,4 +115,8 @@ const truncatedText = computed(() => {
             />
         </div>
     </div>
+    <MapUpdateReviewDialog
+        v-model="isOpenUpdateReviewDialog"
+        :review="props.review"
+    />
 </template>
