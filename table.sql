@@ -57,7 +57,7 @@ create table if not exists reviews(
     description varchar(255),
     darkness_level int not null,
     access_level int not null,
-    season ENUM('spring', 'summer', 'autumn', 'winter') NOT NULL,
+    season varchar(20) NOT NULL,
     visited_date date not null,
     visited_time time not null,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -67,6 +67,7 @@ create table if not exists reviews(
     CONSTRAINT check_access_level CHECK (access_level between 1 and 5)
 );
 
+alter table season 
 
 CREATE TABLE IF NOT EXISTS review_images (
     id INT AUTO_INCREMENT PRIMARY KEY,

@@ -25,7 +25,7 @@ const truncatedText = computed(() => {
         : props.review?.description?.slice(0, MAX_LENGTH) + '...'
 })
 
-const isEditParmitted = computed(() => authStore.loginUser.id === props?.review.createdUser.id)
+const isEditParmitted = computed(() => authStore.loginUser?.id === props?.review.createdUser.id)
 
 const updateReview = () => {
     isOpenUpdateReviewDialog.value = true

@@ -25,6 +25,9 @@ const title = ref(null)
 const description = ref(null)
 const errorTitle = ref(null)
 const errorDesc = ref(null)
+const season = ref(null)
+const visitedDate = ref(null)
+const visitedTime = ref(null)
 const isActiveReviewBtn = computed(() => !errorTitle.value && !errorDesc.value && authStore.isLoggedIn)
 
 const handleFileChange = (event) => {
@@ -43,6 +46,7 @@ const createNewReview = async () => {
 
     console.log(props.pinId)
     console.log(uploadedUrls.value)
+    console.log(season.value)
 
     const addReviewInfo = {
         reviewedPinId: props.pinId,
@@ -50,7 +54,10 @@ const createNewReview = async () => {
         description: description.value,
         darknessLevel: darknessLevel.value,
         accessLevel: accessLevel.value,
-        reviewImagePaths: uploadedUrls.value
+        reviewImagePaths: uploadedUrls.value,
+        season: season.value,
+        visitedDate: visitedDate.value,
+        visitedTime: visitedTime.value
     }
 
     const token = await authStore.getIdToken()
@@ -78,7 +85,6 @@ const addToStorage = async () => {
 }
 
 const close = () => {
-    isOpen.value = false
     darknessLevel.value = 3
     accessLevel.value = 3
     files.value = []
@@ -89,6 +95,10 @@ const close = () => {
     description.value = null
     errorTitle.value = null
     errorDesc.value = null
+    season.value = null
+    visitedDate.value = null
+    visitedTime.value = null
+    isOpen.value = false
 }
 
 watch(title, (value) => {
@@ -174,6 +184,46 @@ watch(description, (value) => {
                                 5
                             </option>
                         </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-1">季節</label>
+                    <select
+                        v-model="season"
+                        required
+                    >
+                        <option value="spring">
+                            春
+                        </option>
+                        <option value="summer">
+                            夏
+                        </option>
+                        <option value="autumn">
+                            秋
+                        </option>
+                        <option value="winter">
+                            冬
+                        </option>
+                    </select>
+                </div>
+                <div class="flex items-center mb-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-1">訪問日</label>
+                        <input
+                            v-model="visitedDate"
+                            type="date"
+                            required
+                            class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-1">訪問時間</label>
+                        <input
+                            v-model="visitedTime"
+                            type="time"
+                            required
+                            class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                        >
                     </div>
                 </div>
 
