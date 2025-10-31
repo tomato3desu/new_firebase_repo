@@ -12,8 +12,18 @@ const props = defineProps({
     }
 })
 
+const authStore = useAuthStore()
+const pinStore = usePinStore()
+const reviewStore = useReviewStore()
+
 const darknessLevel = ref(props.review.darknessLevel)
 const accessLevel = ref(props.review.accessLevel)
+const season = ref(props.review.season)
+const visitedDate = ref(props.review.visitedDate)
+const visitedTime = ref(props.review.visitedTime)
+const existReviewImages = ref(props.review.reviewImages)
+const deletingReviewImages = ref([])
+const deletingReviewImageIds = ref([])
 const files = ref([])
 const previewUrls = ref([])
 const uploadedUrls = ref([])
@@ -23,6 +33,110 @@ const description = ref(null)
 const errorTitle = ref(null)
 const errorDesc = ref(null)
 const isActiveReviewBtn = computed(() => !errorTitle.value && !errorDesc.value && authStore.isLoggedIn)
+
+const handleFileChange = (event) => {
+    const selectedFiles = event.target.files
+    if (!selectedFiles || selectedFiles.length === 0) return
+
+    files.value = Array.from(selectedFiles) // fileList => arrayに変換して格納
+
+    previewUrls.value = files.value.map(file => URL.createObjectURL(file))
+}
+
+const updateReview = async () => {
+    if (errorTitle.value || errorDesc.value) return
+
+    await addToStorage()
+
+    const reviewInfo = {
+        reviewId: props.review.id,
+        title: title.value,
+        description: description.value,
+        darknessLevel: darknessLevel.value,
+        accessLevel: accessLevel.value,
+        season: season.value,
+        visitedDate: visitedDate.value,
+        visitedTime: visitedTime.value,
+        reviewImagePaths: uploadedUrls.value,
+        deleteReviewImages: deletingReviewImageIds.value
+    }
+}
+
+const addToStorage = async () => {
+    if (!files.value || files.value.length === 0) return
+
+    try {
+        for (const file of files.value) {
+            const uuid = crypto.randomUUID()
+            const fileRef = storageRef($storage, `reviewImage/${uuid}.jpg`)
+
+            await uploadBytes(fileRef, file)
+            const url = await getDownloadURL(fileRef)
+            uploadedUrls.value.push(url)
+        }
+    }
+    catch (err) {
+        console.error("画像の保存に失敗しました", err.message)
+        error.value = err.message
+    }
+}
+
+const deleteFromStorage = async () => {
+    // TODO ストレージから画像を削除
+}
+
+// ×ボタンクリックで画面から画像を削除
+const deleteReviewImage = (selectedReviewImage) => {
+    existReviewImages.value = existReviewImages.value.filter(reviewImage => reviewImage !== selectedReviewImage)
+    deletingReviewImages.value.push(selectedReviewImage)
+    deletingReviewImageIds.value.push(selectedReviewImage.id)
+    console.log(existReviewImages.value)
+    console.log(deletingReviewImages.value)
+}
+
+const close = () => {
+    darknessLevel.value = ''
+    accessLevel.value = ''
+    files.value = []
+    previewUrls.value = []
+    uploadedUrls.value = []
+    error.value = ''
+    title.value = null
+    description.value = null
+    errorTitle.value = null
+    errorDesc.value = null
+    season.value = null
+    visitedDate.value = null
+    visitedTime.value = null
+    existReviewImages.value = []
+    deletingReviewImages.value = []
+    deletingReviewImageIds.value = []
+    isOpen.value = false
+}
+
+watch(title, (value) => {
+    if (!value) {
+        errorTitle.value = 'タイトルは必須です'
+    }
+    else if (value.length >= 40) {
+        errorTitle.value = '1~40文字で入力してください'
+    }
+    else {
+        errorTitle.value = null
+    }
+})
+
+watch(description, (value) => {
+    if (!value) {
+        errorDesc.value = '詳細を入力してください'
+    }
+    else if (value.length >= 3000) {
+        errorDesc.value = '1~3000文字で入力してください'
+    }
+    else {
+        errorDesc.value = null
+    }
+})
 </script>
 
 <template>
@@ -83,6 +197,46 @@ const isActiveReviewBtn = computed(() => !errorTitle.value && !errorDesc.value &
                         </select>
                     </div>
                 </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-1">季節</label>
+                    <select
+                        v-model="season"
+                        required
+                    >
+                        <option value="spring">
+                            春
+                        </option>
+                        <option value="summer">
+                            夏
+                        </option>
+                        <option value="autumn">
+                            秋
+                        </option>
+                        <option value="winter">
+                            冬
+                        </option>
+                    </select>
+                </div>
+                <div class="flex items-center mb-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-1">訪問日</label>
+                        <input
+                            v-model="visitedDate"
+                            type="date"
+                            required
+                            class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-1">訪問時間</label>
+                        <input
+                            v-model="visitedTime"
+                            type="time"
+                            required
+                            class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                        >
+                    </div>
+                </div>
 
                 <div class="mb-4">
                     <p class="text-gray-500">
@@ -120,6 +274,23 @@ const isActiveReviewBtn = computed(() => !errorTitle.value && !errorDesc.value &
                     </p>
                 </div>
 
+                <div 
+                    v-for="existReveiewImage in existReviewImages" 
+                    :key="existReveiewImage.id"
+                    class="mb-4 flex items-center justify-between"
+                >
+                    <NuxtImg
+                        :src="existReveiewImage.imagePath"
+                        class="mb-4"
+                    />
+                    <button 
+                        class="text-4xl text-red-500"
+                        @click="deleteReviewImage(existReveiewImage)"
+                    >
+                        ×
+                    </button>
+                </div>
+
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-medium mb-1">画像</label>
                     <input
@@ -147,7 +318,7 @@ const isActiveReviewBtn = computed(() => !errorTitle.value && !errorDesc.value &
                     <button
                         class="px-4 py-2 rounded disabled:bg-blue-200  bg-blue-500 text-white hover:bg-blue-600 transition"
                         :disabled="!isActiveReviewBtn"
-                        @click="createNewReview"
+                        @click="updateReview"
                     >
                         追加
                     </button>

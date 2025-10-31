@@ -1,9 +1,12 @@
 <script setup>
 import { useAuthStore } from '~/composables/stores/auth'
+import { useUserStore } from '~/composables/stores/user'
 
 const authStore = useAuthStore()
+const userStore = useUserStore()
+
 const isLoggedIn = computed(() => authStore.isLoggedIn)
-const user = computed(() => authStore.loginUser)
+const user = computed(() => userStore.usersById[authStore.loginUserId])
 
 const logout = () => {
     authStore.logout()

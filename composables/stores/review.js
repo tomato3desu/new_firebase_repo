@@ -39,6 +39,18 @@ export const useReviewStore = defineStore('reviewStore', () => {
         return res
     }
 
+    const updateReview = async (reviewInfo, token) => {
+        const res = await $fetch(`${config.public.apiBase}/api/review/update`, {
+            method: 'PUT',
+            headers: { Authorization: `Bearer ${token}` },
+            body: reviewInfo
+        })
+
+        const newReview = res
+
+        // TODO 
+    }
+
     return {
         reviewsByPinId,
         deleteReviewsByPinId,

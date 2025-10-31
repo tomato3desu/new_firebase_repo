@@ -2,12 +2,18 @@
 import { importLibrary } from "@googlemaps/js-api-loader"
 import { usePinStore } from "~/composables/stores/pin"
 import { useAuthStore } from "~/composables/stores/auth"
+import { useUserStore } from "~/composables/stores/user"
+import { usePrefStore } from "~/composables/stores/prefecture"
 
 // ストア
 const authStore = useAuthStore()
 const pinStore = usePinStore()
+const userStore = useUserStore()
+const prefStore = usePrefStore()
 
 const config = useRuntimeConfig()
+
+let user = userStore.usersById[authStore.loginUserId]
 
 const mapElement = ref(null)
 const isOpenPinAddDialog = ref(false)
@@ -21,9 +27,19 @@ let mapClickListener = null
 onMounted(async () => {
     const { Map } = await importLibrary("maps")
 
+    await prefStore.setAllPrefs()
+
+    let lat = 34.700428654912486
+    let lng = 135.4928556060951
+
+    if(authStore.isLoggedIn){
+        lat = prefStore.prefsById[user.prefectureId].latitude
+        lng = prefStore.prefsById[user.prefectureId].longitude
+    }
+
     // mapを作成
     map = new Map(mapElement.value, {
-        center: { lat: authStore?.loginUser?.prefecture?.latitude || 34.700428654912486, lng: authStore?.loginUser?.prefecture?.longitude || 135.4928556060951 },
+        center: { lat: lat, lng: lng },
         zoom: 12,
         mapId: config.public.googleMapId
     })
@@ -110,6 +126,7 @@ watch(
             if (!mapClickListener) {
                 mapClickListener = map.addListener("click", onMapClick)
             }
+            user = userStore.usersById[authStore.loginUserId]
         }
         else {
             // ログアウト時はリスナーを削除
@@ -117,6 +134,7 @@ watch(
                 google.maps.event.removeListener(mapClickListener)
                 mapClickListener = null
             }
+            user = null
         }
     }
 )

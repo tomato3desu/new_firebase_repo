@@ -28,7 +28,13 @@ const errorDesc = ref(null)
 const season = ref(null)
 const visitedDate = ref(null)
 const visitedTime = ref(null)
-const isActiveReviewBtn = computed(() => !errorTitle.value && !errorDesc.value && authStore.isLoggedIn)
+const isActiveReviewBtn = computed(() => 
+    !errorTitle.value 
+    && !errorDesc.value
+    && season.value
+    && visitedDate.value
+    && visitedTime.value 
+    && authStore.isLoggedIn)
 
 const handleFileChange = (event) => {
     const selectedFiles = event.target.files
@@ -40,7 +46,7 @@ const handleFileChange = (event) => {
 }
 
 const createNewReview = async () => {
-    if (!title.value || !description.value) return
+    if (!title.value || !description.value || !season.value || !visitedDate.value || !visitedTime.value) return
 
     await addToStorage()
 

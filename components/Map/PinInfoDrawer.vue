@@ -2,10 +2,12 @@
 import { useReviewStore } from '~/composables/stores/review'
 import { useAuthStore } from '~/composables/stores/auth'
 import { usePinStore } from '~/composables/stores/pin'
+import { useUserStore } from '~/composables/stores/user'
 
 const authStore = useAuthStore()
 const pinStore = usePinStore()
 const reviewStore = useReviewStore()
+const userStore = useUserStore()
 
 const isOpen = defineModel()
 const props = defineProps({
@@ -22,7 +24,7 @@ const reviews = ref([])
 
 const isOpenUpdatePinDialog = ref(false)
 const isOpenCreateReviewDialog = ref(false)
-const isEditParmitted = computed(() => authStore.loginUser?.id === props.pin?.createdUser.id)
+const isEditParmitted = computed(() => authStore.loginUserId === props?.pin?.createdUserId)
 
 const updatePin = () => {
     isOpenUpdatePinDialog.value = true
@@ -57,7 +59,12 @@ watch(
     () => isOpen.value,
     async (newVal) => {
         if (newVal && props.pin?.id) {
-            reviews.value = await reviewStore.getReviewsByPin(props.pin.id)
+            await userStore.fetchUserIfNeeded(props.pin.createdUserId)
+            const fetchedReviews = await reviewStore.getReviewsByPin(props.pin.id)
+            const userIds = fetchedReviews.map(r => r.createdUserId).filter(Boolean)
+            await userStore.fetchUsersIfNeeded(userIds)
+            reviews.value = fetchedReviews
+            console.log("props.pin", userStore.usersById[props.pin.createdUserId])
         }
     }
     
@@ -68,10 +75,15 @@ watch(
     () => props.pin,
     async (newPin) => {
         if (isOpen.value && newPin?.id) {
-            reviews.value = await reviewStore.getReviewsByPin(newPin.id)
+            await userStore.fetchUserIfNeeded(newPin.createdUserId)
+            const fetchedReviews = await reviewStore.getReviewsByPin(newPin.id)
+            const userIds = fetchedReviews.map(r => r.createdUserId).filter(Boolean)
+            await userStore.fetchUsersIfNeeded(userIds)
+            reviews.value = fetchedReviews
+            console.log("newPin", newPin.createdUserId)
         }
     },
-    { immediate: false }
+    { immediate: true }
 )
 </script>
 
@@ -98,13 +110,16 @@ watch(
                     </p>
                 </div>
             </div>
-            <div class="flex items-center">
+            <div
+                v-if="userStore.usersById[props.pin.createdUserId]"
+                class="flex items-center"
+            >
                 <NuxtImg
-                    :src="props.pin?.createdUser?.iconImagePath || '/images/default_user.jpeg'"
+                    :src=" userStore.usersById[props.pin.createdUserId].iconImagePath || '/images/default_user.jpeg'"
                     alt="icon"
                     class="w-8 h-8 object-cover rounded-sm"
                 />
-                <p>{{ props.pin?.createdUser?.nickname }}</p>
+                <p>{{ userStore.usersById[props.pin.createdUserId].nickname }}</p>
             </div>
             <div class="flex items-center justify-center">
                 <button

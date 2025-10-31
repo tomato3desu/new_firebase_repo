@@ -1,34 +1,28 @@
 <script setup>
 import { useAuthStore } from '~/composables/stores/auth'
 import { usePrefStore } from '~/composables/stores/prefecture'
+import { useUserStore } from '~/composables/stores/user'
 import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { Cropper } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
 
-const config = useRuntimeConfig()
 const authStore = useAuthStore()
 const prefStore = usePrefStore()
+const userStore = useUserStore()
 const { $storage } = useNuxtApp()
 
 const currentProfile = ref({
     nickname: '',
     comment: '',
-    prefecture: {
-        id: 13,
-        name: '',
-        latitude: '',
-        longitude: ''
-    },
+    prefectureId: '',
     iconImagePath: ''
 })
-
-const prefs = prefStore.prefs
 
 const nickname = ref('')
 const nicknameError = ref('')
 const comment = ref('')
 const commentError = ref('')
-const prefId = ref(currentProfile.value.prefecture.id)
+const prefId = ref(currentProfile.value.prefectureId)
 
 const file = ref(null)
 const previewUrl = ref(null)
@@ -48,20 +42,8 @@ const handleFileChange = (event) => {
 
 const sendToBackend = async (profileData) => {
     const token = await authStore.getIdToken()
-    try {
-        const res = await $fetch(`${config.public.apiBase}/api/auth/updateProfile`, {
-            method: 'PUT',
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
-            body: profileData
-        })
-
-        authStore.loginUser = res
-    }
-    catch (err) {
-        console.error('エラー', err)
-    }
+    
+    await userStore.updateProfile(profileData, token)
 }
 
 const updateProfile = async () => {
@@ -72,7 +54,7 @@ const updateProfile = async () => {
     try {
         // 画像があればfirebase storageに保存
         if (cropper.value) {
-            const oldImageUrl = authStore.loginUser?.iconImagePath
+            const oldImageUrl = userStore.usersById[authStore.loginUserId].iconImagePath
 
             // Cropperからcanvasを取得
             const { canvas } = cropper.value.getResult()
@@ -92,6 +74,13 @@ const updateProfile = async () => {
                 const url = await getDownloadURL(fileRef)
                 uploadedUrl.value = url
 
+                console.log({
+                    nickname: nickname.value,
+                    comment: comment.value,
+                    iconImagePath: uploadedUrl.value,
+                    prefId: prefId.value
+                })
+
                 await sendToBackend({
                     nickname: nickname.value,
                     comment: comment.value,
@@ -99,12 +88,15 @@ const updateProfile = async () => {
                     prefId: prefId.value
                 })
 
+                currentProfile.value = userStore.usersById[authStore.loginUserId]
+
                 nickname.value = ''
                 comment.value = ''
                 previewUrl.value = null
             }, 'image/jpg')
 
-            if (currentProfile.value.iconImagePath !== '') {
+            // 古い画像があれば削除
+            if (currentProfile.value.iconImagePath !== '' && oldImageUrl) {
                 try {
                     const path = extractPathFromUrl(oldImageUrl)
                     const oldRef = storageRef($storage, path)
@@ -131,6 +123,7 @@ const updateProfile = async () => {
     }
     catch (err) {
         error.value = err.message
+        console.error("updateエラー", err)
     }
     finally {
         isUploading.value = false
@@ -172,24 +165,17 @@ watch(comment, () => {
     }
 })
 
-watch(() => authStore.loginUser,
+watch(() => authStore.loginUserId,
     (newVal) => {
         if (newVal) {
-            currentProfile.value = authStore.loginUser
-            if (newVal.prefecture?.id) {
-                prefId.value = newVal.prefecture.id
-            }
+            currentProfile.value = userStore.usersById[authStore.loginUserId]
+            prefId.value = userStore.usersById[authStore.loginUserId].prefectureId
         }
         else {
             currentProfile.value = {
                 nickname: '',
                 comment: '',
-                prefecture: {
-                    id: 13,
-                    name: '',
-                    latitude: '',
-                    longitude: ''
-                },
+                prefectureId: '',
                 iconImagePath: ''
             }
 
@@ -246,17 +232,16 @@ watch(() => authStore.loginUser,
             <p
                 class="text-gray-500"
             >
-                {{ currentProfile.prefecture.name }}
+                {{ prefStore.prefsById[prefId].name }}
             </p>
         </client-only>
         <client-only>
-            <div v-if="prefs && prefs.length > 0">
+            <div v-if="prefStore.prefsById">
                 <select
                     v-model="prefId"
-                    name="pref"
                 >
                     <option
-                        v-for="pref in prefs"
+                        v-for="pref in prefStore.prefsById"
                         :key="pref.id"
                         :value="pref.id"
                     >

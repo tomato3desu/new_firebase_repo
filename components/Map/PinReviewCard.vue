@@ -1,7 +1,9 @@
 <script setup>
 import { useAuthStore } from '~/composables/stores/auth'
+import { useUserStore } from '~/composables/stores/user'
 
 const authStore = useAuthStore()
+const userStore = useUserStore()
 
 const props = defineProps({
     review: {
@@ -25,7 +27,7 @@ const truncatedText = computed(() => {
         : props.review?.description?.slice(0, MAX_LENGTH) + '...'
 })
 
-const isEditParmitted = computed(() => authStore.loginUser?.id === props?.review.createdUser.id)
+const isEditParmitted = computed(() => authStore.loginUserId === props?.review.createdUserId)
 
 const updateReview = () => {
     isOpenUpdateReviewDialog.value = true
@@ -35,14 +37,17 @@ const updateReview = () => {
 <template>
     <div class="rounded-sm border-b border-gray-300 flex flex-col">
         <!-- ユーザー情報 -->
-        <div class="flex items-center justify-between">
+        <div
+            v-if="userStore.usersById[props.review.createdUserId]"
+            class="flex items-center justify-between"
+        >
             <NuxtImg
-                :src="props.review?.createdUser?.iconImagePath || '/images/default_user.jpeg'"
+                :src=" userStore.usersById[props.review.createdUserId].iconImagePath || '/images/default_user.jpeg'"
                 alt="icon"
                 class="w-8 h-8 object-cover rounded-sm"
             />
             <p class="text-gray-700 font-medium text-sm truncate">
-                {{ props.review.createdUser.nickname }}
+                {{ userStore.usersById[props.review.createdUserId].nickname }}
             </p>
             <button
                 v-if="isEditParmitted"

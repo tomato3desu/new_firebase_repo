@@ -1,13 +1,14 @@
 import { defineStore } from 'pinia'
 import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, getAuth } from 'firebase/auth'
+import { useUserStore } from './user'
 
 export const useAuthStore = defineStore('auth', () => {
     const { $auth } = useNuxtApp()
     const config = useRuntimeConfig()
 
-    const loginUser = ref(null) // 表示用user情報
+    const loginUserId = ref(null)
     const isLoggedIn = ref(false)
-
+    
     const login = async (email, password) => {
         let userCred
         try {
@@ -41,19 +42,11 @@ export const useAuthStore = defineStore('auth', () => {
 
         const data = await res.json()
 
-        loginUser.value = {
-            id: data.id,
-            nickname: data.nickname,
-            iconImagePath: data.iconImagePath,
-            comment: data.comment,
-            prefecture: {
-                id: data.prefecture.id,
-                name: data.prefecture.name,
-                latitude: data.prefecture.latitude,
-                longitude: data.prefecture.longitude
-            },
-            role: data.role
-        }
+        loginUserId.value = data.id
+        // userStoreにuser情報を保存
+        const userStore = useUserStore()
+        userStore.usersById[data.id] = data
+        
         isLoggedIn.value = true
     }
 
@@ -65,7 +58,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     const logout = () => {
-        loginUser.value = null
+        loginUserId.value = null
         isLoggedIn.value = false
         return $auth.signOut()
     }
@@ -78,7 +71,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     return {
-        loginUser,
+        loginUserId,
         isLoggedIn,
         login,
         register,
