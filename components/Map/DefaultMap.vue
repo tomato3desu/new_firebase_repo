@@ -32,7 +32,7 @@ onMounted(async () => {
     let lat = 34.700428654912486
     let lng = 135.4928556060951
 
-    if(authStore.isLoggedIn){
+    if (authStore.isLoggedIn) {
         lat = prefStore.prefsById[user.prefectureId].latitude
         lng = prefStore.prefsById[user.prefectureId].longitude
     }
@@ -51,14 +51,17 @@ onMounted(async () => {
     
     // ピン描画
     await pinStore.getAllPins()
-    for (const pin of pinStore.pins) {
-        renderMarker(pin)
+    for(const pinId in pinStore.pinsById){
+        renderMarker(pinStore.pinsById[pinId])
     }
 
     console.log(markers.value)
 })
 
-// マップクリック時に実行する関数
+/**
+ * マップクリック時にピン追加するための処理を行う関数
+ * @param e 
+ */
 const onMapClick = (e) => {
     const lat = e.latLng.lat()
     const lng = e.latLng.lng()
@@ -66,10 +69,14 @@ const onMapClick = (e) => {
     isOpenPinAddDialog.value = true
 }
 
-// マーカーを描画する関数
+/**
+ * マーカーを描画する関数
+ * @param pin 
+ */
 const renderMarker = async (pin) => {
     const { AdvancedMarkerElement, PinElement } = await importLibrary("marker")
 
+    // マーカーの情報
     const pinElement = new PinElement({
         background: "#7fffbf",
         borderColor: "#ff84ff",
@@ -94,14 +101,21 @@ const renderMarker = async (pin) => {
     markers.value.push(marker)
 }
 
+/**
+ * pinInfoDrowerを開く関数
+ * @param pin 
+ */
 const openDrawer = (pin) => {
     // store 内の同じ参照を取得
-    const storePin = pinStore.pins.find(p => p.id === pin.id)
-    selectedPin.value = storePin // ← store の参照を渡す！
+    const storePin = pinStore.pinsById[pin.id]
+    selectedPin.value = storePin // ← store の参照を渡す
     isOpenPinInfoDrawer.value = true
 }
 
-// ピン削除時に行う処理
+/**
+ * ピンを削除する関数
+ * @param deletedPinId 
+ */
 const onPinDeleted = (deletedPinId) => {
     // drawerを閉じる
     isOpenPinInfoDrawer.value = false

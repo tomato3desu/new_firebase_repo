@@ -1,13 +1,13 @@
 <script setup>
 import { useReviewStore } from '~/composables/stores/review'
 import { useAuthStore } from '~/composables/stores/auth'
-import { usePinStore } from '~/composables/stores/pin'
 import { useUserStore } from '~/composables/stores/user'
+import { usePinStore } from '~/composables/stores/pin'
 
 const authStore = useAuthStore()
-const pinStore = usePinStore()
 const reviewStore = useReviewStore()
 const userStore = useUserStore()
+const pinStore = usePinStore()
 
 const isOpen = defineModel()
 const props = defineProps({
@@ -24,26 +24,35 @@ const reviews = ref([])
 
 const isOpenUpdatePinDialog = ref(false)
 const isOpenCreateReviewDialog = ref(false)
-const isEditParmitted = computed(() => authStore.loginUserId === props?.pin?.createdUserId)
+const isEditParmitted = computed(() => authStore.loginUserId === props?.pin?.createdUserId) // ログインユーザー＝ピン作成者ならtrue
 
+// updateダイアログをopen
 const updatePin = () => {
     isOpenUpdatePinDialog.value = true
 }
 
+// update時にprops.pinをupdate後のpin情報に入れ替える
+const onPinUpdated = (updatedPin) => {
+    Object.assign(props.pin, updatedPin)
+}
+
+// ピン削除時にmapコンポーネントに伝達
+const onPinDeleted = (deletedPinId) => {
+    emit('pin-deleted', deletedPinId)
+}
+
+// createダイアログをopen
 const createReview = () => {
-    if (!authStore.isLoggedIn) {
-        alertLogin()
+    if (!authStore.isLoggedIn) { // ログインしてなければ作成不可
+        alert('レビューを作成するにはログインしてください')
         return
     }
     isOpenCreateReviewDialog.value = true
 }
 
-const onPinUpdated = (updatedPin) => {
-    Object.assign(props.pin, updatedPin)
-}
-
-const onPinDeleted = (deletedPinId) => {
-    emit('pin-deleted', deletedPinId)
+// レビュー追加時にreviewsに追加して即時反映
+const onReviewAdded = (addedReview) => {
+    reviews.value.push(addedReview)
 }
 
 const close = () => {
@@ -51,9 +60,6 @@ const close = () => {
     reviews.value = []
 }
 
-const alertLogin = () => {
-    alert('レビューを作成するにはログインしてください')
-}
 // drawer が開いたタイミングで fetch
 watch(
     () => isOpen.value,
@@ -70,21 +76,22 @@ watch(
     
 )
 
-// props.pin が後からセットされるケースにも対応
-watch(
-    () => props.pin,
-    async (newPin) => {
-        if (isOpen.value && newPin?.id) {
-            await userStore.fetchUserIfNeeded(newPin.createdUserId)
-            const fetchedReviews = await reviewStore.getReviewsByPin(newPin.id)
-            const userIds = fetchedReviews.map(r => r.createdUserId).filter(Boolean)
-            await userStore.fetchUsersIfNeeded(userIds)
-            reviews.value = fetchedReviews
-            console.log("newPin", newPin.createdUserId)
-        }
-    },
-    { immediate: true }
-)
+// props.pin が後からセットされるケースにも対応(一旦コメントアウト 後からセットしないかも)
+// watch(
+//     () => props.pin,
+//     async (newPin) => {
+//         if (isOpen.value && newPin?.id) {
+//             await userStore.fetchUserIfNeeded(newPin.createdUserId)
+//             const fetchedReviews = await reviewStore.getReviewsByPin(newPin.id)
+//             const userIds = fetchedReviews.map(r => r.createdUserId).filter(Boolean)
+//             console.log("userIdsだよ", userIds)
+//             await userStore.fetchUsersIfNeeded(userIds)
+//             reviews.value = fetchedReviews
+//             console.log("newPin", newPin.createdUserId)
+//         }
+//     },
+//     { immediate: true }
+// )
 </script>
 
 <template>
@@ -164,6 +171,7 @@ watch(
     <MapCreateReviewDialog
         v-model="isOpenCreateReviewDialog"
         :pin-id="props.pin?.id"
+        @review-added="onReviewAdded"
     />
     <MapUpdatePinDialog
         v-model="isOpenUpdatePinDialog"

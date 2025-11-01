@@ -32,6 +32,10 @@ const uploadedUrl = ref(null)
 const error = ref(null)
 const isActiveUpdateBtn = computed(() => !isUploading.value && !nicknameError.value && !commentError.value)
 
+/**
+ * ファイル変更時にpreviewUrlを変更
+ * @param event 
+ */
 const handleFileChange = (event) => {
     const target = event.target
     if (target.files && target.files[0]) {
@@ -40,13 +44,21 @@ const handleFileChange = (event) => {
     }
 }
 
+/**
+ * tokenを取得してuserStoreのupdateProfileを実行
+ * @param profileData 
+ */
 const sendToBackend = async (profileData) => {
     const token = await authStore.getIdToken()
     
     await userStore.updateProfile(profileData, token)
 }
 
+/**
+ * 
+ */
 const updateProfile = async () => {
+    // バリデーションエラーがあればreturn
     if (nicknameError.value || commentError.value) return
     isUploading.value = true
     error.value = false
@@ -62,6 +74,7 @@ const updateProfile = async () => {
                 throw new Error('画像の切り抜きに失敗しました')
             }
 
+            // canvasから画像生成
             canvas.toBlob(async (blob) => {
                 if (!blob) {
                     throw new Error('blobの作成に失敗しました')
@@ -70,6 +83,7 @@ const updateProfile = async () => {
                 const fileName = `${Date.now()}-cropped.jpg`
                 const fileRef = storageRef($storage, `profileImage/${fileName}`)
 
+                // firebase storageに保存＆uploadedUrlにupload後のurlをセット
                 await uploadBytes(fileRef, blob)
                 const url = await getDownloadURL(fileRef)
                 uploadedUrl.value = url
@@ -88,10 +102,11 @@ const updateProfile = async () => {
                     prefId: prefId.value
                 })
 
-                currentProfile.value = userStore.usersById[authStore.loginUserId]
+                currentProfile.value = userStore.usersById[authStore.loginUserId] // currentProfileを更新
 
                 nickname.value = ''
                 comment.value = ''
+                uploadedUrl.value = null
                 previewUrl.value = null
             }, 'image/jpg')
 
@@ -113,13 +128,15 @@ const updateProfile = async () => {
             await sendToBackend({
                 nickname: nickname.value,
                 comment: comment.value,
-                iconImagePath: uploadedUrl.value,
+                iconImagePath: null,
                 prefId: prefId.value
             })
 
             nickname.value = ''
             comment.value = ''
         }
+
+        currentProfile.value = userStore.usersById[authStore.loginUserId] // currentProfileを更新
     }
     catch (err) {
         error.value = err.message
@@ -130,6 +147,10 @@ const updateProfile = async () => {
     }
 }
 
+/**
+ * urlを解析するメソッド
+ * @param url 
+ */
 const extractPathFromUrl = (url) => {
     try {
         const decoded = decodeURIComponent(url)
@@ -147,6 +168,7 @@ onMounted(() => {
     prefStore.setAllPrefs()
 })
 
+// nicknameのバリデーションチェック
 watch(nickname, () => {
     if (nickname.value.length > 16) {
         nicknameError.value = '16文字以内で入力してください'
@@ -156,6 +178,7 @@ watch(nickname, () => {
     }
 })
 
+// コメントのバリデーションチェック
 watch(comment, () => {
     if (comment.value.length > 100) {
         commentError.value = '100文字以内で入力してください'
@@ -165,6 +188,7 @@ watch(comment, () => {
     }
 })
 
+// ログイン状態に合わせてcurrentProfileをセット
 watch(() => authStore.loginUserId,
     (newVal) => {
         if (newVal) {

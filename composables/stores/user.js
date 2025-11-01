@@ -4,7 +4,11 @@ export const useUserStore = defineStore('userStore', () => {
     const config = useRuntimeConfig()
     const usersById = ref({}) // key: userId, value: {userDto}
 
-    // 単一ユーザー用
+    /**
+     * ユーザーがキャッシュされていなければusersByIdにセットする
+     * @param {number} userId 
+     * @returns 
+     */
     const fetchUserIfNeeded = async (userId) => {
         if (usersById.value[userId]) return // キャッシュされていれば即レス
 
@@ -17,23 +21,33 @@ export const useUserStore = defineStore('userStore', () => {
         }
     }
 
-    // 複数ユーザー用
+    /**
+     * まとめてユーザー情報を取ってくる
+     * @param {number[]} userIds 
+     * @returns 
+     */
     const fetchUsersIfNeeded = async (userIds) => {
-        const missingIds = userIds.filter((id) => id && !usersById.value[id])
-        if (missingIds.length === 0) return
+        const missingIds = userIds.filter((id) => id && !usersById.value[id]) // usersByIdにないIDのみをフィルター
+        if (missingIds === null || missingIds.length === 0) return // ないなら即レス
         
+        console.log("missingIdsだよ", missingIds)
         try {
-            const res = await $fetch(`${config.public.apiBase}/api/users`, {
-                method: 'GET',
-                body: { ids: missingIds },
+            const res = await $fetch(`${config.public.apiBase}/api/user/users`, {
+                method: 'POST',
+                body: { userIds: missingIds },
             })
-            res.forEach((u) => (usersById.value[u.id] = u))
+            res.forEach((u) => (usersById.value[u.id] = u)) // usersByIdにセット
         }
         catch (e) {
             console.error('複数ユーザー取得エラー:', e)
         }
     }
 
+    /**
+     * プロフィール情報をアップデート
+     * @param {object} updateInfo 
+     * @param {string} token 
+     */
     const updateProfile = async (updateInfo, token) => {
         try {
             const res = await $fetch(`${config.public.apiBase}/api/user/updateProfile`, {
@@ -44,7 +58,7 @@ export const useUserStore = defineStore('userStore', () => {
                 body: updateInfo
             })
 
-            usersById.value[res.id] = res
+            usersById.value[res.id] = res // usersByIdを更新
             console.log(usersById.value[res.id])
         }
         catch (e) {

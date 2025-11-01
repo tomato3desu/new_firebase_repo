@@ -9,6 +9,12 @@ export const useAuthStore = defineStore('auth', () => {
     const loginUserId = ref(null)
     const isLoggedIn = ref(false)
     
+    /**
+     * ログイン処理
+     * @param {string} email 
+     * @param {string} password 
+     * @returns 
+     */
     const login = async (email, password) => {
         let userCred
         try {
@@ -20,6 +26,7 @@ export const useAuthStore = defineStore('auth', () => {
         }
         const user = userCred.user
 
+        // メール認証が済んでいない場合
         if (!user.emailVerified) {
             await sendEmailVerification(user)
             throw new Error('確認メールを再度を送信しました。メール認証を完了させてください')
@@ -50,6 +57,11 @@ export const useAuthStore = defineStore('auth', () => {
         isLoggedIn.value = true
     }
 
+    /**
+     * firebase authでユーザー登録＆メール送信
+     * @param {string} email 
+     * @param {string} password 
+     */
     const register = async (email, password) => {
         const userCred = await createUserWithEmailAndPassword($auth, email, password)
         console.log("登録成功")

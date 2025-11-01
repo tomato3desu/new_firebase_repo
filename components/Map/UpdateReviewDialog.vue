@@ -1,7 +1,7 @@
 <script setup>
 import { useAuthStore } from '~/composables/stores/auth'
-import { usePinStore } from '~/composables/stores/pin'
 import { useReviewStore } from '~/composables/stores/review'
+import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 
 const isOpen = defineModel()
 const props = defineProps({
@@ -13,8 +13,8 @@ const props = defineProps({
 })
 
 const authStore = useAuthStore()
-const pinStore = usePinStore()
 const reviewStore = useReviewStore()
+const { $storage } = useNuxtApp()
 
 const darknessLevel = ref(props.review.darknessLevel)
 const accessLevel = ref(props.review.accessLevel)
@@ -60,6 +60,19 @@ const updateReview = async () => {
         reviewImagePaths: uploadedUrls.value,
         deleteReviewImages: deletingReviewImageIds.value
     }
+
+    const token = await authStore.getIdToken()
+
+    const newReview = await reviewStore.updateReview(reviewInfo, token)
+    console.log(newReview)
+
+    if (deletingReviewImages.value) {
+        for (const deleteImage of deletingReviewImages.value) {
+            imagePath = deleteImage.imagePath
+            const path = extractPathFromUrl(imagePath)
+            await deleteFromStorage(path)
+        }
+    }
 }
 
 const addToStorage = async () => {
@@ -81,8 +94,16 @@ const addToStorage = async () => {
     }
 }
 
-const deleteFromStorage = async () => {
+const deleteFromStorage = async (path) => {
     // TODO ストレージから画像を削除
+    try {
+        const oldRef = storageRef($storage, path)
+        await deleteObject(oldRef)
+        console.log("古い画像の削除に成功", oldRef)
+    }
+    catch (error) {
+        console.log("古い画像の削除に失敗", error)
+    }
 }
 
 // ×ボタンクリックで画面から画像を削除
@@ -92,6 +113,19 @@ const deleteReviewImage = (selectedReviewImage) => {
     deletingReviewImageIds.value.push(selectedReviewImage.id)
     console.log(existReviewImages.value)
     console.log(deletingReviewImages.value)
+}
+
+const extractPathFromUrl = (url) => {
+    try {
+        const decoded = decodeURIComponent(url)
+        const start = decoded.indexOf('/o/') + 3
+        const end = decoded.indexOf('?')
+        return decoded.substring(start, end)
+    }
+    catch (e) {
+        console.warn('URL解析失敗:', e)
+        return null
+    }
 }
 
 const close = () => {

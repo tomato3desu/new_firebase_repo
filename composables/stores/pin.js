@@ -2,25 +2,20 @@ import { defineStore } from "pinia"
 
 export const usePinStore = defineStore('pinStore', () => {
     const config = useRuntimeConfig()
-    const pins = ref([])
+    const pinsById = ref({}) // key: pinId value: { pinDto }
 
-    const deletePinByThisPins = (deletePinInfo) => {
-        pins.value = pins.value.filter(pin => pin.id !== deletePinInfo.id)
-    }
-
-    const updatePinByThisPins = (updatePinInfo) => {
-        const index = pins.value.findIndex(pin => pin.id === updatePinInfo.id)
-        if (index !== -1) {
-            pins.value[index] = updatePinInfo
-        }
-    }
-
+    /**
+     * 全ピンを取得しpinsByIdに格納する
+     */
     const getAllPins = async () => {
         try {
             const res = await $fetch(`${config.public.apiBase}/api/pin/getAllPins`, {
                 method: 'GET'
             })
-            pins.value = res
+            
+            for (const pin of res) {
+                pinsById.value[pin.id] = pin
+            }
         }
         catch (error) {
             const msg = error?.data?.message || '不明なエラー'
@@ -28,6 +23,12 @@ export const usePinStore = defineStore('pinStore', () => {
         }
     }
 
+    /**
+     * ピンを追加
+     * @param {object} addPinInfo 
+     * @param {string} token 
+     * @returns 追加したピン
+     */
     const addPin = async (addPinInfo, token) => {
         try {
             const res = await $fetch(`${config.public.apiBase}/api/pin/addPin`, {
@@ -38,7 +39,7 @@ export const usePinStore = defineStore('pinStore', () => {
                 body: addPinInfo
             })
 
-            pins.value.push(res)
+            pinsById.value[res.id] = res // pinsByIdに格納
 
             return res
         }
@@ -48,6 +49,12 @@ export const usePinStore = defineStore('pinStore', () => {
         }
     }
 
+    /**
+     * ピンを更新
+     * @param {object} updatePinInfo 
+     * @param {string} token 
+     * @returns 更新後ピン
+     */
     const updatePin = async (updatePinInfo, token) => {
         try {
             const res = await $fetch(`${config.public.apiBase}/api/pin/updatePin`, {
@@ -58,7 +65,7 @@ export const usePinStore = defineStore('pinStore', () => {
                 body: updatePinInfo
             })
 
-            updatePinByThisPins(res)
+            pinsById.value[res.id] = res // pinsByIdに格納
             return res
         }
         catch (error) {
@@ -67,6 +74,12 @@ export const usePinStore = defineStore('pinStore', () => {
         }
     }
 
+    /**
+     * ピンを削除
+     * @param {number} pinId 
+     * @param {string} token 
+     * @returns 削除したピン
+     */
     const deletePin = async (pinId, token) => {
         try {
             const res = await $fetch(`${config.public.apiBase}/api/pin/deletePin/${pinId}`, {
@@ -76,7 +89,7 @@ export const usePinStore = defineStore('pinStore', () => {
                 }
             })
 
-            deletePinByThisPins(res)
+            delete pinsById.value[res.id]
             return res
         }
         catch (error) {
@@ -85,7 +98,7 @@ export const usePinStore = defineStore('pinStore', () => {
         }
     }
 
-    return { pins, getAllPins, addPin, deletePin, updatePin }
+    return { pinsById, getAllPins, addPin, deletePin, updatePin }
 }, {
     persist: true
 })

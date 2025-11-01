@@ -116,7 +116,7 @@ const updateReview = () => {
                 :key="reviewImage.id"
                 :src="reviewImage.imagePath"
                 alt="review image"
-                class="w-full h-24 object-cover rounded-none"
+                class="w-full h-24 object-cover rounded-none mb-2"
             />
         </div>
     </div>

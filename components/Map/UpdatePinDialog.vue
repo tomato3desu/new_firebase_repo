@@ -29,11 +29,15 @@ const previewUrl = ref(null)
 const uploadedUrl = ref(null)
 const error = ref(null)
 
+/**
+ * update時に行う処理
+ */
 const updatePin = async () => {
-    if (errorTitle.value || errorDesc.value) return
+    if (errorTitle.value || errorDesc.value) return // バリデーションエラーがあれば即レス
 
-    if (file.value) await addToStorage()
+    if (file.value) await addToStorage() // fileがあればstorageに追加
 
+    // update情報
     const updatePinInfo = {
         id: props.pin.id,
         title: title.value,
@@ -55,13 +59,14 @@ const updatePin = async () => {
     }
 }
 
-// TODO 削除をPinInfoDrawerからこのコンポーネントへ移行
+/**
+ * ピン削除時に行う処理
+ */
 const deletePin = async () => {
     const isConfirm = window.confirm("本当に削除しますか？")
     if (isConfirm) {
         const token = await authStore.getIdToken()
-        const deletedPin = await pinStore.deletePin(props.pin.id, token)
-        reviewStore.deleteReviewsByPinId(props.pin.id) // reviewStoreからreview削除
+        const deletedPin = await pinStore.deletePin(props.pin.id, token) // pinStoreのdeletePinを実行（pinstoreから削除)
 
         console.log(deletedPin)
         // firebase storageから画像削除
@@ -71,12 +76,18 @@ const deletePin = async () => {
         }
         // reviews/imagepath 全削除
         await deleteReviewImages(deletedPin)
+
+        reviewStore.deleteReviewsByPinId(props.pin.id) // reviewStoreからreview削除
         
         emit('pin-deleted', props.pin.id)
         close()
     }
 }
 
+/**
+ * inputの画像の変更に合わせてpreviewUrlを変更
+ * @param event 
+ */
 const handleFileChange = (event) => {
     const target = event.target
     if (target.files && target.files[0]) {
@@ -85,6 +96,9 @@ const handleFileChange = (event) => {
     }
 }
 
+/**
+ * storageにfileの画像を追加
+ */
 const addToStorage = async () => {
     if (!file.value) return
         
@@ -103,6 +117,10 @@ const addToStorage = async () => {
     }
 }
 
+/**
+ * ピンのthumbnailImageをstorageから削除
+ * @param thumbnailImagePath 
+ */
 const deleteThumbnailImage = async (thumbnailImagePath) => {
     try {
         const path = extractPathFromUrl(thumbnailImagePath)
@@ -115,11 +133,17 @@ const deleteThumbnailImage = async (thumbnailImagePath) => {
     }
 }
 
-// reivewImagesをfirebase storageから削除
+/**
+ * pinに関連するreviewのreviewImagesを全削除
+ * @param deletedPin 
+ */
 const deleteReviewImages = async (deletedPin) => {
-    if (deletedPin.reviews !== null && deletedPin.reviews.length > 0) {
-        for (const review of deletedPin.reviews) {
-            if (review.reviewImages !== null && review.reviewImages.length > 0) {
+    const reviewIds = reviewStore.reviewsByPinId[deletedPin.id] // [reviewId1, reviewId2, ...]
+
+    if (reviewIds && reviewIds.length > 0) {
+        for (const reviewId of reviewIds) {
+            const review = reviewStore.reviewsById[reviewId]
+            if (review?.reviewImages && review.reviewImages.length > 0) {
                 for (const reviewImage of review.reviewImages) {
                     try {
                         const path = extractPathFromUrl(reviewImage.imagePath)
@@ -162,6 +186,7 @@ const close = () => {
     error.value = null
 }
 
+// titleのバリデーションチェック
 watch(title, (value) => {
     if (value.length > 20) {
         errorTitle.value = '20文字以内で入力してください'
@@ -171,6 +196,7 @@ watch(title, (value) => {
     }
 })
 
+// descriptionのバリデーションチェック
 watch(description, (value) => {
     if (value.length > 200) {
         errorDesc.value = '200文字以内で入力してください'
@@ -257,17 +283,17 @@ watch(description, (value) => {
                     キャンセル
                 </button>
                 <button
+                    class="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 transition"
+                    @click="deletePin"
+                >
+                    削除
+                </button>
+                <button
                     class="px-4 py-2 rounded disabled:bg-blue-200 bg-blue-500 text-white hover:bg-blue-600 transition"
                     :disabled="!isActiveAddBtn"
                     @click="updatePin"
                 >
                     更新
-                </button>
-                <button
-                    class="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 transition"
-                    @click="deletePin"
-                >
-                    削除
                 </button>
             </div>
         </div>

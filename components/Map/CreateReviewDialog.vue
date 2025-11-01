@@ -15,6 +15,9 @@ const props = defineProps({
     }
 })
 
+// TODO emitでレビュー作成をpinInfoDtoに伝達
+const emit = defineEmits(['review-added'])
+
 const darknessLevel = ref(3)
 const accessLevel = ref(3)
 const files = ref([])
@@ -36,6 +39,10 @@ const isActiveReviewBtn = computed(() =>
     && visitedTime.value 
     && authStore.isLoggedIn)
 
+/**
+ * inputのファイル変更時にpreviewUrlsを変更
+ * @param event 
+ */
 const handleFileChange = (event) => {
     const selectedFiles = event.target.files
     if (!selectedFiles || selectedFiles.length === 0) return
@@ -45,15 +52,19 @@ const handleFileChange = (event) => {
     previewUrls.value = files.value.map(file => URL.createObjectURL(file))
 }
 
+/**
+ * レビューを作成
+ */
 const createNewReview = async () => {
-    if (!title.value || !description.value || !season.value || !visitedDate.value || !visitedTime.value) return
+    if (!title.value || !description.value || !season.value || !visitedDate.value || !visitedTime.value) return // バリデーションエラーがあれば即レス
 
-    await addToStorage()
+    await addToStorage() // storageに追加
 
     console.log(props.pinId)
     console.log(uploadedUrls.value)
     console.log(season.value)
 
+    // 作成するレビューの情報
     const addReviewInfo = {
         reviewedPinId: props.pinId,
         title: title.value,
@@ -69,6 +80,7 @@ const createNewReview = async () => {
     const token = await authStore.getIdToken()
     const addedReview = await reviewStore.addReview(addReviewInfo, token)
     console.log(addedReview)
+    emit('review-added', addedReview)
     close()
 }
 
