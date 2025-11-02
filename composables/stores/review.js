@@ -5,6 +5,18 @@ export const useReviewStore = defineStore('reviewStore', () => {
 
     const reviewsById = ref({}) // key: reviewId, value: { reviewDto }
     const reviewsByPinId = ref({}) // key: pinId, value: [reviewId, reviewId]
+    const fetchedAt = ref({}) // key: revewId, value: datetime
+
+    /**
+     * キャッシュの期限を判定するメソッド
+     * @param {number} userId 
+     * @returns boolean 期限切れ：true 期限内：false
+     */
+    const judgeExpired = (userId) => {
+        const lastFetched = fetchedAt.value[userId]
+        const isExpired = !lastFetched || (Date.now() - lastFetched > 5 * 60 * 1000) // 5分経過
+        return isExpired
+    }
 
     /**
      * ピンが削除されたときにピンに関連するレビューを全削除するメソッド
@@ -15,6 +27,7 @@ export const useReviewStore = defineStore('reviewStore', () => {
         delete reviewsByPinId.value[pinId]
         for (const deleteReviewId of deleteReviewIds) {
             delete reviewsById.value[deleteReviewId]
+            delete fetchedAt.value[deleteReviewId]
         }
     }
 
@@ -24,8 +37,14 @@ export const useReviewStore = defineStore('reviewStore', () => {
      * @returns [{reviewDto1}, {reviewDto2}] 
      */
     const getReviewsByPin = async (pinId) => {
-        if (reviewsByPinId.value[pinId]) { // キャッシュしてあればそのまま [{reviewDto1}, {reviewDto2}]の形でreturn
-            const reviewIds = reviewsByPinId.value[pinId]
+        const reviewIds = reviewsByPinId.value[pinId]
+
+        const hasCache = reviewIds && reviewIds.length > 0 // キャッシュがあるか
+
+        const hasExpired = hasCache && reviewIds.some(id => judgeExpired(id)) // キャッシュ内のレビューが一つでも期限切れなら再取得
+
+        // キャッシュがあり、すべて期限内ならキャッシュ利用
+        if (hasCache && !hasExpired) {
             return reviewIds.map(id => reviewsById.value[id])
         }
 
@@ -34,16 +53,17 @@ export const useReviewStore = defineStore('reviewStore', () => {
         })
 
         // reviewsById, reviewsByPinIdにそれぞれセットして [{reviewDto1}, {reviewDto2}]の形でreturn
-        let reviewIds = []
+        const newReviewIds = []
         for (const review of res) {
             const reviewId = review.id
             reviewsById.value[reviewId] = review
-            reviewIds.push(reviewId)
+            fetchedAt.value[reviewId] = Date.now()
+            newReviewIds.push(reviewId)
         }
 
-        reviewsByPinId.value[pinId] = reviewIds
+        reviewsByPinId.value[pinId] = newReviewIds
         
-        return reviewIds.map(id => reviewsById.value[id])
+        return newReviewIds.map(id => reviewsById.value[id])
     }
 
     /**
@@ -67,6 +87,7 @@ export const useReviewStore = defineStore('reviewStore', () => {
         }
         reviewsByPinId.value[pinId].push(reviewId)
         reviewsById.value[reviewId] = res
+        fetchedAt.value[reviewId] = Date.now()
 
         return res
     }
@@ -85,6 +106,7 @@ export const useReviewStore = defineStore('reviewStore', () => {
         })
 
         reviewsById.value[res.id] = res
+        fetchedAt.value[res.id] = Date.now()
 
         return res
     }
@@ -101,13 +123,13 @@ export const useReviewStore = defineStore('reviewStore', () => {
             headers: { Authorization: `Bearer ${token}` }
         })
 
-        // ローカルから削除
+        // キャッシュから削除
         const review = reviewsById.value[reviewId]
-        // if (!review) return
 
         const pinId = review.reviewedPinId
         reviewsByPinId.value[pinId] = reviewsByPinId.value[pinId]?.filter(id => id !== reviewId) || []
         delete reviewsById.value[reviewId]
+        delete fetchedAt.value[reviewId]
 
         return review
     }

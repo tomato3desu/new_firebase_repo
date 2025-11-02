@@ -12,7 +12,7 @@ const props = defineProps({
     }
 })
 
-const emit = defineEmits(['review-updated'])
+const emit = defineEmits(['review-updated', 'review-deleted'])
 
 const authStore = useAuthStore()
 const reviewStore = useReviewStore()
@@ -87,6 +87,29 @@ const updateReview = async () => {
 
     emit('review-updated', newReview)
     close()
+}
+
+/**
+ * レビューを削除
+ */
+const deleteReview = async() => {
+    const isConfirm = window.confirm("本当に削除しますか？")
+    if(isConfirm){
+        const reviewId = props.review.id
+        const token = await authStore.getIdToken()
+        const deletedReview = await reviewStore.deleteReview(reviewId, token)
+
+        console.log(deletedReview)
+
+        // 画像を削除
+        for(const reviewImage of deletedReview.reviewImages){
+            const reviewImagePath = extractPathFromUrl(reviewImage.imagePath)
+            deleteFromStorage(reviewImagePath)
+        }
+
+        emit('review-deleted', reviewId)
+        close()
+    }
 }
 
 /**
@@ -380,6 +403,12 @@ watch(description, (value) => {
                         @click="close"
                     >
                         キャンセル
+                    </button>
+                    <button
+                        class="px-4 py-2 rounded bg-red-500 hover:bg-red-600 transition"
+                        @click="deleteReview"
+                    >
+                        削除
                     </button>
                     <button
                         class="px-4 py-2 rounded disabled:bg-blue-200  bg-blue-500 text-white hover:bg-blue-600 transition"

@@ -37,6 +37,10 @@ const updateReview = () => {
 const onReviewUpdated = (updatedReview) => {
     Object.assign(props.review, updatedReview)
 }
+
+const onReviewDeleted = (reviewId) => {
+    
+}
 </script>
 
 <template>
@@ -131,5 +135,6 @@ const onReviewUpdated = (updatedReview) => {
         v-model="isOpenUpdateReviewDialog"
         :review="props.review"
         @review-updated="onReviewUpdated"
+        @review-deleted="onReviewDeleted"
     />
 </template>

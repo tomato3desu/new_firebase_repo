@@ -89,8 +89,13 @@ export const usePinStore = defineStore('pinStore', () => {
                 }
             })
 
-            delete pinsById.value[res.id]
-            return res
+            if (res !== undefined) { // 204 No Content は自動的に res が undefined になる
+                throw new Error('削除失敗')
+            }
+
+            const deletedPin = pinsById.value[pinId]
+            delete pinsById.value[pinId]
+            return deletedPin
         }
         catch (error) {
             const msg = error?.data?.message || '不明なエラー'
