@@ -1,4 +1,5 @@
 <script setup>
+import { emit } from 'process'
 import { useAuthStore } from '~/composables/stores/auth'
 import { useUserStore } from '~/composables/stores/user'
 
@@ -32,6 +33,10 @@ const isEditParmitted = computed(() => authStore.loginUserId === props?.review.c
 const updateReview = () => {
     isOpenUpdateReviewDialog.value = true
 }
+
+const onReviewUpdated = (updatedReview) => {
+    Object.assign(props.review, updatedReview)
+}
 </script>
 
 <template>
@@ -58,6 +63,8 @@ const updateReview = () => {
                 編集
             </button>
         </div>
+        <!-- 確認用ID -->
+        <p>{{ props.review.id }}</p>
         <!-- タイトル -->
         <p class="text-base font-semibold text-gray-900 break-words whitespace-pre-wrap">
             {{ props.review.title }}
@@ -123,5 +130,6 @@ const updateReview = () => {
     <MapUpdateReviewDialog
         v-model="isOpenUpdateReviewDialog"
         :review="props.review"
+        @review-updated="onReviewUpdated"
     />
 </template>

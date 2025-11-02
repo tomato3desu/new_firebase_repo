@@ -12,6 +12,8 @@ const props = defineProps({
     }
 })
 
+const emit = defineEmits(['review-updated'])
+
 const authStore = useAuthStore()
 const reviewStore = useReviewStore()
 const { $storage } = useNuxtApp()
@@ -34,6 +36,10 @@ const errorTitle = ref(null)
 const errorDesc = ref(null)
 const isActiveReviewBtn = computed(() => !errorTitle.value && !errorDesc.value && authStore.isLoggedIn)
 
+/**
+ * inputのファイル変更時にpreviewUrlsを変更
+ * @param event 
+ */
 const handleFileChange = (event) => {
     const selectedFiles = event.target.files
     if (!selectedFiles || selectedFiles.length === 0) return
@@ -43,11 +49,15 @@ const handleFileChange = (event) => {
     previewUrls.value = files.value.map(file => URL.createObjectURL(file))
 }
 
+/**
+ * レビューを更新
+ */
 const updateReview = async () => {
-    if (errorTitle.value || errorDesc.value) return
+    if (errorTitle.value || errorDesc.value) return // バリデーションエラーがあれば即レス
 
     await addToStorage()
 
+    // バックエンドに送信するreview情報
     const reviewInfo = {
         reviewId: props.review.id,
         title: title.value,
@@ -66,15 +76,22 @@ const updateReview = async () => {
     const newReview = await reviewStore.updateReview(reviewInfo, token)
     console.log(newReview)
 
+    // 削除画像があれば削除
     if (deletingReviewImages.value) {
         for (const deleteImage of deletingReviewImages.value) {
-            imagePath = deleteImage.imagePath
+            const imagePath = deleteImage.imagePath
             const path = extractPathFromUrl(imagePath)
             await deleteFromStorage(path)
         }
     }
+
+    emit('review-updated', newReview)
+    close()
 }
 
+/**
+ * storageに追加
+ */
 const addToStorage = async () => {
     if (!files.value || files.value.length === 0) return
 
@@ -94,8 +111,11 @@ const addToStorage = async () => {
     }
 }
 
+/**
+ * 
+ * @param path ストレージから削除
+ */
 const deleteFromStorage = async (path) => {
-    // TODO ストレージから画像を削除
     try {
         const oldRef = storageRef($storage, path)
         await deleteObject(oldRef)
@@ -106,7 +126,10 @@ const deleteFromStorage = async (path) => {
     }
 }
 
-// ×ボタンクリックで画面から画像を削除
+/**
+ * 画面から画像を削除しdeletingReviewImages&deletingreviewImageIdsにpush
+ * @param selectedReviewImage 
+ */
 const deleteReviewImage = (selectedReviewImage) => {
     existReviewImages.value = existReviewImages.value.filter(reviewImage => reviewImage !== selectedReviewImage)
     deletingReviewImages.value.push(selectedReviewImage)
@@ -115,6 +138,10 @@ const deleteReviewImage = (selectedReviewImage) => {
     console.log(deletingReviewImages.value)
 }
 
+/**
+ * url解析
+ * @param url 
+ */
 const extractPathFromUrl = (url) => {
     try {
         const decoded = decodeURIComponent(url)
@@ -128,6 +155,9 @@ const extractPathFromUrl = (url) => {
     }
 }
 
+/**
+ * 閉じる
+ */
 const close = () => {
     darknessLevel.value = ''
     accessLevel.value = ''
@@ -148,6 +178,7 @@ const close = () => {
     isOpen.value = false
 }
 
+// titleのバリデーションチェック
 watch(title, (value) => {
     if (!value) {
         errorTitle.value = 'タイトルは必須です'
@@ -160,6 +191,7 @@ watch(title, (value) => {
     }
 })
 
+// descriptionのバリデーションチェック
 watch(description, (value) => {
     if (!value) {
         errorDesc.value = '詳細を入力してください'
@@ -354,7 +386,7 @@ watch(description, (value) => {
                         :disabled="!isActiveReviewBtn"
                         @click="updateReview"
                     >
-                        追加
+                        更新
                     </button>
                 </div>
             </div>

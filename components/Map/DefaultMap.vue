@@ -51,7 +51,7 @@ onMounted(async () => {
     
     // ピン描画
     await pinStore.getAllPins()
-    for(const pinId in pinStore.pinsById){
+    for (const pinId in pinStore.pinsById) {
         renderMarker(pinStore.pinsById[pinId])
     }
 
