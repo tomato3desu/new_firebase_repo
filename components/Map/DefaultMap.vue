@@ -13,12 +13,14 @@ const prefStore = usePrefStore()
 
 const config = useRuntimeConfig()
 
+const emit = defineEmits(['pin-clicked'])
+
 let user = userStore.usersById[authStore.loginUserId]
 
 const mapElement = ref(null)
 const isOpenPinAddDialog = ref(false)
-const isOpenPinInfoDrawer = ref(false)
-const selectedPin = ref(null)
+// const isOpenPinInfoDrawer = ref(false)
+// const selectedPinId = ref(null)
 const clickedLatLng = ref(null)
 const markers = ref([])
 let map
@@ -95,7 +97,7 @@ const renderMarker = async (pin) => {
     marker.pinId = pin.id // pinIdを保持（削除時に利用）
 
     marker.addListener('click', () => {
-        openDrawer(pin)
+        emit('pin-clicked', pin.id)
     })
 
     markers.value.push(marker)
@@ -103,33 +105,62 @@ const renderMarker = async (pin) => {
 
 /**
  * pinInfoDrowerを開く関数
- * @param pin 
+ * @param pin
  */
-const openDrawer = (pin) => {
-    // store 内の同じ参照を取得
-    const storePin = pinStore.pinsById[pin.id]
-    selectedPin.value = storePin // ← store の参照を渡す
-    isOpenPinInfoDrawer.value = true
-}
+// const openDrawer = (pin) => {
+//     // store 内の同じ参照を取得
+//     selectedPinId.value = pin.id // pinIdを渡す
+//     isOpenPinInfoDrawer.value = true
+// }
 
 /**
  * ピンを削除する関数
  * @param deletedPinId 
  */
-const onPinDeleted = (deletedPinId) => {
-    // drawerを閉じる
-    isOpenPinInfoDrawer.value = false
-    selectedPin.value = null
+// const onPinDeleted = (deletedPinId) => {
+//     // drawerを閉じる
+//     // isOpenPinInfoDrawer.value = false
+//     // selectedPin.value = null
 
-    // marker削除
-    const markerIndex = markers.value.findIndex( // pinIdを使ってマーカーを探す
-        (m) => m.pinId === deletedPinId
-    )
-    if (markerIndex !== -1) {
-        markers.value[markerIndex].map = null // 地図から削除
-        markers.value.splice(markerIndex, 1)
+//     // marker削除
+//     const markerIndex = markers.value.findIndex( // pinIdを使ってマーカーを探す
+//         (m) => m.pinId === deletedPinId
+//     )
+//     if (markerIndex !== -1) {
+//         markers.value[markerIndex].map = null // 地図から削除
+//         markers.value.splice(markerIndex, 1)
+//     }
+// }
+
+// pinStore.pinsByIdを監視し、変更があれば再描画
+watch(
+    () => Object.keys(pinStore.pinsById),
+    async (newKeys, oldKeys) => {
+        const addedIds = newKeys.filter(id => !oldKeys.includes(id))
+        const deletedIds = oldKeys.filter(id => !newKeys.includes(id))
+
+        // 追加されたピン → マーカーを描画
+        for (const addedId of addedIds) {
+            const pin = pinStore.pinsById[addedId]
+            if (pin) {
+                await renderMarker(pin)
+            }
+        }
+
+        // 削除されたピン → マーカーを削除
+        for (const deletedId of deletedIds) {
+            const markerIndex = markers.value.findIndex(
+                (m) => m.pinId === Number(deletedId)
+            )
+            if (markerIndex !== -1) {
+                markers.value[markerIndex].map = null
+                markers.value.splice(markerIndex, 1)
+            }
+        }
+    }, {
+        deep: true
     }
-}
+)
 
 // ログイン/非ログインで切り替え
 watch(
@@ -162,11 +193,10 @@ watch(
     <MapPinAddDialog
         v-model="isOpenPinAddDialog"
         :latlng="clickedLatLng"
-        @pin-added="renderMarker"
     />
-    <MapPinInfoDrawer
+    <!-- <MapPinInfoDrawer
         v-model="isOpenPinInfoDrawer"
-        :pin="selectedPin"
+        :pin="selectedPinId"
         @pin-deleted="onPinDeleted"
-    />
+    /> -->
 </template>

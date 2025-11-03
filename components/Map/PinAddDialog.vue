@@ -19,8 +19,6 @@ const props = defineProps({ // mapの:latlng(clickedLatLng)を受け取る
     }
 })
 
-const emit = defineEmits(['pin-added'])
-
 const title = ref('')
 const errorTitle = ref('')
 const description = ref('')
@@ -48,7 +46,6 @@ const addPin = async () => {
     const token = await authStore.getIdToken()
     const addedPin = await pinStore.addPin(addPinInfo, token)
     console.log(addedPin)
-    emit('pin-added', addedPin)
     close()
 }
 
@@ -70,7 +67,6 @@ const addToStorage = async () => {
         await uploadBytes(fileRef, file.value)
         const url = await getDownloadURL(fileRef)
         uploadedUrl.value = url
-        console.log(uploadedUrl.value)
     }
     catch (err) {
         uploadedUrl.value = null

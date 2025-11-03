@@ -15,9 +15,6 @@ const props = defineProps({
     }
 })
 
-// TODO emitでレビュー作成をpinInfoDtoに伝達
-const emit = defineEmits(['review-added'])
-
 const darknessLevel = ref(3)
 const accessLevel = ref(3)
 const files = ref([])
@@ -60,10 +57,6 @@ const createNewReview = async () => {
 
     await addToStorage() // storageに追加
 
-    console.log(props.pinId)
-    console.log(uploadedUrls.value)
-    console.log(season.value)
-
     // 作成するレビューの情報
     const addReviewInfo = {
         reviewedPinId: props.pinId,
@@ -80,7 +73,6 @@ const createNewReview = async () => {
     const token = await authStore.getIdToken()
     const addedReview = await reviewStore.addReview(addReviewInfo, token)
     console.log(addedReview)
-    emit('review-added', addedReview)
     close()
 }
 

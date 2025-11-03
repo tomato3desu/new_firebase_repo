@@ -9,37 +9,37 @@ const reviewStore = useReviewStore()
 const userStore = useUserStore()
 const pinStore = usePinStore()
 
-const isOpen = defineModel()
 const props = defineProps({
-    pin: {
-        type: Object,
-        required: false,
-        default: null
+    pinId: {
+        type: Number,
+        required: true
     }
 })
 
-const emit = defineEmits(['pin-deleted'])
+const emit = defineEmits(['close', 'pin-deleted'])
 
-const reviews = ref([])
+const pin = computed(() => pinStore.pinsById[props.pinId])
+
+const reviewIds = computed(() => reviewStore.reviewsByPinId[pin.value?.id])
 
 const isOpenUpdatePinDialog = ref(false)
 const isOpenCreateReviewDialog = ref(false)
-const isEditParmitted = computed(() => authStore.loginUserId === props?.pin?.createdUserId) // ログインユーザー＝ピン作成者ならtrue
+const isEditParmitted = computed(() => authStore.loginUserId === pin.value.createdUserId) // ログインユーザー＝ピン作成者ならtrue
 
 // updateダイアログをopen
 const updatePin = () => {
     isOpenUpdatePinDialog.value = true
 }
 
-// update時にprops.pinをupdate後のpin情報に入れ替える
-const onPinUpdated = (updatedPin) => {
-    Object.assign(props.pin, updatedPin)
-}
+// update時にprops.pinをupdate後のpin情報に入れ替える // TODO props.pin -> props.pinIdに合わせて変更
+// const onPinUpdated = (updatedPin) => {
+//     Object.assign(props.pin, updatedPin)
+// }
 
 // ピン削除時にmapコンポーネントに伝達
-const onPinDeleted = (deletedPinId) => {
-    emit('pin-deleted', deletedPinId)
-}
+// const onPinDeleted = (deletedPinId) => { // TODO props.pin -> props.pinIdに合わせて変更
+//     emit('pin-deleted', deletedPinId)
+// }
 
 // createダイアログをopen
 const createReview = () => {
@@ -51,82 +51,88 @@ const createReview = () => {
 }
 
 // レビュー追加時にreviewsに追加して即時反映
-const onReviewAdded = (addedReview) => {
-    reviews.value.push(addedReview)
-}
+// const onReviewAdded = (addedReview) => {
+//     reviews.value.push(addedReview)
+// }
 
 const close = () => {
-    isOpen.value = false
-    reviews.value = []
+    emit('close')
 }
 
+onMounted(async () => {
+    await userStore.fetchUserIfNeeded(pin.value.createdUserId)
+    const fetchedReviews = await reviewStore.getReviewsByPin(pin.value.id)
+    const userIds = fetchedReviews.map(r => r.createdUserId).filter(Boolean)
+    await userStore.fetchUsersIfNeeded(userIds)
+})
+
 // drawer が開いたタイミングで fetch
-watch(
-    () => isOpen.value,
-    async (newVal) => {
-        if (newVal && props.pin?.id) {
-            await userStore.fetchUserIfNeeded(props.pin.createdUserId)
-            const fetchedReviews = await reviewStore.getReviewsByPin(props.pin.id)
-            const userIds = fetchedReviews.map(r => r.createdUserId).filter(Boolean)
-            await userStore.fetchUsersIfNeeded(userIds)
-            reviews.value = fetchedReviews
-            console.log("props.pin", userStore.usersById[props.pin.createdUserId])
-        }
-    }
+// watch(
+//     () => isOpen.value,
+//     async (newVal) => {
+//         if (newVal && props.pinId) {
+//             await userStore.fetchUserIfNeeded(pin.value.createdUserId)
+//             const fetchedReviews = await reviewStore.getReviewsByPin(pin.value.id)
+//             const userIds = fetchedReviews.map(r => r.createdUserId).filter(Boolean)
+//             await userStore.fetchUsersIfNeeded(userIds)
+//             reviews.value = fetchedReviews
+//             console.log("isOpen", pin.value)
+//         }
+//     }
     
-)
+// )
 
 // props.pin が後からセットされるケースにも対応(一旦コメントアウト 後からセットしないかも)
 // watch(
-//     () => props.pin,
-//     async (newPin) => {
-//         if (isOpen.value && newPin?.id) {
-//             await userStore.fetchUserIfNeeded(newPin.createdUserId)
-//             const fetchedReviews = await reviewStore.getReviewsByPin(newPin.id)
-//             const userIds = fetchedReviews.map(r => r.createdUserId).filter(Boolean)
-//             console.log("userIdsだよ", userIds)
-//             await userStore.fetchUsersIfNeeded(userIds)
-//             reviews.value = fetchedReviews
-//             console.log("newPin", newPin.createdUserId)
-//         }
-//     },
-//     { immediate: true }
+//   () => props.pinId,
+//   async (newId) => {
+//     if (newId) {
+//       const fetchedReviews = await reviewStore.getReviewsByPin(newId)
+//       const userIds = fetchedReviews.map(r => r.createdUserId)
+//       await userStore.fetchUsersIfNeeded(userIds)
+//       reviews.value = fetchedReviews
+//       console.log("props.pinId", pin.value)
+//     }
+//   },
+//   { immediate: true }
 // )
 </script>
 
 <template>
     <div
-        v-if="isOpen"
         class="fixed left-0 top-16 z-50 flex "
     >
         <!-- Drawer本体 -->
-        <div class="w-80 sm:w-[calc(max-28px)] bg-white shadow-lg relative h-[calc(100vh-4rem)] overflow-y-auto">
+        <div
+            v-if="pin"
+            class="w-80 sm:w-[calc(max-28px)] bg-white shadow-lg relative h-[calc(100vh-4rem)] overflow-y-auto"
+        >
             <!-- コンテンツ -->
             <div
                 class="bg-cover bg-center rounded-none h-32 flex flex-col justify-center"
-                :style="props.pin?.thumbnailImagePath 
-                    ? { backgroundImage: `url(${props.pin.thumbnailImagePath})` } 
+                :style="pin.thumbnailImagePath
+                    ? { backgroundImage: `url(${pin.thumbnailImagePath})` }
                     : { backgroundImage: `url('images/saturn.png')` }"
             >
                 <div class="text-white p-4 rounded-lg">
                     <h2 class="text-lg font-bold">
-                        {{ props.pin?.title || 'タイトルなし' }}
+                        {{ pin.title || 'タイトルなし' }}
                     </h2>
                     <p class="whitespace-pre-line">
-                        {{ props.pin?.description || '説明なし' }}
+                        {{ pin.description || '説明なし' }}
                     </p>
                 </div>
             </div>
             <div
-                v-if="userStore.usersById[props.pin.createdUserId]"
+                v-if="userStore.usersById[pin.createdUserId]"
                 class="flex items-center"
             >
                 <NuxtImg
-                    :src=" userStore.usersById[props.pin.createdUserId].iconImagePath || '/images/default_user.jpeg'"
+                    :src=" userStore.usersById[pin.createdUserId].iconImagePath || '/images/default_user.jpeg'"
                     alt="icon"
                     class="w-8 h-8 object-cover rounded-sm"
                 />
-                <p>{{ userStore.usersById[props.pin.createdUserId].nickname }}</p>
+                <p>{{ userStore.usersById[pin.createdUserId].nickname }}</p>
             </div>
             <div class="flex items-center justify-center">
                 <button
@@ -139,7 +145,7 @@ watch(
             <div v-if="isEditParmitted">
                 <button
                     class="text-lg text-yellow-300"
-                    :pin="props.pin"
+                    :pin="pin"
                     @click="updatePin"
                 >
                     編集
@@ -147,15 +153,15 @@ watch(
             </div>
             <div>
                 <div
-                    v-if="reviews.length === 0"
+                    v-if="!reviewIds || reviewIds.length === 0"
                     class="text-gray-400 text-center py-4"
                 >
                     レビューがまだありません
                 </div>
                 <MapPinReviewCard
-                    v-for="review in reviews"
-                    :key="review.id"
-                    :review="review"
+                    v-for="reviewId in reviewIds"
+                    :key="reviewId"
+                    :review-id="reviewId"
                 />
             </div>
         </div>
@@ -170,13 +176,10 @@ watch(
     </div>
     <MapCreateReviewDialog
         v-model="isOpenCreateReviewDialog"
-        :pin-id="props.pin?.id"
-        @review-added="onReviewAdded"
+        :pin-id="pin.id"
     />
     <MapUpdatePinDialog
         v-model="isOpenUpdatePinDialog"
-        :pin="props.pin"
-        @pin-updated="onPinUpdated"
-        @pin-deleted="onPinDeleted"
+        :pin-id="pin.id"
     />
 </template>

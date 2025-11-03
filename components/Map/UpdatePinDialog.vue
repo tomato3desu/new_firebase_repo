@@ -11,13 +11,13 @@ const { $storage } = useNuxtApp()
 
 const isOpen = defineModel()
 const props = defineProps({
-    pin: {
-        type: Object,
-        required: false,
-        default: null
+    pinId: {
+        type: Number,
+        required: true
     }
 })
-const emit = defineEmits(['pin-updated', 'pin-deleted'])
+
+const pin = computed(() => pinStore.pinsById[props.pinId])
 
 const title = ref('')
 const errorTitle = ref('')
@@ -39,7 +39,7 @@ const updatePin = async () => {
 
     // update情報
     const updatePinInfo = {
-        id: props.pin.id,
+        id: pin.value.id,
         title: title.value,
         description: description.value,
         thumbnailImagePath: uploadedUrl.value
@@ -49,9 +49,8 @@ const updatePin = async () => {
         const token = await authStore.getIdToken()
         const updatedPin = await pinStore.updatePin(updatePinInfo, token)
         console.log('更新完了', updatedPin)
-        // TODO 元の画像を削除
-        if (uploadedUrl.value && props.pin?.thumbnailImagePath) await deleteThumbnailImage(props.pin.thumbnailImagePath)
-        emit('pin-updated', updatedPin)
+        // 元の画像を削除
+        if (uploadedUrl.value && pin.value?.thumbnailImagePath) await deleteThumbnailImage(pin.value.thumbnailImagePath)
         close()
     }
     catch (error) {
@@ -66,7 +65,7 @@ const deletePin = async () => {
     const isConfirm = window.confirm("本当に削除しますか？")
     if (isConfirm) {
         const token = await authStore.getIdToken()
-        const deletedPin = await pinStore.deletePin(props.pin.id, token) // pinStoreのdeletePinを実行（pinstoreから削除)
+        const deletedPin = await pinStore.deletePin(pin.value.id, token) // pinStoreのdeletePinを実行（pinstoreから削除)
 
         console.log(deletedPin)
         // firebase storageから画像削除
@@ -77,9 +76,7 @@ const deletePin = async () => {
         // reviews/imagepath 全削除
         await deleteReviewImages(deletedPin)
 
-        reviewStore.deleteReviewsByPinId(props.pin.id) // reviewStoreからreview削除
-        
-        emit('pin-deleted', props.pin.id)
+        reviewStore.deleteReviewsByPinId(deletedPin.id) // reviewStoreからreview削除
         close()
     }
 }
@@ -219,7 +216,7 @@ watch(description, (value) => {
 
             <div class="mb-4">
                 <p class="text-gray-500">
-                    {{ props.pin.title }}
+                    {{ pin.title }}
                 </p>
                 <label class="block text-gray-700 text-sm font-medium mb-1">タイトル</label>
                 <p
@@ -238,7 +235,7 @@ watch(description, (value) => {
 
             <div class="mb-4">
                 <p class="text-gray-500">
-                    {{ props.pin.description }}
+                    {{ pin.description }}
                 </p>
                 <label class="block text-gray-700 text-sm font-medium mb-1">詳細</label>
                 <p
@@ -257,8 +254,8 @@ watch(description, (value) => {
 
             <div class="mb-4">
                 <NuxtImg
-                    v-if="props.pin?.thumbnailImagePath"
-                    :src="props.pin.thumbnailImagePath"
+                    v-if="pin?.thumbnailImagePath"
+                    :src="pin.thumbnailImagePath"
                     class="mb-4"
                 />
                 <label class="block text-gray-700 text-sm font-medium mb-1">画像</label>

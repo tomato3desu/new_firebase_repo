@@ -3,6 +3,18 @@ import { defineStore } from "pinia"
 export const usePinStore = defineStore('pinStore', () => {
     const config = useRuntimeConfig()
     const pinsById = ref({}) // key: pinId value: { pinDto }
+    const fetchedAt = ref({}) // key: pinId value: datetime
+
+    /**
+     * キャッシュの期限を判定するメソッド
+     * @param {number} pinId
+     * @returns boolean 期限切れ：true 期限内：false
+     */
+    const judgeExpired = (pinId) => {
+        const lastFetched = fetchedAt.value[pinId]
+        const isExpired = !lastFetched || (Date.now() - lastFetched > 5 * 60 * 1000) // 5分経過
+        return isExpired
+    }
 
     /**
      * 全ピンを取得しpinsByIdに格納する
@@ -15,7 +27,26 @@ export const usePinStore = defineStore('pinStore', () => {
             
             for (const pin of res) {
                 pinsById.value[pin.id] = pin
+                fetchedAt.value[pin.id] = Date.now()
             }
+        }
+        catch (error) {
+            const msg = error?.data?.message || '不明なエラー'
+            alert(msg)
+        }
+    }
+
+    const fetchPinById = async (pinId) => {
+        const isExpired = judgeExpired(pinId)
+        if (pinsById.value[pinId] && !isExpired) return
+
+        try {
+            const res = await $fetch(`${config.public.apiBase}/api/pin/get/${pinId}`, {
+                method: 'GET',
+            })
+
+            pinsById.value[pinId] = res
+            fetchedAt.value[pinId] = Date.now()
         }
         catch (error) {
             const msg = error?.data?.message || '不明なエラー'
@@ -103,7 +134,7 @@ export const usePinStore = defineStore('pinStore', () => {
         }
     }
 
-    return { pinsById, getAllPins, addPin, deletePin, updatePin }
+    return { pinsById, getAllPins, fetchPinById, addPin, deletePin, updatePin }
 }, {
     persist: true
 })
