@@ -77,17 +77,28 @@ const onMapClick = (e) => {
  */
 const renderMarker = async (pin) => {
     const { AdvancedMarkerElement, PinElement } = await importLibrary("marker")
-
-    // マーカーの情報
-    const pinElement = new PinElement({
-        background: "#7fffbf",
-        borderColor: "#ff84ff",
-        scale: 1.5,
-        glyphColor: "#ff84ff",
-        glyphText: String(pin.id),
+    let pinElement
+    if (pin.createdUserId === authStore.loginUserId) {
+        pinElement = new PinElement({
+            background: "#ff00ff",
+            borderColor: "#f0f8ff",
+            scale: 1.5,
+            glyphColor: "#f0f8ff",
+            glyphText: String(pin.id),
         
-    })
-
+        })
+    }
+    else {
+        // マーカーの情報
+        pinElement = new PinElement({
+            background: "#0000cd",
+            borderColor: "#f0f8ff",
+            scale: 1.5,
+            glyphColor: "#f0f8ff",
+            glyphText: String(pin.id),
+        })
+    }
+    
     const marker = new AdvancedMarkerElement({
         map,
         position: { lat: pin.latitude, lng: pin.longitude },

@@ -26,20 +26,14 @@ const isOpenUpdatePinDialog = ref(false)
 const isOpenCreateReviewDialog = ref(false)
 const isEditParmitted = computed(() => authStore.loginUserId === pin.value.createdUserId) // ログインユーザー＝ピン作成者ならtrue
 
+const isOpenImageGallery = ref(false) // 画像ギャラリーの表示フラグ
+const selectedGaralleryImages = ref([]) // 表示中の画像一覧
+const selectedGaralleryIndex = ref(0) // 現在の選択index
+
 // updateダイアログをopen
 const updatePin = () => {
     isOpenUpdatePinDialog.value = true
 }
-
-// update時にprops.pinをupdate後のpin情報に入れ替える // TODO props.pin -> props.pinIdに合わせて変更
-// const onPinUpdated = (updatedPin) => {
-//     Object.assign(props.pin, updatedPin)
-// }
-
-// ピン削除時にmapコンポーネントに伝達
-// const onPinDeleted = (deletedPinId) => { // TODO props.pin -> props.pinIdに合わせて変更
-//     emit('pin-deleted', deletedPinId)
-// }
 
 // createダイアログをopen
 const createReview = () => {
@@ -50,52 +44,23 @@ const createReview = () => {
     isOpenCreateReviewDialog.value = true
 }
 
-// レビュー追加時にreviewsに追加して即時反映
-// const onReviewAdded = (addedReview) => {
-//     reviews.value.push(addedReview)
-// }
+const onImageClicked = ({ clicked, allImages }) => {
+    selectedGaralleryImages.value = allImages
+    selectedGaralleryIndex.value = allImages.findIndex(i => i.id === clicked.id)
+    isOpenImageGallery.value = true
+}
 
 const close = () => {
     emit('close')
 }
 
+// マウント時にpinに関連するユーザー、レビューをfetchする
 onMounted(async () => {
     await userStore.fetchUserIfNeeded(pin.value.createdUserId)
     const fetchedReviews = await reviewStore.getReviewsByPin(pin.value.id)
     const userIds = fetchedReviews.map(r => r.createdUserId).filter(Boolean)
     await userStore.fetchUsersIfNeeded(userIds)
 })
-
-// drawer が開いたタイミングで fetch
-// watch(
-//     () => isOpen.value,
-//     async (newVal) => {
-//         if (newVal && props.pinId) {
-//             await userStore.fetchUserIfNeeded(pin.value.createdUserId)
-//             const fetchedReviews = await reviewStore.getReviewsByPin(pin.value.id)
-//             const userIds = fetchedReviews.map(r => r.createdUserId).filter(Boolean)
-//             await userStore.fetchUsersIfNeeded(userIds)
-//             reviews.value = fetchedReviews
-//             console.log("isOpen", pin.value)
-//         }
-//     }
-    
-// )
-
-// props.pin が後からセットされるケースにも対応(一旦コメントアウト 後からセットしないかも)
-// watch(
-//   () => props.pinId,
-//   async (newId) => {
-//     if (newId) {
-//       const fetchedReviews = await reviewStore.getReviewsByPin(newId)
-//       const userIds = fetchedReviews.map(r => r.createdUserId)
-//       await userStore.fetchUsersIfNeeded(userIds)
-//       reviews.value = fetchedReviews
-//       console.log("props.pinId", pin.value)
-//     }
-//   },
-//   { immediate: true }
-// )
 </script>
 
 <template>
@@ -162,6 +127,7 @@ onMounted(async () => {
                     v-for="reviewId in reviewIds"
                     :key="reviewId"
                     :review-id="reviewId"
+                    @image-clicked="onImageClicked"
                 />
             </div>
         </div>
@@ -174,6 +140,11 @@ onMounted(async () => {
             </button>
         </div>
     </div>
+    <MapImageGallery
+        v-model="isOpenImageGallery"
+        :review-images="selectedGaralleryImages"
+        :start-index="selectedGaralleryIndex"
+    />
     <MapCreateReviewDialog
         v-model="isOpenCreateReviewDialog"
         :pin-id="pin.id"

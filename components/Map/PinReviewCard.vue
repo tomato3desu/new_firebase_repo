@@ -1,5 +1,4 @@
 <script setup>
-import { emit } from 'process'
 import { useAuthStore } from '~/composables/stores/auth'
 import { useReviewStore } from '~/composables/stores/review'
 import { useUserStore } from '~/composables/stores/user'
@@ -14,6 +13,8 @@ const props = defineProps({
         required: true,
     }
 })
+
+const emit = defineEmits(['image-clicked'])
 
 const review = computed(() => reviewStore.reviewsById[props?.reviewId])
 
@@ -37,13 +38,16 @@ const updateReview = () => {
     isOpenUpdateReviewDialog.value = true
 }
 
-// const onReviewUpdated = (updatedReview) => {
-//     Object.assign(props.review, updatedReview)
-// }
-
-// const onReviewDeleted = (reviewId) => {
-    
-// }
+/**
+ * 画像クリック時にギャラリー表示するための情報をdrawerに伝える
+ * @param reviewImage 
+ */
+const onImageClick = (reviewImage) => {
+    emit('image-clicked', {
+        clicked: reviewImage,
+        allImages: review.value.reviewImages
+    })
+}
 </script>
 
 <template>
@@ -131,6 +135,7 @@ const updateReview = () => {
                 :src="reviewImage.imagePath"
                 alt="review image"
                 class="w-full h-24 object-cover rounded-none mb-2"
+                @click="onImageClick(reviewImage)"
             />
         </div>
     </div>
