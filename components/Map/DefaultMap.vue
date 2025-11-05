@@ -4,12 +4,14 @@ import { usePinStore } from "~/composables/stores/pin"
 import { useAuthStore } from "~/composables/stores/auth"
 import { useUserStore } from "~/composables/stores/user"
 import { usePrefStore } from "~/composables/stores/prefecture"
+import { useBookmarkStore } from "~/composables/stores/bookmark"
 
 // ストア
 const authStore = useAuthStore()
 const pinStore = usePinStore()
 const userStore = useUserStore()
 const prefStore = usePrefStore()
+const bookmarkStore = useBookmarkStore()
 
 const config = useRuntimeConfig()
 
@@ -78,7 +80,11 @@ const onMapClick = (e) => {
 const renderMarker = async (pin) => {
     const { AdvancedMarkerElement, PinElement } = await importLibrary("marker")
     let pinElement
-    if (pin.createdUserId === authStore.loginUserId) {
+
+    const bookmarks = bookmarkStore.bookmarkedPinsByUserId[authStore.loginUserId] || []
+    const isBookmarked = bookmarks.includes(pin.id)
+
+    if (isBookmarked) {
         pinElement = new PinElement({
             background: "#ff00ff",
             borderColor: "#f0f8ff",
@@ -114,35 +120,6 @@ const renderMarker = async (pin) => {
     markers.value.push(marker)
 }
 
-/**
- * pinInfoDrowerを開く関数
- * @param pin
- */
-// const openDrawer = (pin) => {
-//     // store 内の同じ参照を取得
-//     selectedPinId.value = pin.id // pinIdを渡す
-//     isOpenPinInfoDrawer.value = true
-// }
-
-/**
- * ピンを削除する関数
- * @param deletedPinId 
- */
-// const onPinDeleted = (deletedPinId) => {
-//     // drawerを閉じる
-//     // isOpenPinInfoDrawer.value = false
-//     // selectedPin.value = null
-
-//     // marker削除
-//     const markerIndex = markers.value.findIndex( // pinIdを使ってマーカーを探す
-//         (m) => m.pinId === deletedPinId
-//     )
-//     if (markerIndex !== -1) {
-//         markers.value[markerIndex].map = null // 地図から削除
-//         markers.value.splice(markerIndex, 1)
-//     }
-// }
-
 // pinStore.pinsByIdを監視し、変更があれば再描画
 watch(
     () => Object.keys(pinStore.pinsById),
@@ -171,6 +148,58 @@ watch(
     }, {
         deep: true
     }
+)
+
+// mybookmarkedPinIdsを監視し、変更があれば再描画
+watch(
+    () => bookmarkStore.mybookmarkedPinIds,
+    async (newList, oldList) => {
+        if (!map) return
+        const newIds = newList || []
+        const oldIds = oldList || []
+
+        console.log(bookmarkStore.mybookmarkedPinIds)
+
+        // 追加・削除されたピンを特定
+        const added = newIds.filter(id => !oldIds.includes(id))
+        const removed = oldIds.filter(id => !newIds.includes(id))
+
+        console.log(added)
+        console.log(removed)
+
+        // 🔹 追加されたブックマーク → マーカー色変更
+        for (const pinId of added) {
+            const marker = markers.value.find(m => m.pinId === pinId)
+            if (marker) {
+                const { PinElement } = await importLibrary("marker")
+                const pinElement = new PinElement({
+                    background: "#ff00ff",
+                    borderColor: "#f0f8ff",
+                    scale: 1.5,
+                    glyphColor: "#f0f8ff",
+                    glyphText: String(pinId),
+                })
+                marker.content = pinElement.element
+            }
+        }
+
+        // 🔹 削除されたブックマーク → 元の色に戻す
+        for (const pinId of removed) {
+            const marker = markers.value.find(m => m.pinId === pinId)
+            if (marker) {
+                const { PinElement } = await importLibrary("marker")
+                const pinElement = new PinElement({
+                    background: "#0000cd",
+                    borderColor: "#f0f8ff",
+                    scale: 1.5,
+                    glyphColor: "#f0f8ff",
+                    glyphText: String(pinId),
+                })
+                marker.content = pinElement.element
+            }
+        }
+    },
+    { deep: true }
 )
 
 // ログイン/非ログインで切り替え
@@ -205,9 +234,4 @@ watch(
         v-model="isOpenPinAddDialog"
         :latlng="clickedLatLng"
     />
-    <!-- <MapPinInfoDrawer
-        v-model="isOpenPinInfoDrawer"
-        :pin="selectedPinId"
-        @pin-deleted="onPinDeleted"
-    /> -->
 </template>

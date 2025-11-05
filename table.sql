@@ -77,20 +77,20 @@ CREATE TABLE IF NOT EXISTS review_images (
     CONSTRAINT fk_review FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-create table if not exists pin_likes (
+create table if not exists pin_bookmarks(
     id int auto_increment primary key,
-    liked_pin_id int not null,
-    liked_user_id int not null,
+    bookmarked_user_id int not null,
+    bookmarked_pin_id int not null,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_pin_likes_pin FOREIGN KEY (liked_pin_id)
+    CONSTRAINT fk_pin_bookmark_pin FOREIGN KEY (bookmarked_pin_id)
         REFERENCES pins(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    CONSTRAINT fk_pin_likes_user FOREIGN KEY (liked_user_id)
+    CONSTRAINT fk_pin_bookmark_user FOREIGN KEY (bookmarked_user_id)
         REFERENCES users(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    CONSTRAINT unique_like UNIQUE (liked_pin_id, liked_user_id)
+    CONSTRAINT unique_bookmark UNIQUE (bookmarked_pin_id, bookmarked_user_id)
 );
 
 create or replace view pin_review_average as 

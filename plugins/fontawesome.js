@@ -1,8 +1,9 @@
 import { library, config } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faStar } from '@fortawesome/free-solid-svg-icons'
+import { faStar, faBookmark } from '@fortawesome/free-solid-svg-icons'
 
 library.add(faStar)
+library.add(faBookmark)
 
 config.autoAddCss = false
 

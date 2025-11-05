@@ -3,11 +3,13 @@ import { useReviewStore } from '~/composables/stores/review'
 import { useAuthStore } from '~/composables/stores/auth'
 import { useUserStore } from '~/composables/stores/user'
 import { usePinStore } from '~/composables/stores/pin'
+import { useBookmarkStore } from '~/composables/stores/bookmark'
 
 const authStore = useAuthStore()
 const reviewStore = useReviewStore()
 const userStore = useUserStore()
 const pinStore = usePinStore()
+const bookmarkStore = useBookmarkStore()
 
 const props = defineProps({
     pinId: {
@@ -30,6 +32,8 @@ const isOpenImageGallery = ref(false) // 画像ギャラリーの表示フラグ
 const selectedGaralleryImages = ref([]) // 表示中の画像一覧
 const selectedGaralleryIndex = ref(0) // 現在の選択index
 
+const isBookmarked = computed(() => bookmarkStore.isBookmarkedByMe(pin.value.id))
+
 // updateダイアログをopen
 const updatePin = () => {
     isOpenUpdatePinDialog.value = true
@@ -48,6 +52,10 @@ const onImageClicked = ({ clicked, allImages }) => {
     selectedGaralleryImages.value = allImages
     selectedGaralleryIndex.value = allImages.findIndex(i => i.id === clicked.id)
     isOpenImageGallery.value = true
+}
+
+const toggleBookmark = async() => {
+    await bookmarkStore.toggleBookmark(pin.value.id)
 }
 
 const close = () => {
@@ -98,6 +106,18 @@ onMounted(async () => {
                     class="w-8 h-8 object-cover rounded-sm"
                 />
                 <p>{{ userStore.usersById[pin.createdUserId].nickname }}</p>
+                <font-awesome-icon 
+                    v-if="isBookmarked"
+                    icon="fa-solid fa-bookmark"
+                    class="text-teal-400 w-4 h-4"
+                    @click="toggleBookmark"
+                />
+                <font-awesome-icon 
+                    v-else
+                    icon="fa-solid fa-bookmark"
+                    class="text-gray-400 h-4 w-4"
+                    @click="toggleBookmark"
+                />
             </div>
             <div class="flex items-center justify-center">
                 <button
