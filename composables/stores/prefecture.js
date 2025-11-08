@@ -15,6 +15,16 @@ export const usePrefStore = defineStore('prefStore', () => {
     }
 
     /**
+     * prefNameから逆引き
+     * @param {string} name 
+     * @returns prefId
+     */
+    const findPrefIdByName = (name) => {
+        const entry = Object.entries(prefsById.value).find(([id, pref]) => pref.name === name)
+        return entry ? Number(entry[0]) : null
+    }
+
+    /**
      * 都道府県情報をセットする
      * @param {boolean} force 
      * @returns 
@@ -40,7 +50,8 @@ export const usePrefStore = defineStore('prefStore', () => {
     return {
         prefsById,
         findByprefId,
-        setAllPrefs
+        setAllPrefs,
+        findPrefIdByName
     }
 }, {
     persist: true

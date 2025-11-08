@@ -4,12 +4,14 @@ import { useAuthStore } from '~/composables/stores/auth'
 import { useUserStore } from '~/composables/stores/user'
 import { usePinStore } from '~/composables/stores/pin'
 import { useBookmarkStore } from '~/composables/stores/bookmark'
+import { usePrefStore } from '~/composables/stores/prefecture'
 
 const authStore = useAuthStore()
 const reviewStore = useReviewStore()
 const userStore = useUserStore()
 const pinStore = usePinStore()
 const bookmarkStore = useBookmarkStore()
+const prefStore = usePrefStore()
 
 const props = defineProps({
     pinId: {
@@ -54,7 +56,7 @@ const onImageClicked = ({ clicked, allImages }) => {
     isOpenImageGallery.value = true
 }
 
-const toggleBookmark = async() => {
+const toggleBookmark = async () => {
     await bookmarkStore.toggleBookmark(pin.value.id)
 }
 
@@ -89,11 +91,8 @@ onMounted(async () => {
             >
                 <div class="text-white p-4 rounded-lg">
                     <h2 class="text-lg font-bold">
-                        {{ pin.title || 'タイトルなし' }}
+                        {{ pin.title }}
                     </h2>
-                    <p class="whitespace-pre-line">
-                        {{ pin.description || '説明なし' }}
-                    </p>
                 </div>
             </div>
             <div
@@ -109,15 +108,46 @@ onMounted(async () => {
                 <font-awesome-icon 
                     v-if="isBookmarked"
                     icon="fa-solid fa-bookmark"
-                    class="text-teal-400 w-4 h-4"
+                    class="text-teal-400 w-4 h-4 absolute right-4"
                     @click="toggleBookmark"
                 />
                 <font-awesome-icon 
                     v-else
                     icon="fa-solid fa-bookmark"
-                    class="text-gray-400 h-4 w-4"
+                    class="text-gray-400 h-4 w-4 absolute right-4"
                     @click="toggleBookmark"
                 />
+            </div>
+            <div>
+                <a
+                    :href="`https://www.google.com/maps?q=${pin.latitude},${pin.longitude}`"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="block text-sm text-sky-400"
+                >
+                    Googleマップで開く
+                </a>
+                <div class="flex">
+                    <p>暗さ：</p>
+                    <font-awesome-icon
+                        icon="fa-solid fa-star"
+                        class="text-yellow-400 h-4 w-4"
+                    />
+                    <p>{{ pin.avgDarkness?.toFixed(1) }}</p>
+                </div>
+                <div class="flex">
+                    <p>アクセス：</p>
+                    <font-awesome-icon
+                        icon="fa-solid fa-star"
+                        class="text-yellow-400 h-4 w-4"
+                    />
+                    <p>{{ pin.avgAccess?.toFixed(1) }}</p>
+                </div>
+                <p>レビュー数：{{ pin.reviewCount }}</p>
+                <p>ブックマーク数：{{ pin.pinBookmarkCount }}</p>
+                <p>{{ prefStore.prefsById[pin.prefectureId].name }}</p>
+                <p>{{ pin.address }}</p>
+                <p>{{ pin.description }}</p>
             </div>
             <div class="flex items-center justify-center">
                 <button

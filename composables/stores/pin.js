@@ -36,6 +36,11 @@ export const usePinStore = defineStore('pinStore', () => {
         }
     }
 
+    /**
+     * ピンIDからピンをフェッチ（前回取得してから５分間はキャッシュを使う）
+     * @param {number} pinId 
+     * @returns 
+     */
     const fetchPinById = async (pinId) => {
         const isExpired = judgeExpired(pinId)
         if (pinsById.value[pinId] && !isExpired) return
@@ -51,6 +56,23 @@ export const usePinStore = defineStore('pinStore', () => {
         catch (error) {
             const msg = error?.data?.message || '不明なエラー'
             alert(msg)
+        }
+    }
+
+    /**
+     * キャッシュにかかわらずpinを再フェッチ
+     * @param {number} pinId 
+     */
+    const refreshPin = async (pinId) => {
+        try {
+            const res = await $fetch(`${config.public.apiBase}/api/pin/get/${pinId}`, {
+                method: 'GET'
+            })
+            pinsById.value[pinId] = res
+            fetchedAt.value[pinId] = Date.now()
+        }
+        catch (error) {
+            console.error('ピンの再取得に失敗:', error)
         }
     }
 
@@ -134,7 +156,7 @@ export const usePinStore = defineStore('pinStore', () => {
         }
     }
 
-    return { pinsById, getAllPins, fetchPinById, addPin, deletePin, updatePin }
+    return { pinsById, getAllPins, fetchPinById, refreshPin, addPin, deletePin, updatePin }
 }, {
     persist: true
 })

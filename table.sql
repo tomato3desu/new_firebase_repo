@@ -42,12 +42,35 @@ create table if not exists pins(
     longitude decimal(10, 7) not null,
     title varchar(255) not null,
     description VARCHAR(255),
+    pref_id int,
+    address varchar(255),
     thumbnail_image_path varchar(255),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_pins FOREIGN KEY (created_user_id) REFERENCES users(id)
         ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_pref_pins FOREIGN KEY (pref_id) REFERENCES prefectures(id)
+        ON DELETE SET NULL
         ON UPDATE CASCADE
 );
+
+ALTER TABLE pins
+ADD COLUMN pref_id INT NULL AFTER description,
+ADD COLUMN address VARCHAR(255) NULL AFTER pref_id,
+ADD CONSTRAINT fk_pref_pins FOREIGN KEY (pref_id)
+    REFERENCES prefectures(id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE;
+
+
+select p.id as pin_id, p.created_user_id as created_user_id, p.latitude as latitude, p.longitude as longitude,
+       p.title as title, p.description as description, p.thumbnail_image_path as thumbnail_image_path,
+       p.created_at as created_at, avg(r.darkness_level), avg(r.access_level), count(r.id), count(pb.id), 
+from pins p
+left join review r on r.reviewed_pin_id = p.id
+left join pin_bookmarks pb on pb.bookmarked_pin_id = p.id
+group by p.id
+having p.id = ?
 
 create table if not exists reviews(
     id int auto_increment primary key,
@@ -93,15 +116,17 @@ create table if not exists pin_bookmarks(
     CONSTRAINT unique_bookmark UNIQUE (bookmarked_pin_id, bookmarked_user_id)
 );
 
-create or replace view pin_review_average as 
-select 
-p.id as pin_id,
-p.title,
-round(avg(r.darkness_level), 2) as avg_darkness,
-round(avg(r.access_level), 2) as avg_access,
-count(r.id) as review_count,
-count(pl.id) as like_count 
-from pins p 
-left join reviews r on p.id = r.reviewed_pin_id
-left join pin_likes pl on p.id = pl.liked_pin_id
-group by p.id, p.title;
+
+
+CREATE OR REPLACE VIEW pin_review_average AS
+SELECT 
+    p.id AS pin_id,
+    ROUND(AVG(r.darkness_level), 2) AS avg_darkness,
+    ROUND(AVG(r.access_level), 2) AS avg_access,
+    COUNT(DISTINCT r.id) AS review_count,
+    COUNT(DISTINCT pb.id) AS pin_bookmark_count
+FROM pins p
+LEFT JOIN reviews r ON p.id = r.reviewed_pin_id
+LEFT JOIN pin_bookmarks pb ON p.id = pb.bookmarked_pin_id
+GROUP BY p.id;
+

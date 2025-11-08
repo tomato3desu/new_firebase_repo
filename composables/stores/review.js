@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia'
+import { usePinStore } from './pin'
 
 export const useReviewStore = defineStore('reviewStore', () => {
     const config = useRuntimeConfig()
+    const pinStore = usePinStore()
 
     const reviewsById = ref({}) // key: reviewId, value: { reviewDto }
     const reviewsByPinId = ref({}) // key: pinId, value: [reviewId, reviewId]
@@ -89,6 +91,8 @@ export const useReviewStore = defineStore('reviewStore', () => {
         reviewsById.value[reviewId] = res
         fetchedAt.value[reviewId] = Date.now()
 
+        await pinStore.refreshPin(pinId) // pin情報を更新
+
         return res
     }
 
@@ -107,6 +111,8 @@ export const useReviewStore = defineStore('reviewStore', () => {
 
         reviewsById.value[res.id] = res
         fetchedAt.value[res.id] = Date.now()
+
+        await pinStore.refreshPin(res.reviewedPinId) // pin情報を更新
 
         return res
     }
@@ -130,6 +136,8 @@ export const useReviewStore = defineStore('reviewStore', () => {
         reviewsByPinId.value[pinId] = reviewsByPinId.value[pinId]?.filter(id => id !== reviewId) || []
         delete reviewsById.value[reviewId]
         delete fetchedAt.value[reviewId]
+
+        await pinStore.refreshPin(pinId) // pin情報を更新
 
         return review
     }

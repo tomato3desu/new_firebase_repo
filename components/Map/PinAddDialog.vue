@@ -2,10 +2,12 @@
 import { usePinStore } from '~/composables/stores/pin'
 import { useAuthStore } from '~/composables/stores/auth'
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { usePrefStore } from '~/composables/stores/prefecture'
 
 // ストア
 const pinStore = usePinStore()
 const authStore = useAuthStore()
+const prefStore = usePrefStore()
 
 const { $storage } = useNuxtApp()
 
@@ -16,13 +18,27 @@ const props = defineProps({ // mapの:latlng(clickedLatLng)を受け取る
         type: Object,
         required: false,
         default: null
+    },
+    address: {
+        type: String,
+        required: false,
+        default: null
+    },
+    prefecture: {
+        type: String,
+        required: false,
+        default: null
     }
 })
+
+// TODO address/prefectureを入力、選択できるようにして、バックエンドはpinEntityにadress/prefectureを持たせる
 
 const title = ref('')
 const errorTitle = ref('')
 const description = ref('')
 const errorDesc = ref('')
+const address = ref('')
+const prefectureId = ref(null)
 const isActiveAddBtn = computed(() => !errorTitle.value && !errorDesc.value && authStore.isLoggedIn)
 const file = ref(null)
 const previewUrl = ref(null)
@@ -31,7 +47,7 @@ const error = ref(null)
 
 const addPin = async () => {
     if (!props.latlng) return
-    if (errorTitle.value || errorDesc.value || !title.value || !description.value) return
+    if (errorTitle.value || errorDesc.value || !title.value || !description.value || !address.value || !prefectureId.value) return
 
     await addToStorage()
 
@@ -39,6 +55,8 @@ const addPin = async () => {
         latitude: props.latlng.lat,
         longitude: props.latlng.lng,
         title: title.value,
+        address: address.value,
+        prefectureId: prefectureId.value,
         description: description.value,
         thumbnailImagePath: uploadedUrl.value
     }
@@ -108,6 +126,21 @@ watch(description, (value) => {
         errorDesc.value = null
     }
 })
+
+watch(isOpen, async (value) => {
+    if (value) {
+        await prefStore.setAllPrefs()
+        console.log("open")
+        address.value = props.address
+        const tmpPrefId = prefStore.findPrefIdByName(props.prefecture) // props.prefectureからID検索
+        prefectureId.value = tmpPrefId
+        console.log(address.value)
+        console.log(prefectureId.value)
+    }
+    else {
+        console.log("close")
+    }
+})
 </script>
 
 <template>
@@ -146,6 +179,28 @@ watch(description, (value) => {
                     placeholder="説明を入力"
                     required
                 />
+            </div>
+
+            <div
+                v-if="props.address && props.prefecture"
+                class="mb-4"
+            >
+                <select v-model="prefectureId">
+                    <option
+                        v-for="pref in prefStore.prefsById"
+                        :key="pref.id"
+                        :value="pref.id"
+                    >
+                        {{ pref.name }}
+                    </option>
+                </select>
+                <input
+                    v-model="address"
+                    type="text"
+                    class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                    placeholder="住所"
+                    required
+                >
             </div>
 
             <div class="mb-4">

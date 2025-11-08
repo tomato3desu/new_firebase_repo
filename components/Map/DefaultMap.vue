@@ -19,14 +19,18 @@ const emit = defineEmits(['pin-clicked'])
 
 let user = userStore.usersById[authStore.loginUserId]
 
-const mapElement = ref(null)
+// ピン作成関連
 const isOpenPinAddDialog = ref(false)
-// const isOpenPinInfoDrawer = ref(false)
-// const selectedPinId = ref(null)
+let geocoder
+const address = ref(null)
+const prefecture = ref(null)
 const clickedLatLng = ref(null)
-const markers = ref([])
+
+// map関連
+const mapElement = ref(null)
 let map
 let mapClickListener = null
+const markers = ref([])
 
 onMounted(async () => {
     const { Map } = await importLibrary("maps")
@@ -48,6 +52,9 @@ onMounted(async () => {
         mapId: config.public.googleMapId
     })
 
+    // Geocoder インスタンス作成
+    geocoder = new google.maps.Geocoder()
+
     // clicklisterを追加
     if (authStore.isLoggedIn) {
         mapClickListener = map.addListener('click', onMapClick)
@@ -63,13 +70,37 @@ onMounted(async () => {
 })
 
 /**
+ * 緯度経度から住所を取得する関数
+ * @param {google.maps.LatLng} latlng
+ */
+const getAddressFromLatLng = async (lat, lng) => {
+    const results = await geocoder.geocode({ location: { lat, lng } })
+
+    if (results && results.results?.length > 0) {
+        address.value = results.results[0].formatted_address
+        const components = results.results[0].address_components
+        // 都道府県を抽出
+        const prefectureComponent = components.find(c =>
+            c.types.includes("administrative_area_level_1")
+        )
+        prefecture.value = prefectureComponent ? prefectureComponent.long_name : null
+    }
+    else {
+        console.log('Geocoding error')
+    }
+}
+
+/**
  * マップクリック時にピン追加するための処理を行う関数
  * @param e 
  */
-const onMapClick = (e) => {
+const onMapClick = async (e) => {
     const lat = e.latLng.lat()
     const lng = e.latLng.lng()
     clickedLatLng.value = { lat, lng }
+    await getAddressFromLatLng(lat, lng)
+    console.log(address.value)
+    console.log(prefecture.value)
     isOpenPinAddDialog.value = true
 }
 
@@ -86,10 +117,10 @@ const renderMarker = async (pin) => {
 
     if (isBookmarked) {
         pinElement = new PinElement({
-            background: "#ff00ff",
-            borderColor: "#f0f8ff",
+            background: "#00ff7f",
+            borderColor: "#ffffff",
             scale: 1.5,
-            glyphColor: "#f0f8ff",
+            glyphColor: "#ffffff",
             glyphText: String(pin.id),
         
         })
@@ -97,10 +128,10 @@ const renderMarker = async (pin) => {
     else {
         // マーカーの情報
         pinElement = new PinElement({
-            background: "#0000cd",
-            borderColor: "#f0f8ff",
+            background: "#00ffff",
+            borderColor: "#ffffff",
             scale: 1.5,
-            glyphColor: "#f0f8ff",
+            glyphColor: "#ffffff",
             glyphText: String(pin.id),
         })
     }
@@ -113,7 +144,7 @@ const renderMarker = async (pin) => {
 
     marker.pinId = pin.id // pinIdを保持（削除時に利用）
 
-    marker.addListener('click', () => {
+    marker.addListener('click', async () => {
         emit('pin-clicked', pin.id)
     })
 
@@ -173,10 +204,10 @@ watch(
             if (marker) {
                 const { PinElement } = await importLibrary("marker")
                 const pinElement = new PinElement({
-                    background: "#ff00ff",
-                    borderColor: "#f0f8ff",
+                    background: "#00ff7f",
+                    borderColor: "#ffffff",
                     scale: 1.5,
-                    glyphColor: "#f0f8ff",
+                    glyphColor: "#ffffff",
                     glyphText: String(pinId),
                 })
                 marker.content = pinElement.element
@@ -189,10 +220,10 @@ watch(
             if (marker) {
                 const { PinElement } = await importLibrary("marker")
                 const pinElement = new PinElement({
-                    background: "#0000cd",
-                    borderColor: "#f0f8ff",
+                    background: "#00ffff",
+                    borderColor: "#ffffff",
                     scale: 1.5,
-                    glyphColor: "#f0f8ff",
+                    glyphColor: "#ffffff",
                     glyphText: String(pinId),
                 })
                 marker.content = pinElement.element
@@ -233,5 +264,7 @@ watch(
     <MapPinAddDialog
         v-model="isOpenPinAddDialog"
         :latlng="clickedLatLng"
+        :address="address"
+        :prefecture="prefecture"
     />
 </template>

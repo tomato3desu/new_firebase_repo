@@ -1,9 +1,11 @@
 import { defineStore } from "pinia"
 import { useAuthStore } from "./auth"
+import { usePinStore } from "./pin"
 
 export const useBookmarkStore = defineStore('bookmarkStore', () => {
     const config = useRuntimeConfig()
     const authStore = useAuthStore()
+    const pinStore = usePinStore()
 
     const bookmarkedPinsByUserId = ref({}) // key: userId, value: [pinId1, pinId2]
     const mybookmarkedPinIds = computed(() => // ログインユーザーのブックマーク
@@ -55,6 +57,8 @@ export const useBookmarkStore = defineStore('bookmarkStore', () => {
                     Authorization: `Bearer ${token}`
                 }
             })
+
+            await pinStore.refreshPin(pinId) // pin情報を更新
         }
         catch (e) {
             console.error('Toggle bookmark failed:', e)
