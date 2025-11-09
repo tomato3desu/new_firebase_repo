@@ -1,11 +1,13 @@
 <script setup>
 import { useAuthStore } from '~/composables/stores/auth'
+import { useGoodStore } from '~/composables/stores/good'
 import { useReviewStore } from '~/composables/stores/review'
 import { useUserStore } from '~/composables/stores/user'
 
 const authStore = useAuthStore()
 const userStore = useUserStore()
 const reviewStore = useReviewStore()
+const goodStore = useGoodStore()
 
 const props = defineProps({
     reviewId: {
@@ -17,6 +19,7 @@ const props = defineProps({
 const emit = defineEmits(['image-clicked'])
 
 const review = computed(() => reviewStore.reviewsById[props?.reviewId])
+const isGood = computed(() => goodStore.myGoodReviews.includes(props.reviewId) ? true : false)
 
 const isOpenUpdateReviewDialog = ref(false)
 
@@ -36,6 +39,12 @@ const isEditParmitted = computed(() => authStore.loginUserId === review.value.cr
 
 const updateReview = () => {
     isOpenUpdateReviewDialog.value = true
+}
+
+const onGoodClicked = async () => {
+    const reviewId = review.value.id
+    console.log(isGood.value)
+    await goodStore.toggleGood(reviewId)
 }
 
 /**
@@ -137,6 +146,22 @@ const onImageClick = (reviewImage) => {
                 class="w-full h-24 object-cover rounded-none mb-2"
                 @click="onImageClick(reviewImage)"
             />
+        </div>
+        <!-- good, good数 -->
+        <div class="flex">
+            <font-awesome-icon
+                v-if="isGood"
+                icon="fa-solid fa-thumbs-up"
+                class="w-4 h-4 text-gray-700"
+                @click="onGoodClicked"
+            />
+            <font-awesome-icon
+                v-else
+                icon="fa-solid fa-thumbs-up"
+                class="w-4 h-4 text-gray-300"
+                @click="onGoodClicked"
+            />
+            <p>{{ review.goodCount }}</p>
         </div>
     </div>
     <MapUpdateReviewDialog

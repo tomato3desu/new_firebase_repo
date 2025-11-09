@@ -5,6 +5,7 @@ import { useUserStore } from '~/composables/stores/user'
 import { usePinStore } from '~/composables/stores/pin'
 import { useBookmarkStore } from '~/composables/stores/bookmark'
 import { usePrefStore } from '~/composables/stores/prefecture'
+import { useGoodStore } from '~/composables/stores/good'
 
 const authStore = useAuthStore()
 const reviewStore = useReviewStore()
@@ -12,6 +13,7 @@ const userStore = useUserStore()
 const pinStore = usePinStore()
 const bookmarkStore = useBookmarkStore()
 const prefStore = usePrefStore()
+const goodStore = useGoodStore()
 
 const props = defineProps({
     pinId: {
@@ -70,6 +72,7 @@ onMounted(async () => {
     const fetchedReviews = await reviewStore.getReviewsByPin(pin.value.id)
     const userIds = fetchedReviews.map(r => r.createdUserId).filter(Boolean)
     await userStore.fetchUsersIfNeeded(userIds)
+    await goodStore.fetchMyGoodReviews()
 })
 </script>
 

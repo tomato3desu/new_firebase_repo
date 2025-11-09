@@ -62,16 +62,6 @@ ADD CONSTRAINT fk_pref_pins FOREIGN KEY (pref_id)
     ON DELETE SET NULL
     ON UPDATE CASCADE;
 
-
-select p.id as pin_id, p.created_user_id as created_user_id, p.latitude as latitude, p.longitude as longitude,
-       p.title as title, p.description as description, p.thumbnail_image_path as thumbnail_image_path,
-       p.created_at as created_at, avg(r.darkness_level), avg(r.access_level), count(r.id), count(pb.id), 
-from pins p
-left join review r on r.reviewed_pin_id = p.id
-left join pin_bookmarks pb on pb.bookmarked_pin_id = p.id
-group by p.id
-having p.id = ?
-
 create table if not exists reviews(
     id int auto_increment primary key,
     created_user_id int not null,
@@ -115,6 +105,23 @@ create table if not exists pin_bookmarks(
         ON UPDATE CASCADE,
     CONSTRAINT unique_bookmark UNIQUE (bookmarked_pin_id, bookmarked_user_id)
 );
+
+create table if not exists review_good(
+    id int auto_increment primary key,
+    good_user_id int not null,
+    good_review_id int not null,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_review_good_review FOREIGN KEY (good_review_id)
+        REFERENCES reviews(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_review_good_user FOREIGN KEY (good_user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT unique_good UNIQUE (good_review_id, good_user_id)
+);
+
 
 
 

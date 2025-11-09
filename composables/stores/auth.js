@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, getAuth } from 'firebase/auth'
+import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, getAuth, onAuthStateChanged } from 'firebase/auth'
 import { useUserStore } from './user'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -77,7 +77,16 @@ export const useAuthStore = defineStore('auth', () => {
 
     const getIdToken = async () => {
         const auth = getAuth()
-        const user = auth.currentUser
+        let user = auth.currentUser
+        if (!user) {
+        // Firebase がユーザー情報を復元するのを待つ
+            user = await new Promise((resolve) => {
+                const unsubscribe = onAuthStateChanged(auth, (u) => {
+                    unsubscribe()
+                    resolve(u)
+                })
+            })
+        }
         if (!user) throw new Error('No authenticated user')
         return await user.getIdToken()
     }

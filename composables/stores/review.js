@@ -142,6 +142,24 @@ export const useReviewStore = defineStore('reviewStore', () => {
         return review
     }
 
+    /**
+     * 
+     * @param {number} reviewId 
+     */
+    const refreshReview = async (reviewId) => {
+        try {
+            const res = await $fetch(`${config.public.apiBase}/api/review/${reviewId}`, {
+                method: 'GET'
+            })
+
+            reviewsById.value[reviewId] = res
+            fetchedAt.value[reviewId] = Date.now()
+        }
+        catch (error) {
+            console.error("reviewの再取得に失敗", error)
+        }
+    }
+
     return {
         reviewsById,
         reviewsByPinId,
@@ -149,7 +167,8 @@ export const useReviewStore = defineStore('reviewStore', () => {
         getReviewsByPin,
         addReview,
         updateReview,
-        deleteReview
+        deleteReview,
+        refreshReview
     }
 }, {
     persist: true
