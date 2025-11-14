@@ -43,7 +43,6 @@ const updateReview = () => {
 
 const onGoodClicked = async () => {
     const reviewId = review.value.id
-    console.log(isGood.value)
     await goodStore.toggleGood(reviewId)
 }
 

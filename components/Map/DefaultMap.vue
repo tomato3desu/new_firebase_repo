@@ -26,6 +26,9 @@ const address = ref(null)
 const prefecture = ref(null)
 const clickedLatLng = ref(null)
 
+// 検索関連
+const isOpenSearchDrawer = ref(false)
+
 // map関連
 const mapElement = ref(null)
 let map
@@ -105,6 +108,21 @@ const onMapClick = async (e) => {
 }
 
 /**
+ * 検索ボタンをクリックしたときにsearchDrawerを開く
+ */
+const onClickSearch = async () => {
+    isOpenSearchDrawer.value = true
+}
+
+/**
+ * 検索結果のmoveボタンがクリックされたときにそのピンの座標へマップを移動する
+ * @param param0 
+ */
+const onResultClicked = ({ latitude, longitude }) => {
+    map.panTo(new google.maps.LatLng(latitude, longitude))
+}
+
+/**
  * マーカーを描画する関数
  * @param pin 
  */
@@ -153,10 +171,13 @@ const renderMarker = async (pin) => {
 
 // pinStore.pinsByIdを監視し、変更があれば再描画
 watch(
-    () => Object.keys(pinStore.pinsById),
-    async (newKeys, oldKeys) => {
-        const addedIds = newKeys.filter(id => !oldKeys.includes(id))
-        const deletedIds = oldKeys.filter(id => !newKeys.includes(id))
+    () => pinStore.displayPinsId,
+    async (newList, oldList) => {
+        const newIds = newList || []
+        const oldIds = oldList || []
+
+        const addedIds = newIds.filter(id => !oldIds.includes(id))
+        const deletedIds = oldIds.filter(id => !newIds.includes(id))
 
         // 追加されたピン → マーカーを描画
         for (const addedId of addedIds) {
@@ -261,10 +282,23 @@ watch(
         ref="mapElement"
         class="h-full w-full min-h-[calc(100vh-4rem)]"
     />
+    <div 
+        class="absolute w-8 h-8 top-16 right-16 m-2 z-50 bg-white shadow-lg rounded-sm"
+    >
+        <font-awesome-icon
+            icon="fa-solid fa-magnifying-glass"
+            class="w-6 h-6 text-gray-600 m-1"
+            @click="onClickSearch"
+        />
+    </div>
     <MapPinAddDialog
         v-model="isOpenPinAddDialog"
         :latlng="clickedLatLng"
         :address="address"
         :prefecture="prefecture"
+    />
+    <MapSearchDrawer
+        v-model="isOpenSearchDrawer"
+        @result-clicked="onResultClicked"
     />
 </template>

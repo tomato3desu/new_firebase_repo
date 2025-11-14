@@ -4,6 +4,7 @@ export const usePinStore = defineStore('pinStore', () => {
     const config = useRuntimeConfig()
     const pinsById = ref({}) // key: pinId value: { pinDto }
     const fetchedAt = ref({}) // key: pinId value: datetime
+    const displayPinsId = ref([]) // 表示するpinのid
 
     /**
      * キャッシュの期限を判定するメソッド
@@ -28,11 +29,14 @@ export const usePinStore = defineStore('pinStore', () => {
             for (const pin of res) {
                 pinsById.value[pin.id] = pin
                 fetchedAt.value[pin.id] = Date.now()
+                if (!displayPinsId.value.includes(pin.id)) {
+                    displayPinsId.value.push(pin.id) // displayPinsIdに格納
+                }
             }
         }
         catch (error) {
-            const msg = error?.data?.message || '不明なエラー'
-            alert(msg)
+            const msg = error || '不明なエラー'
+            console.error("getAllPins falied", msg)
         }
     }
 
@@ -54,8 +58,8 @@ export const usePinStore = defineStore('pinStore', () => {
             fetchedAt.value[pinId] = Date.now()
         }
         catch (error) {
-            const msg = error?.data?.message || '不明なエラー'
-            alert(msg)
+            const msg = error || '不明なエラー'
+            console.error("fetchPinById falied", msg)
         }
     }
 
@@ -93,12 +97,15 @@ export const usePinStore = defineStore('pinStore', () => {
             })
 
             pinsById.value[res.id] = res // pinsByIdに格納
+            if (!displayPinsId.value.includes(res.id)) {
+                displayPinsId.value.push(res.id) // displayPinsIdに格納
+            }
 
             return res
         }
         catch (error) {
-            const msg = error?.data?.message || '不明なエラー'
-            alert(msg)
+            const msg = error || '不明なエラー'
+            console.error("addPin failed", msg)
         }
     }
 
@@ -122,8 +129,8 @@ export const usePinStore = defineStore('pinStore', () => {
             return res
         }
         catch (error) {
-            const msg = error?.data?.message || '不明なエラー'
-            alert(msg)
+            const msg = error || '不明なエラー'
+            console.error("updatePin failed", msg)
         }
     }
 
@@ -148,15 +155,47 @@ export const usePinStore = defineStore('pinStore', () => {
 
             const deletedPin = pinsById.value[pinId]
             delete pinsById.value[pinId]
+            displayPinsId.value.filter(id => id != pinId) // displayPinsIdから削除
             return deletedPin
         }
         catch (error) {
-            const msg = error?.data?.message || '不明なエラー'
-            alert(msg)
+            const msg = error || '不明なエラー'
+            console.error("deletePin failed", msg)
         }
     }
 
-    return { pinsById, getAllPins, fetchPinById, refreshPin, addPin, deletePin, updatePin }
+    /**
+     * pin検索
+     * @param {string} title 
+     * @param {number} minAvgDarkness 
+     * @param {number} minAvgAccess 
+     * @param {number} prefId 
+     */
+    const searchPins = async (title, minAvgDarkness, minAvgAccess, prefId) => {
+        const res = await $fetch(`${config.public.apiBase}/api/pin/search`, {
+            method: 'POST',
+            body: {
+                title: title,
+                minAvgDarkness: minAvgDarkness,
+                minAvgAccess: minAvgAccess,
+                prefId: prefId
+            }
+        })
+
+        displayPinsId.value = []
+
+        for (const pin of res) {
+            pinsById.value[pin.id] = pin
+            fetchedAt.value[pin.id] = Date.now()
+            displayPinsId.value.push(pin.id)
+        }
+
+        console.log('検索成功!!')
+
+        return displayPinsId.value
+    }
+
+    return { pinsById, displayPinsId, getAllPins, fetchPinById, refreshPin, addPin, deletePin, updatePin, searchPins }
 }, {
     persist: true
 })
