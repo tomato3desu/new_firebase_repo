@@ -6,8 +6,16 @@ const authStore = useAuthStore()
 const isLoggedIn = computed(() => authStore.isLoggedIn)
 const user = computed(() => authStore.loginUser)
 
-const logout = () => {
-    authStore.logout()
+const isOpenHeaderDrawer = ref(false)
+
+const toggleDrawer = () => {
+    if (!authStore.isLoggedIn) return
+    if (!isOpenHeaderDrawer.value) {
+        isOpenHeaderDrawer.value = true
+    }
+    else {
+        isOpenHeaderDrawer.value = false
+    }
 }
 </script>
 
@@ -24,28 +32,29 @@ const logout = () => {
                 v-if="!isLoggedIn"
                 to="/login"
                 class="text-2xl text-sky-400"
-            >ログイン</NuxtLink>
-            <button
-                v-else
-                class="text-2xl text-red-400"
-                @click="logout"
             >
-                ログアウト
-            </button>
-
+                sign in
+            </NuxtLink>
             <NuxtLink
                 v-if="!isLoggedIn"
                 to="/register"
                 class="text-2xl text-emerald-400"
-            >新規登録</NuxtLink>
-            <NuxtLink
-                v-else
-                to="/profile"
-            ><NuxtImg
-                :src="user?.iconImagePath || 'images/default_user.jpeg'"
-                alt="icon"
-                class="w-12 h-12 object-cover rounded-none"
-            /></NuxtLink>
+            >sign up</NuxtLink>
+            <!-- ログイン中アイコン -->
+            <div
+                v-if="isLoggedIn"
+                class="cursor-pointer"
+                @click="toggleDrawer"
+            >
+                <NuxtImg
+                    :src="user?.iconImagePath || 'images/default_user.jpeg'"
+                    alt="icon"
+                    class="w-12 h-12 object-cover rounded-none"
+                />
+            </div>
         </div>
     </div>
+    <HeaderDrawer
+        v-model="isOpenHeaderDrawer"
+    />
 </template>

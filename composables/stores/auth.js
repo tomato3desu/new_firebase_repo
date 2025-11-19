@@ -1,8 +1,16 @@
 import { defineStore } from 'pinia'
-import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, getAuth, onAuthStateChanged } from 'firebase/auth'
+import { createUserWithEmailAndPassword, 
+    sendEmailVerification, 
+    signInWithEmailAndPassword, 
+    getAuth, 
+    onAuthStateChanged, 
+    sendPasswordResetEmail,
+    verifyBeforeUpdateEmail,
+    EmailAuthProvider,
+    reauthenticateWithCredential } from 'firebase/auth'
 import { useUserStore } from './user'
 
-export const useAuthStore = defineStore('auth', () => {
+export const useAuthStore = defineStore('authStore', () => {
     const { $auth } = useNuxtApp()
     const config = useRuntimeConfig()
 
@@ -70,6 +78,38 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     /**
+     * パスワードリセットメール送信
+     * @returns 
+     */
+    const sendPasswordReset = async () => {
+        const email = getFirebaseEmail()
+        if (!email) {
+            throw new Error("メールアドレスを取得できませんでした")
+        }
+
+        try {
+            await sendPasswordResetEmail($auth, email)
+            return true
+        }
+        catch (error) {
+            console.error("パスワードリセットエラー", error)
+            throw new Error("パスワードリセットメールの送信に失敗しました")
+        }
+    }
+
+    const updateEmailAddress = async (currentPassword, newEmail) => {
+        if (!loginUser.value) throw new Error("ログインしていません")
+        
+        const email = getFirebaseEmail()
+        // 再認証
+        const credential = EmailAuthProvider.credential(email, currentPassword)
+        await reauthenticateWithCredential($auth.currentUser, credential)
+
+        // メールアドレス変更用メールを送信
+        await verifyBeforeUpdateEmail($auth.currentUser, newEmail)
+    }
+
+    /**
      * プロフィール情報をアップデート
      * @param {object} updateInfo 
      * @param {string} token 
@@ -113,14 +153,21 @@ export const useAuthStore = defineStore('auth', () => {
         return await user.getIdToken()
     }
 
+    const getFirebaseEmail = () => {
+        return $auth.currentUser?.email || null
+    }
+
     return {
         loginUser,
         isLoggedIn,
         login,
         register,
+        sendPasswordReset,
+        updateEmailAddress,
         updateProfile,
         logout,
-        getIdToken
+        getIdToken,
+        getFirebaseEmail
     }
 },
 {

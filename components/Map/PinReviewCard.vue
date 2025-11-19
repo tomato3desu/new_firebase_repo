@@ -125,6 +125,10 @@ const onImageClick = (reviewImage) => {
                 />
             </div>
         </div>
+        <!-- 訪問日時 -->
+        <div class="text-gray-700 text-sm">
+            <p>訪問日時：{{ review.review.visitedDate }}日{{ review.review.visitedTime }}頃</p>
+        </div>
         <!-- 本文 -->
         <div class="text-gray-700 text-sm whitespace-pre-wrap break-words leading-relaxed">
             {{ truncatedText }}

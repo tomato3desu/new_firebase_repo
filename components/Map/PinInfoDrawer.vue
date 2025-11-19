@@ -156,7 +156,7 @@ onMounted(async () => {
                 </div>
                 <p>レビュー数：{{ pin.reviewCount }}</p>
                 <p>ブックマーク数：{{ pin.pinBookmarkCount }}</p>
-                <p>{{ prefStore.prefsById[pin.prefectureId].name }}</p>
+                <p>{{ prefStore.prefsById[pin.prefectureId]?.name }}</p>
                 <p>{{ pin.address }}</p>
                 <p>{{ pin.description }}</p>
             </div>
