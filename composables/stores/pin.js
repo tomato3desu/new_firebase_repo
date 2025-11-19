@@ -26,6 +26,9 @@ export const usePinStore = defineStore('pinStore', () => {
                 method: 'GET'
             })
             
+            pinsById.value = {}
+            fetchedAt.value = {}
+            displayPinsId.value = []
             for (const pin of res) {
                 pinsById.value[pin.id] = pin
                 fetchedAt.value[pin.id] = Date.now()
@@ -98,7 +101,7 @@ export const usePinStore = defineStore('pinStore', () => {
 
             pinsById.value[res.id] = res // pinsByIdに格納
             if (!displayPinsId.value.includes(res.id)) {
-                displayPinsId.value.push(res.id) // displayPinsIdに格納
+                displayPinsId.value = [...displayPinsId.value, res.id] // displayPinsIdに格納
             }
 
             return res
@@ -155,7 +158,7 @@ export const usePinStore = defineStore('pinStore', () => {
 
             const deletedPin = pinsById.value[pinId]
             delete pinsById.value[pinId]
-            displayPinsId.value.filter(id => id != pinId) // displayPinsIdから削除
+            displayPinsId.value = displayPinsId.value.filter(id => id !== pinId) // displayPinsIdから削除
             return deletedPin
         }
         catch (error) {
@@ -195,7 +198,11 @@ export const usePinStore = defineStore('pinStore', () => {
         return displayPinsId.value
     }
 
-    return { pinsById, displayPinsId, getAllPins, fetchPinById, refreshPin, addPin, deletePin, updatePin, searchPins }
+    const clearDisplayPinsId = () => {
+        displayPinsId.value = Object.keys(pinsById.value).map(id => Number(id))
+    }
+
+    return { pinsById, displayPinsId, getAllPins, fetchPinById, refreshPin, addPin, deletePin, updatePin, searchPins, clearDisplayPinsId }
 }, {
-    persist: true
+    persist: false
 })

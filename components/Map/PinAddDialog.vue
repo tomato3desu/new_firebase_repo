@@ -130,15 +130,9 @@ watch(description, (value) => {
 watch(isOpen, async (value) => {
     if (value) {
         await prefStore.setAllPrefs()
-        console.log("open")
         address.value = props.address
         const tmpPrefId = prefStore.findPrefIdByName(props.prefecture) // props.prefectureからID検索
         prefectureId.value = tmpPrefId
-        console.log(address.value)
-        console.log(prefectureId.value)
-    }
-    else {
-        console.log("close")
     }
 })
 </script>

@@ -1,14 +1,12 @@
 <script setup>
 import { useAuthStore } from '~/composables/stores/auth'
 import { usePrefStore } from '~/composables/stores/prefecture'
-import { useUserStore } from '~/composables/stores/user'
 import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { Cropper } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
 
 const authStore = useAuthStore()
 const prefStore = usePrefStore()
-const userStore = useUserStore()
 const { $storage } = useNuxtApp()
 
 const currentProfile = ref({
@@ -51,7 +49,7 @@ const handleFileChange = (event) => {
 const sendToBackend = async (profileData) => {
     const token = await authStore.getIdToken()
     
-    await userStore.updateProfile(profileData, token)
+    await authStore.updateProfile(profileData, token)
 }
 
 /**
@@ -66,7 +64,7 @@ const updateProfile = async () => {
     try {
         // 画像があればfirebase storageに保存
         if (cropper.value) {
-            const oldImageUrl = userStore.usersById[authStore.loginUserId].iconImagePath
+            const oldImageUrl = authStore.loginUser.iconImagePath
 
             // Cropperからcanvasを取得
             const { canvas } = cropper.value.getResult()
@@ -102,7 +100,7 @@ const updateProfile = async () => {
                     prefId: prefId.value
                 })
 
-                currentProfile.value = userStore.usersById[authStore.loginUserId] // currentProfileを更新
+                currentProfile.value = authStore.loginUser // currentProfileを更新
 
                 nickname.value = ''
                 comment.value = ''
@@ -136,7 +134,7 @@ const updateProfile = async () => {
             comment.value = ''
         }
 
-        currentProfile.value = userStore.usersById[authStore.loginUserId] // currentProfileを更新
+        currentProfile.value = authStore.loginUser // currentProfileを更新
     }
     catch (err) {
         error.value = err.message
@@ -189,11 +187,11 @@ watch(comment, () => {
 })
 
 // ログイン状態に合わせてcurrentProfileをセット
-watch(() => authStore.loginUserId,
+watch(() => authStore.loginUser,
     (newVal) => {
         if (newVal) {
-            currentProfile.value = userStore.usersById[authStore.loginUserId]
-            prefId.value = userStore.usersById[authStore.loginUserId].prefectureId
+            currentProfile.value = authStore.loginUser
+            prefId.value = authStore.loginUser.prefectureId
         }
         else {
             currentProfile.value = {

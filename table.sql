@@ -137,3 +137,10 @@ LEFT JOIN reviews r ON p.id = r.reviewed_pin_id
 LEFT JOIN pin_bookmarks pb ON p.id = pb.bookmarked_pin_id
 GROUP BY p.id;
 
+create or REPLACE VIEW review_good_status as 
+SELECT
+    r.id as review_id,
+    count(DISTINCT rg.id) as good_count
+from reviews r
+LEFT JOIN review_good rg on r.id = rg.good_review_id
+group by r.id;

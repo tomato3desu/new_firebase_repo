@@ -62,36 +62,11 @@ export const useUserStore = defineStore('userStore', () => {
         }
     }
 
-    /**
-     * プロフィール情報をアップデート
-     * @param {object} updateInfo 
-     * @param {string} token 
-     */
-    const updateProfile = async (updateInfo, token) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/user/updateProfile`, {
-                method: 'PUT',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-                body: updateInfo
-            })
-
-            usersById.value[res.id] = res // usersByIdを更新
-            fetchedAt.value[res.id] = Date.now() // fetchedAtを更新
-            console.log(usersById.value[res.id])
-        }
-        catch (e) {
-            console.error("ユーザー情報の更新に失敗しました", e)
-        }
-    }
-
     return {
         usersById,
         fetchUserIfNeeded,
         fetchUsersIfNeeded,
-        updateProfile
     }
 }, {
-    persist: true
+    persist: false
 })

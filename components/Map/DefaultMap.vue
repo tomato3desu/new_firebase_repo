@@ -2,14 +2,12 @@
 import { importLibrary } from "@googlemaps/js-api-loader"
 import { usePinStore } from "~/composables/stores/pin"
 import { useAuthStore } from "~/composables/stores/auth"
-import { useUserStore } from "~/composables/stores/user"
 import { usePrefStore } from "~/composables/stores/prefecture"
 import { useBookmarkStore } from "~/composables/stores/bookmark"
 
 // ストア
 const authStore = useAuthStore()
 const pinStore = usePinStore()
-const userStore = useUserStore()
 const prefStore = usePrefStore()
 const bookmarkStore = useBookmarkStore()
 
@@ -17,7 +15,7 @@ const config = useRuntimeConfig()
 
 const emit = defineEmits(['pin-clicked'])
 
-let user = userStore.usersById[authStore.loginUserId]
+const user = computed(() => authStore.loginUser)
 
 // ピン作成関連
 const isOpenPinAddDialog = ref(false)
@@ -44,8 +42,8 @@ onMounted(async () => {
     let lng = 135.4928556060951
 
     if (authStore.isLoggedIn) {
-        lat = prefStore.prefsById[user.prefectureId].latitude
-        lng = prefStore.prefsById[user.prefectureId].longitude
+        lat = prefStore.prefsById[user.value.prefectureId].latitude
+        lng = prefStore.prefsById[user.value.prefectureId].longitude
     }
 
     // mapを作成
@@ -68,8 +66,6 @@ onMounted(async () => {
     for (const pinId in pinStore.pinsById) {
         renderMarker(pinStore.pinsById[pinId])
     }
-
-    console.log(markers.value)
 })
 
 /**
@@ -130,7 +126,7 @@ const renderMarker = async (pin) => {
     const { AdvancedMarkerElement, PinElement } = await importLibrary("marker")
     let pinElement
 
-    const bookmarks = bookmarkStore.bookmarkedPinsByUserId[authStore.loginUserId] || []
+    const bookmarks = bookmarkStore.bookmarkedPinsByUserId[authStore.loginUser?.id] || []
     const isBookmarked = bookmarks.includes(pin.id)
 
     if (isBookmarked) {
@@ -263,7 +259,6 @@ watch(
             if (!mapClickListener) {
                 mapClickListener = map.addListener("click", onMapClick)
             }
-            user = userStore.usersById[authStore.loginUserId]
         }
         else {
             // ログアウト時はリスナーを削除
@@ -271,7 +266,6 @@ watch(
                 google.maps.event.removeListener(mapClickListener)
                 mapClickListener = null
             }
-            user = null
         }
     }
 )

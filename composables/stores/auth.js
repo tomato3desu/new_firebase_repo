@@ -6,7 +6,7 @@ export const useAuthStore = defineStore('auth', () => {
     const { $auth } = useNuxtApp()
     const config = useRuntimeConfig()
 
-    const loginUserId = ref(null)
+    const loginUser = ref(null)
     const isLoggedIn = ref(false)
     
     /**
@@ -49,7 +49,7 @@ export const useAuthStore = defineStore('auth', () => {
 
         const data = await res.json()
 
-        loginUserId.value = data.id
+        loginUser.value = data
         // userStoreにuser情報を保存
         const userStore = useUserStore()
         userStore.usersById[data.id] = data
@@ -69,8 +69,30 @@ export const useAuthStore = defineStore('auth', () => {
         console.log("メール送信成功")
     }
 
+    /**
+     * プロフィール情報をアップデート
+     * @param {object} updateInfo 
+     * @param {string} token 
+     */
+    const updateProfile = async (updateInfo, token) => {
+        try {
+            const res = await $fetch(`${config.public.apiBase}/api/auth/updateProfile`, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                body: updateInfo
+            })
+
+            loginUser.value = res
+        }
+        catch (e) {
+            console.error("ユーザー情報の更新に失敗しました", e)
+        }
+    }
+
     const logout = () => {
-        loginUserId.value = null
+        loginUser.value = null
         isLoggedIn.value = false
         return $auth.signOut()
     }
@@ -92,10 +114,11 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     return {
-        loginUserId,
+        loginUser,
         isLoggedIn,
         login,
         register,
+        updateProfile,
         logout,
         getIdToken
     }

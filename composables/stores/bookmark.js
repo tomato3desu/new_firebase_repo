@@ -8,9 +8,11 @@ export const useBookmarkStore = defineStore('bookmarkStore', () => {
     const pinStore = usePinStore()
 
     const bookmarkedPinsByUserId = ref({}) // key: userId, value: [pinId1, pinId2]
-    const mybookmarkedPinIds = computed(() => // ログインユーザーのブックマーク
-        bookmarkedPinsByUserId.value[authStore.loginUserId] || []
-    )
+    const mybookmarkedPinIds = computed(() => { // ログインユーザーのブックマーク
+        const user = authStore.loginUser
+        if (!user || !user.id) return []
+        return bookmarkedPinsByUserId.value[user.id] || []
+    })
 
     /**
      * userIdからブックマークしたピンをget
@@ -38,7 +40,7 @@ export const useBookmarkStore = defineStore('bookmarkStore', () => {
         }
 
         const token = await authStore.getIdToken()
-        const userId = authStore.loginUserId
+        const userId = authStore.loginUser.id
         const currentList = bookmarkedPinsByUserId.value[userId] || []
         const isBookmarked = currentList.includes(pinId)
 

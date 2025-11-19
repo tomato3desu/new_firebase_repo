@@ -57,7 +57,7 @@ export const useReviewStore = defineStore('reviewStore', () => {
         // reviewsById, reviewsByPinIdにそれぞれセットして [{reviewDto1}, {reviewDto2}]の形でreturn
         const newReviewIds = []
         for (const review of res) {
-            const reviewId = review.id
+            const reviewId = review.review.id
             reviewsById.value[reviewId] = review
             fetchedAt.value[reviewId] = Date.now()
             newReviewIds.push(reviewId)
@@ -81,8 +81,8 @@ export const useReviewStore = defineStore('reviewStore', () => {
             body: reviewInfo
         })
 
-        const pinId = res.reviewedPinId
-        const reviewId = res.id
+        const pinId = res.review.reviewedPinId
+        const reviewId = res.review.id
 
         if (!reviewsByPinId.value[pinId]) {
             reviewsByPinId.value[pinId] = []
@@ -109,10 +109,11 @@ export const useReviewStore = defineStore('reviewStore', () => {
             body: reviewInfo
         })
 
-        reviewsById.value[res.id] = res
-        fetchedAt.value[res.id] = Date.now()
+        const reviewId = res.review.id
+        reviewsById.value[reviewId] = res
+        fetchedAt.value[reviewId] = Date.now()
 
-        await pinStore.refreshPin(res.reviewedPinId) // pin情報を更新
+        await pinStore.refreshPin(res.review.reviewedPinId) // pin情報を更新
 
         return res
     }
@@ -132,7 +133,7 @@ export const useReviewStore = defineStore('reviewStore', () => {
         // キャッシュから削除
         const review = reviewsById.value[reviewId]
 
-        const pinId = review.reviewedPinId
+        const pinId = review.review.reviewedPinId
         reviewsByPinId.value[pinId] = reviewsByPinId.value[pinId]?.filter(id => id !== reviewId) || []
         delete reviewsById.value[reviewId]
         delete fetchedAt.value[reviewId]
@@ -171,5 +172,5 @@ export const useReviewStore = defineStore('reviewStore', () => {
         refreshReview
     }
 }, {
-    persist: true
+    persist: false
 })

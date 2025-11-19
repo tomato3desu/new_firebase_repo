@@ -27,22 +27,26 @@ const isOpenUpdateReviewDialog = ref(false)
 const showFull = ref(false)
 const MAX_LENGTH = 120
 
-const shouldTruncate = computed(() => review.value?.description.length > MAX_LENGTH)
+const shouldTruncate = computed(() => review.value?.review.description.length > MAX_LENGTH)
 const truncatedText = computed(() => {
-    if (!shouldTruncate.value) return review.value?.description || ''
+    if (!shouldTruncate.value) return review.value?.review.description || ''
     return showFull.value
-        ? review.value?.description
-        : review.value?.description?.slice(0, MAX_LENGTH) + '...'
+        ? review.value?.review.description
+        : review.value?.review.description?.slice(0, MAX_LENGTH) + '...'
 })
 
-const isEditParmitted = computed(() => authStore.loginUserId === review.value.createdUserId)
-
+const isEditParmitted = computed(() => { // ログインユーザー＝ピン作成者ならtrue
+    const user = authStore.loginUser
+    const r = review.value.review
+    if (!user || !user.id || !r) return false
+    return user.id === r.createdUserId
+})
 const updateReview = () => {
     isOpenUpdateReviewDialog.value = true
 }
 
 const onGoodClicked = async () => {
-    const reviewId = review.value.id
+    const reviewId = review.value.review.id
     await goodStore.toggleGood(reviewId)
 }
 
@@ -53,7 +57,7 @@ const onGoodClicked = async () => {
 const onImageClick = (reviewImage) => {
     emit('image-clicked', {
         clicked: reviewImage,
-        allImages: review.value.reviewImages
+        allImages: review.value.review.reviewImages
     })
 }
 </script>
@@ -62,16 +66,16 @@ const onImageClick = (reviewImage) => {
     <div class="rounded-sm border-b border-gray-300 flex flex-col">
         <!-- ユーザー情報 -->
         <div
-            v-if="userStore.usersById[review.createdUserId]"
+            v-if="userStore.usersById[review.review.createdUserId]"
             class="flex items-center justify-between"
         >
             <NuxtImg
-                :src=" userStore.usersById[review.createdUserId].iconImagePath || '/images/default_user.jpeg'"
+                :src=" userStore.usersById[review.review.createdUserId].iconImagePath || '/images/default_user.jpeg'"
                 alt="icon"
                 class="w-8 h-8 object-cover rounded-sm"
             />
             <p class="text-gray-700 font-medium text-sm truncate">
-                {{ userStore.usersById[review.createdUserId].nickname }}
+                {{ userStore.usersById[review.review.createdUserId].nickname }}
             </p>
             <button
                 v-if="isEditParmitted"
@@ -83,23 +87,23 @@ const onImageClick = (reviewImage) => {
             </button>
         </div>
         <!-- 確認用ID -->
-        <p>{{ review.id }}</p>
+        <p>{{ review.review.id }}</p>
         <!-- タイトル -->
         <p class="text-base font-semibold text-gray-900 break-words whitespace-pre-wrap">
-            {{ review.title }}
+            {{ review.review.title }}
         </p>
         <!-- 評価 -->
         <div class="text-sm text-gray-600">
             <div class="flex">
                 <p>暗さ：</p>
                 <font-awesome-icon
-                    v-for="n in review.darknessLevel"
+                    v-for="n in review.review.darknessLevel"
                     :key="n"
                     icon="fa-solid fa-star"
                     class="text-yellow-400 h-4 w-4"
                 />
                 <font-awesome-icon
-                    v-for="n in (5 - review.darknessLevel)"
+                    v-for="n in (5 - review.review.darknessLevel)"
                     :key="n"
                     icon="fa-solid fa-star"
                     class="text-gray-400 h-4 w-4"
@@ -108,13 +112,13 @@ const onImageClick = (reviewImage) => {
             <div class="flex">
                 <p>アクセス：</p>
                 <font-awesome-icon
-                    v-for="n in review.accessLevel"
+                    v-for="n in review.review.accessLevel"
                     :key="n"
                     icon="fa-solid fa-star"
                     class="text-yellow-400 h-4 w-4"
                 />
                 <font-awesome-icon
-                    v-for="n in (5 - review.accessLevel)"
+                    v-for="n in (5 - review.review.accessLevel)"
                     :key="n"
                     icon="fa-solid fa-star"
                     class="text-gray-400 h-4 w-4"
@@ -134,11 +138,11 @@ const onImageClick = (reviewImage) => {
         </div>
         <!-- 画像一覧 -->
         <div
-            v-if="review?.reviewImages"
+            v-if="review?.review.reviewImages"
             class="grid grid-cols-2 gap-2"
         >
             <NuxtImg
-                v-for="reviewImage in review.reviewImages"
+                v-for="reviewImage in review.review.reviewImages"
                 :key="reviewImage.id"
                 :src="reviewImage.imagePath"
                 alt="review image"
@@ -165,6 +169,6 @@ const onImageClick = (reviewImage) => {
     </div>
     <MapUpdateReviewDialog
         v-model="isOpenUpdateReviewDialog"
-        :review-id="review.id"
+        :review-id="review.review.id"
     />
 </template>

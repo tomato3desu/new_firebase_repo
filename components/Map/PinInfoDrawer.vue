@@ -24,14 +24,22 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'pin-deleted'])
 
-const pin = computed(() => pinStore.pinsById[props.pinId])
+const pin = computed(() => pinStore.pinsById[props.pinId] ?? null)
 
-const reviewIds = computed(() => reviewStore.reviewsByPinId[pin.value?.id])
+const reviewIds = computed(() => {
+    const p = pin.value
+    if (!p) return []
+    return reviewStore.reviewsByPinId[p.id] ?? []
+})
 
 const isOpenUpdatePinDialog = ref(false)
 const isOpenCreateReviewDialog = ref(false)
-const isEditParmitted = computed(() => authStore.loginUserId === pin.value.createdUserId) // ログインユーザー＝ピン作成者ならtrue
-
+const isEditParmitted = computed(() => { // ログインユーザー＝ピン作成者ならtrue
+    const user = authStore.loginUser
+    const p = pin.value
+    if (!user || !user.id || !p) return false
+    return user.id === p.createdUserId
+})
 const isOpenImageGallery = ref(false) // 画像ギャラリーの表示フラグ
 const selectedGaralleryImages = ref([]) // 表示中の画像一覧
 const selectedGaralleryIndex = ref(0) // 現在の選択index
@@ -70,7 +78,7 @@ const close = () => {
 onMounted(async () => {
     await userStore.fetchUserIfNeeded(pin.value.createdUserId)
     const fetchedReviews = await reviewStore.getReviewsByPin(pin.value.id)
-    const userIds = fetchedReviews.map(r => r.createdUserId).filter(Boolean)
+    const userIds = fetchedReviews.map(r => r.review.createdUserId).filter(Boolean)
     await userStore.fetchUsersIfNeeded(userIds)
     await goodStore.fetchMyGoodReviews()
 })

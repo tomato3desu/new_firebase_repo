@@ -17,12 +17,12 @@ const { $storage } = useNuxtApp()
 
 const review = computed(() => reviewStore.reviewsById[props.reviewId])
 
-const darknessLevel = ref(review.value.darknessLevel)
-const accessLevel = ref(review.value.accessLevel)
-const season = ref(review.value.season)
-const visitedDate = ref(review.value.visitedDate)
-const visitedTime = ref(review.value.visitedTime)
-const existReviewImages = ref(review.value.reviewImages)
+const darknessLevel = ref(review.value.review.darknessLevel)
+const accessLevel = ref(review.value.review.accessLevel)
+const season = ref(review.value.review.season)
+const visitedDate = ref(review.value.review.visitedDate)
+const visitedTime = ref(review.value.review.visitedTime)
+const existReviewImages = ref(review.value.review.reviewImages)
 const deletingReviewImages = ref([])
 const deletingReviewImageIds = ref([])
 const files = ref([])
@@ -58,7 +58,7 @@ const updateReview = async () => {
 
     // バックエンドに送信するreview情報
     const reviewInfo = {
-        reviewId: review.value.id,
+        reviewId: review.value.review.id,
         title: title.value,
         description: description.value,
         darknessLevel: darknessLevel.value,
@@ -92,14 +92,14 @@ const updateReview = async () => {
 const deleteReview = async () => {
     const isConfirm = window.confirm("本当に削除しますか？")
     if (isConfirm) {
-        const reviewId = review.value.id
+        const reviewId = review.value.review.id
         const token = await authStore.getIdToken()
         const deletedReview = await reviewStore.deleteReview(reviewId, token)
 
         console.log(deletedReview)
 
         // 画像を削除
-        for (const reviewImage of deletedReview.reviewImages) {
+        for (const reviewImage of deletedReview.review.reviewImages) {
             const reviewImagePath = extractPathFromUrl(reviewImage.imagePath)
             deleteFromStorage(reviewImagePath)
         }
@@ -175,8 +175,8 @@ const extractPathFromUrl = (url) => {
  * 閉じる
  */
 const close = () => {
-    darknessLevel.value = review.value?.darknessLevel || ''
-    accessLevel.value = review.value?.accessLevel || ''
+    darknessLevel.value = review.value?.review.darknessLevel || ''
+    accessLevel.value = review.value?.review.accessLevel || ''
     files.value = []
     previewUrls.value = []
     uploadedUrls.value = []
@@ -185,10 +185,10 @@ const close = () => {
     description.value = null
     errorTitle.value = null
     errorDesc.value = null
-    season.value = review.value?.season || ''
-    visitedDate.value = review.value?.visitedDate || ''
-    visitedTime.value = review.value?.visitedTime || ''
-    existReviewImages.value = review.value?.reviewImages || []
+    season.value = review.value?.review.season || ''
+    visitedDate.value = review.value?.review.visitedDate || ''
+    visitedTime.value = review.value?.review.visitedTime || ''
+    existReviewImages.value = review.value?.review.reviewImages || []
     deletingReviewImages.value = []
     deletingReviewImageIds.value = []
     isOpen.value = false
@@ -322,7 +322,7 @@ watch(description, (value) => {
 
                 <div class="mb-4">
                     <p class="text-gray-500">
-                        {{ review.title }}
+                        {{ review.review.title }}
                     </p>
                     <label class="block text-gray-700 text-sm font-medium mb-1">タイトル</label>
                     <input
@@ -340,7 +340,7 @@ watch(description, (value) => {
                 </div>
 
                 <div class="mb-4">
-                    <p>{{ review.description }}</p>
+                    <p>{{ review.review.description }}</p>
                     <label class="block text-gray-700 text-sm font-medium mb-1">詳細</label>
                     <textarea
                         v-model="description"

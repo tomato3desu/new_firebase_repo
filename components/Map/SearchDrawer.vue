@@ -1,7 +1,6 @@
 <script setup>
 import { usePrefStore } from '~/composables/stores/prefecture'
 import { usePinStore } from '~/composables/stores/pin'
-import { emit } from 'process'
 
 const emits = defineEmits(['result-clicked'])
 
@@ -16,11 +15,22 @@ const prefId = ref(null)
 
 const searchResultPinIds = ref([])
 
+/**
+ * pinを検索
+ */
 const searchPins = async () => {
     if (!titleKeyword.value && !minAvgDarkness.value && !minAvgAccess.value && !prefId.value) return
     const res = await pinStore.searchPins(titleKeyword.value, minAvgDarkness.value, minAvgAccess.value, prefId.value)
 
     searchResultPinIds.value = res
+}
+
+/**
+ * 検索条件をclear
+ */
+const clearResult = () => {
+    pinStore.clearDisplayPinsId()
+    searchResultPinIds.value = []
 }
 
 /**
@@ -69,6 +79,12 @@ onMounted(async () => {
             <div>
                 <label class="block text-gray-700 text-sm font-medium mb-1">平均暗さレベル</label>
                 <select v-model="minAvgDarkness">
+                    <option
+                        disabled
+                        selected
+                    >
+                        未選択
+                    </option>
                     <option :value="1">
                         1
                     </option>
@@ -77,7 +93,6 @@ onMounted(async () => {
                     </option>
                     <option
                         :value="3"
-                        selected
                     >
                         3
                     </option>
@@ -92,6 +107,12 @@ onMounted(async () => {
             <div>
                 <label class="block text-gray-700 text-sm font-medium mb-1">アクセス</label>
                 <select v-model="minAvgAccess">
+                    <option
+                        disabled
+                        selected
+                    >
+                        未選択
+                    </option>
                     <option :value="1">
                         1
                     </option>
@@ -100,7 +121,6 @@ onMounted(async () => {
                     </option>
                     <option
                         :value="3"
-                        selected
                     >
                         3
                     </option>
@@ -114,6 +134,12 @@ onMounted(async () => {
             </div>
             <div v-if="prefStore.prefsById">
                 <select v-model="prefId">
+                    <option
+                        disabled
+                        selected
+                    >
+                        未選択
+                    </option>
                     <option
                         v-for="pref in prefStore.prefsById"
                         :key="pref.id"
@@ -129,6 +155,12 @@ onMounted(async () => {
                     @click="searchPins"
                 >
                     search
+                </button>
+                <button
+                    class="px-4 py-2 rounded disabled:bg-green-200  bg-green-500 text-white hover:bg-green-600 transition"
+                    @click="clearResult"
+                >
+                    clear
                 </button>
             </div>
             <!-- 検索結果を表示 -->
