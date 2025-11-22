@@ -5,12 +5,16 @@ create table if not exists users(
     uid varchar(255) unique not null,
     nickname varchar(255) default '未設定',
     icon_image_path varchar(255),
-    comment varchar(255),
+    comment text,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     prefecture_id int,
     role varchar(255) default 'user',
     is_active boolean default true
 );
+
+ALTER TABLE users
+MODIFY COLUMN comment TEXT;
+
 
 ALTER TABLE users
 ADD COLUMN prefecture_id INT,
@@ -67,7 +71,7 @@ create table if not exists reviews(
     created_user_id int not null,
     reviewed_pin_id int not null,
     title varchar(255) not null,
-    description varchar(255),
+    description text,
     darkness_level int not null,
     access_level int not null,
     season varchar(20) NOT NULL,
@@ -81,6 +85,9 @@ create table if not exists reviews(
 );
 
 alter table season 
+ALTER TABLE reviews 
+MODIFY COLUMN description TEXT;
+
 
 CREATE TABLE IF NOT EXISTS review_images (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -120,6 +127,23 @@ create table if not exists review_good(
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     CONSTRAINT unique_good UNIQUE (good_review_id, good_user_id)
+);
+
+create table if not exists review_report(
+    id int auto_increment primary key,
+    review_id int not null,
+    reporter_id int not null,
+    reason varchar(50) not null,
+    comment text,
+    status varchar(20) not null default 'pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_review_id FOREIGN KEY (review_id)
+        REFERENCES reviews(id)
+        on DELETE CASCADE,
+    CONSTRAINT fk_reporter_id FOREIGN KEY (reporter_id)
+        REFERENCES users(id)
+        on DELETE CASCADE,
+    CONSTRAINT unique_report unique (review_id, reporter_id)
 );
 
 

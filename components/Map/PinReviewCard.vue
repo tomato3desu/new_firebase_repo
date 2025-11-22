@@ -22,6 +22,7 @@ const review = computed(() => reviewStore.reviewsById[props?.reviewId])
 const isGood = computed(() => goodStore.myGoodReviews.includes(props.reviewId) ? true : false)
 
 const isOpenUpdateReviewDialog = ref(false)
+const isOpenReviewReportDialog = ref(false)
 
 // もっと見る制御
 const showFull = ref(false)
@@ -48,6 +49,10 @@ const updateReview = () => {
 const onGoodClicked = async () => {
     const reviewId = review.value.review.id
     await goodStore.toggleGood(reviewId)
+}
+
+const onReportClicked = () => {
+    isOpenReviewReportDialog.value = true
 }
 
 /**
@@ -156,23 +161,37 @@ const onImageClick = (reviewImage) => {
         </div>
         <!-- good, good数 -->
         <div class="flex">
-            <font-awesome-icon
-                v-if="isGood"
-                icon="fa-solid fa-thumbs-up"
-                class="w-4 h-4 text-gray-700"
-                @click="onGoodClicked"
-            />
-            <font-awesome-icon
-                v-else
-                icon="fa-solid fa-thumbs-up"
-                class="w-4 h-4 text-gray-300"
-                @click="onGoodClicked"
-            />
-            <p>{{ review.goodCount }}</p>
+            <div class="flex">
+                <font-awesome-icon
+                    v-if="isGood"
+                    icon="fa-solid fa-thumbs-up"
+                    class="w-4 h-4 text-gray-700"
+                    @click="onGoodClicked"
+                />
+                <font-awesome-icon
+                    v-else
+                    icon="fa-solid fa-thumbs-up"
+                    class="w-4 h-4 text-gray-300"
+                    @click="onGoodClicked"
+                />
+                <p>{{ review.goodCount }}</p>
+            </div>
+            <!-- 通報ボタン -->
+            <div>
+                <font-awesome-icon 
+                    icon="fa-solid fa-triangle-exclamation" 
+                    class="w-4 h-4 text-gray-700"
+                    @click="onReportClicked"
+                />
+            </div>
         </div>
     </div>
     <MapUpdateReviewDialog
         v-model="isOpenUpdateReviewDialog"
+        :review-id="review.review.id"
+    />
+    <MapReviewReportDialog
+        v-model="isOpenReviewReportDialog"
         :review-id="review.review.id"
     />
 </template>

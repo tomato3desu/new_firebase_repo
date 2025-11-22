@@ -7,7 +7,8 @@ import { createUserWithEmailAndPassword,
     sendPasswordResetEmail,
     verifyBeforeUpdateEmail,
     EmailAuthProvider,
-    reauthenticateWithCredential } from 'firebase/auth'
+    reauthenticateWithCredential,
+    deleteUser } from 'firebase/auth'
 import { useUserStore } from './user'
 
 export const useAuthStore = defineStore('authStore', () => {
@@ -97,6 +98,11 @@ export const useAuthStore = defineStore('authStore', () => {
         }
     }
 
+    /**
+     * メールアドレス変更メールを送信
+     * @param {string} currentPassword 
+     * @param {string} newEmail 
+     */
     const updateEmailAddress = async (currentPassword, newEmail) => {
         if (!loginUser.value) throw new Error("ログインしていません")
         
@@ -107,6 +113,46 @@ export const useAuthStore = defineStore('authStore', () => {
 
         // メールアドレス変更用メールを送信
         await verifyBeforeUpdateEmail($auth.currentUser, newEmail)
+    }
+
+    /**
+     * アカウント削除
+     */
+    const deleteAccount = async (currentPassword) => {
+        const user = $auth.currentUser
+
+        if (!user) throw new Error("ログインしていません")
+
+        const email = getFirebaseEmail()
+        if (!email) throw new Error("メールアドレスが取得できません")
+
+        try {
+            // 再認証
+            const credential = EmailAuthProvider.credential(email, currentPassword)
+            await reauthenticateWithCredential(user, credential)
+
+            const token = await getIdToken()
+
+            // Firebase authから削除
+            await deleteUser(user)
+
+            // バックエンドに送信
+            const res = await $fetch(`${config.public.apiBase}/api/auth/delete/user`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            if (res !== undefined) { 
+                throw new Error('削除失敗')
+            }
+
+            logout()
+        }
+        catch (error) {
+            console.error("アカウント削除エラー", error)
+        }
     }
 
     /**
@@ -164,6 +210,7 @@ export const useAuthStore = defineStore('authStore', () => {
         register,
         sendPasswordReset,
         updateEmailAddress,
+        deleteAccount,
         updateProfile,
         logout,
         getIdToken,
