@@ -69,6 +69,36 @@ export const useReviewStore = defineStore('reviewStore', () => {
     }
 
     /**
+     * reviewIdsからreviewをfetchしてセットする
+     * @param {*} reviewIds 
+     * @returns 
+     */
+    const fetchReviewsByIds = async (reviewIds) => {
+        let missCashe = false
+        for (const reviewId of reviewIds) {
+            const hasCache = reviewsById.value[reviewId] ?? false
+            if (!hasCache) {
+                missCashe = true
+                break
+            }
+        }
+
+        const hasExpired = reviewIds.some(id => judgeExpired(id))
+        if (!missCashe && !hasExpired) return
+
+        const res = await $fetch(`${config.public.apiBase}/api/review/fetch/ids`, {
+            method: 'POST',
+            body: reviewIds
+        })
+
+        for (const review of res) {
+            const reviewId = review.review.id
+            reviewsById.value[reviewId] = review
+            fetchedAt.value[reviewId] = Date.now()
+        }
+    }
+
+    /**
      * レビューを追加するメソッド
      * @param {object} reviewInfo 
      * @param {string} token (firebase authのjwt token)
@@ -166,6 +196,7 @@ export const useReviewStore = defineStore('reviewStore', () => {
         reviewsByPinId,
         deleteReviewsByPinId,
         getReviewsByPin,
+        fetchReviewsByIds,
         addReview,
         updateReview,
         deleteReview,

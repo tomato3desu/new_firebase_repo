@@ -38,6 +38,11 @@ const isEditParmitted = computed(() => { // ログインユーザー＝ピン作
     const user = authStore.loginUser
     const p = pin.value
     if (!user || !user.id || !p) return false
+
+    // 管理者なら常にOK
+    if (user.role === 'admin') return true
+
+    // 作成者ならOK
     return user.id === p.createdUserId
 })
 const isOpenImageGallery = ref(false) // 画像ギャラリーの表示フラグ

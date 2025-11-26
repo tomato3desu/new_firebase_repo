@@ -175,27 +175,32 @@ export const usePinStore = defineStore('pinStore', () => {
      * @param {number} prefId 
      */
     const searchPins = async (title, minAvgDarkness, minAvgAccess, prefId) => {
-        const res = await $fetch(`${config.public.apiBase}/api/pin/search`, {
-            method: 'POST',
-            body: {
-                title: title,
-                minAvgDarkness: minAvgDarkness,
-                minAvgAccess: minAvgAccess,
-                prefId: prefId
+        try {
+            const res = await $fetch(`${config.public.apiBase}/api/pin/search`, {
+                method: 'POST',
+                body: {
+                    title: title,
+                    minAvgDarkness: minAvgDarkness,
+                    minAvgAccess: minAvgAccess,
+                    prefId: prefId
+                }
+            })
+
+            displayPinsId.value = []
+
+            for (const pin of res) {
+                pinsById.value[pin.id] = pin
+                fetchedAt.value[pin.id] = Date.now()
+                displayPinsId.value.push(pin.id)
             }
-        })
 
-        displayPinsId.value = []
+            console.log('検索成功!!')
 
-        for (const pin of res) {
-            pinsById.value[pin.id] = pin
-            fetchedAt.value[pin.id] = Date.now()
-            displayPinsId.value.push(pin.id)
+            return displayPinsId.value
         }
-
-        console.log('検索成功!!')
-
-        return displayPinsId.value
+        catch (error) {
+            console.error("failed to search pins", error)
+        }
     }
 
     const clearDisplayPinsId = () => {

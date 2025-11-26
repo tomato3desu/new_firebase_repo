@@ -36,12 +36,16 @@ const truncatedText = computed(() => {
         : review.value?.review.description?.slice(0, MAX_LENGTH) + '...'
 })
 
-const isEditParmitted = computed(() => { // ログインユーザー＝ピン作成者ならtrue
+const isEditParmitted = computed(() => { // ログインユーザー＝ピン作成者ならtrue(管理者ならtrue)
     const user = authStore.loginUser
     const r = review.value.review
     if (!user || !user.id || !r) return false
+
+    if (user.role === 'admin') return true
+
     return user.id === r.createdUserId
 })
+
 const updateReview = () => {
     isOpenUpdateReviewDialog.value = true
 }
@@ -68,7 +72,10 @@ const onImageClick = (reviewImage) => {
 </script>
 
 <template>
-    <div class="rounded-sm border-b border-gray-300 flex flex-col">
+    <div 
+        v-if="review && review.review"
+        class="rounded-sm border-b border-gray-300 flex flex-col"
+    >
         <!-- ユーザー情報 -->
         <div
             v-if="userStore.usersById[review.review.createdUserId]"
@@ -102,7 +109,7 @@ const onImageClick = (reviewImage) => {
             <div class="flex">
                 <p>暗さ：</p>
                 <font-awesome-icon
-                    v-for="n in review.review.darknessLevel"
+                    v-for="n in review?.review.darknessLevel"
                     :key="n"
                     icon="fa-solid fa-star"
                     class="text-yellow-400 h-4 w-4"
@@ -123,7 +130,7 @@ const onImageClick = (reviewImage) => {
                     class="text-yellow-400 h-4 w-4"
                 />
                 <font-awesome-icon
-                    v-for="n in (5 - review.review.accessLevel)"
+                    v-for="n in (5 - review?.review.accessLevel)"
                     :key="n"
                     icon="fa-solid fa-star"
                     class="text-gray-400 h-4 w-4"
@@ -187,10 +194,12 @@ const onImageClick = (reviewImage) => {
         </div>
     </div>
     <MapUpdateReviewDialog
+        v-if="review"
         v-model="isOpenUpdateReviewDialog"
         :review-id="review.review.id"
     />
     <MapReviewReportDialog
+        v-if="review"
         v-model="isOpenReviewReportDialog"
         :review-id="review.review.id"
     />

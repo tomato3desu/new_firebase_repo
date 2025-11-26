@@ -7,6 +7,8 @@ const isOpen = defineModel()
 
 const user = computed(() => authStore.loginUser)
 
+const isAdmin = computed(() => user.value?.role === 'admin')
+
 const close = () => {
     isOpen.value = false
 }
@@ -72,6 +74,23 @@ const logout = async () => {
                     @click="close"
                 >
                     Settings
+                </NuxtLink>
+            </div>
+
+            <div 
+                v-if="isAdmin"
+                class="flex items-center mt-6"
+            >
+                <font-awesome-icon 
+                    icon="fa-solid fa-triangle-exclamation" 
+                    class="h-8 w-8"
+                />
+                <NuxtLink
+                    to="/report"
+                    class="block text-lg text-gray-700 hover:text-sky-500 pl-6"
+                    @click="close"
+                >
+                    Report
                 </NuxtLink>
             </div>
 

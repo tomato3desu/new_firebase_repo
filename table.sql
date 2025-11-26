@@ -13,22 +13,12 @@ create table if not exists users(
 );
 
 ALTER TABLE users
-MODIFY COLUMN comment TEXT;
-
-
-ALTER TABLE users
 ADD COLUMN prefecture_id INT,
 ADD CONSTRAINT fk_user_prefecture
     FOREIGN KEY (prefecture_id)
     REFERENCES prefectures(id)
     ON UPDATE CASCADE
     ON DELETE SET NULL;
-
-ALTER TABLE users
-ADD COLUMN role varchar(255) default 'user';
-
-ALTER TABLE users
-ADD COLUMN isActive boolean default true;
 
 CREATE TABLE IF NOT EXISTS prefectures (
     id INT AUTO_INCREMENT PRIMARY KEY,

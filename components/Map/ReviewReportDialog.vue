@@ -40,7 +40,8 @@ const sendToBackend = async () => {
         close()
     }
     catch (error) {
-        console.error('通報失敗', error)
+        window.alert('通報失敗', error)
+        close()
     }
 }
 
@@ -52,7 +53,7 @@ const close = () => {
 }
 
 watch(comment, (value) => {
-    if (value.length >= 800) {
+    if (value && value.length >= 800) {
         commentError.value = "800字以内で入力してください"
     }
     else {
@@ -104,6 +105,12 @@ watch(comment, (value) => {
                 >
                 その他
             </label>
+            <p 
+                v-if="commentError && reason === 'other'"
+                class="text-red-600 mb-1"
+            >
+                {{ commentError }}
+            </p>
             <textarea
                 v-if="reason === 'other'"
                 v-model="comment"
