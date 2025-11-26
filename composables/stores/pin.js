@@ -28,13 +28,11 @@ export const usePinStore = defineStore('pinStore', () => {
             
             pinsById.value = {}
             fetchedAt.value = {}
-            displayPinsId.value = []
+            displayPinsId.value = res.map(pin => pin.id)
+
             for (const pin of res) {
                 pinsById.value[pin.id] = pin
                 fetchedAt.value[pin.id] = Date.now()
-                if (!displayPinsId.value.includes(pin.id)) {
-                    displayPinsId.value.push(pin.id) // displayPinsIdに格納
-                }
             }
         }
         catch (error) {
@@ -186,12 +184,11 @@ export const usePinStore = defineStore('pinStore', () => {
                 }
             })
 
-            displayPinsId.value = []
+            displayPinsId.value = res.map(pin => pin.id)
 
             for (const pin of res) {
                 pinsById.value[pin.id] = pin
                 fetchedAt.value[pin.id] = Date.now()
-                displayPinsId.value.push(pin.id)
             }
 
             console.log('検索成功!!')

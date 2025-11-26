@@ -20,8 +20,9 @@ const searchResultPinIds = ref([])
  */
 const searchPins = async () => {
     if (!titleKeyword.value && !minAvgDarkness.value && !minAvgAccess.value && !prefId.value) return
+    console.log("検索前", pinStore.displayPinsId)
     const res = await pinStore.searchPins(titleKeyword.value, minAvgDarkness.value, minAvgAccess.value, prefId.value)
-
+    console.log("検索後", pinStore.displayPinsId)
     searchResultPinIds.value = res
 }
 
@@ -80,7 +81,7 @@ onMounted(async () => {
                 <label class="block text-gray-700 text-sm font-medium mb-1">平均暗さレベル</label>
                 <select v-model="minAvgDarkness">
                     <option
-                        disabled
+                        :value="1"
                         selected
                     >
                         未選択
@@ -108,7 +109,7 @@ onMounted(async () => {
                 <label class="block text-gray-700 text-sm font-medium mb-1">アクセス</label>
                 <select v-model="minAvgAccess">
                     <option
-                        disabled
+                        :value="1"
                         selected
                     >
                         未選択

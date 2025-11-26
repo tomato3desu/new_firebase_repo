@@ -32,6 +32,7 @@ const mapElement = ref(null)
 let map
 let mapClickListener = null
 const markers = ref([])
+const isInitialized = ref(false)
 
 onMounted(async () => {
     const { Map } = await importLibrary("maps")
@@ -62,10 +63,14 @@ onMounted(async () => {
     }
     
     // ピン描画
+    markers.value = []
     await pinStore.getAllPins()
     for (const pinId in pinStore.pinsById) {
         renderMarker(pinStore.pinsById[pinId])
     }
+
+    // 初期化完了 → 次から watch が動く
+    isInitialized.value = true
 })
 
 /**
@@ -98,8 +103,6 @@ const onMapClick = async (e) => {
     const lng = e.latLng.lng()
     clickedLatLng.value = { lat, lng }
     await getAddressFromLatLng(lat, lng)
-    console.log(address.value)
-    console.log(prefecture.value)
     isOpenPinAddDialog.value = true
 }
 
@@ -162,13 +165,19 @@ const renderMarker = async (pin) => {
         emit('pin-clicked', pin.id)
     })
 
-    markers.value.push(marker)
+    markers.value.push({
+        pinId: pin.id,
+        marker: marker
+    })
 }
 
 // pinStore.pinsByIdを監視し、変更があれば再描画
 watch(
     () => pinStore.displayPinsId,
     async (newList, oldList) => {
+        // 初回は無視（onMountedで描画するため）
+        if (!isInitialized.value) return
+
         const newIds = newList || []
         const oldIds = oldList || []
 
@@ -186,10 +195,11 @@ watch(
         // 削除されたピン → マーカーを削除
         for (const deletedId of deletedIds) {
             const markerIndex = markers.value.findIndex(
-                (m) => m.pinId === Number(deletedId)
+                (m) => m.pinId === deletedId
             )
             if (markerIndex !== -1) {
-                markers.value[markerIndex].map = null
+                markers.value[markerIndex].marker.setMap(null)
+                markers.value[markerIndex].marker.remove()
                 markers.value.splice(markerIndex, 1)
             }
         }
@@ -206,14 +216,9 @@ watch(
         const newIds = newList || []
         const oldIds = oldList || []
 
-        console.log(bookmarkStore.mybookmarkedPinIds)
-
         // 追加・削除されたピンを特定
         const added = newIds.filter(id => !oldIds.includes(id))
         const removed = oldIds.filter(id => !newIds.includes(id))
-
-        console.log(added)
-        console.log(removed)
 
         // 🔹 追加されたブックマーク → マーカー色変更
         for (const pinId of added) {
