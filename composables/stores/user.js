@@ -45,7 +45,6 @@ export const useUserStore = defineStore('userStore', () => {
         missingIds = missingIds.filter((id) => judgeExpired(id)) // 期限切れのIDのみ残す
         if (missingIds.length === 0) return // IDが残ってないなら即レス
         
-        console.log("missingIdsだよ", missingIds)
         try {
             const res = await $fetch(`${config.public.apiBase}/api/user/users`, {
                 method: 'POST',

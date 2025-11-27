@@ -6,6 +6,9 @@ import { usePinStore } from '~/composables/stores/pin'
 import { useBookmarkStore } from '~/composables/stores/bookmark'
 import { usePrefStore } from '~/composables/stores/prefecture'
 import { useGoodStore } from '~/composables/stores/good'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const authStore = useAuthStore()
 const reviewStore = useReviewStore()
@@ -75,6 +78,10 @@ const toggleBookmark = async () => {
     await bookmarkStore.toggleBookmark(pin.value.id)
 }
 
+const openUserProfile = () => {
+    router.push(`/user/${pin.value.createdUserId}`)
+}
+
 const close = () => {
     emit('close')
 }
@@ -119,6 +126,7 @@ onMounted(async () => {
                     :src=" userStore.usersById[pin.createdUserId].iconImagePath || '/images/default_user.jpeg'"
                     alt="icon"
                     class="w-8 h-8 object-cover rounded-sm"
+                    @click="openUserProfile"
                 />
                 <p>{{ userStore.usersById[pin.createdUserId].nickname }}</p>
                 <font-awesome-icon 

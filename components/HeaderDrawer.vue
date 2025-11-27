@@ -50,6 +50,19 @@ const logout = async () => {
         <!-- メニュー -->
         <nav class="space-y-4">
             <div class="flex items-center mt-6">
+                <font-awesome-icon 
+                    icon="fa-solid fa-map"
+                    class="h-8 w-8"
+                />
+                <NuxtLink
+                    to="/"
+                    class="block text-lg text-gray-700 hover:text-sky-500 pl-6"
+                    @click="close"
+                >
+                    Map
+                </NuxtLink>
+            </div>
+            <div class="flex items-center mt-6">
                 <font-awesome-icon
                     icon="fa-solid fa-user"
                     class="h-8 w-8"

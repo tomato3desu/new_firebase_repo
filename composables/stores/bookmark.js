@@ -26,7 +26,7 @@ export const useBookmarkStore = defineStore('bookmarkStore', () => {
                 method: 'GET'
             })
             // res: [ { pinId: 1 }, { pinId: 2 } ... ]
-            bookmarkedPinsByUserId.value[userId] = res.map(r => r.pinId)
+            bookmarkedPinsByUserId.value[userId] = res
         }
         catch (e) {
             console.error('Failed to fetch bookmarks:', e)

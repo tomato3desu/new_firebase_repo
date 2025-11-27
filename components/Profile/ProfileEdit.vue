@@ -1,15 +1,11 @@
-<!-- <script setup>
+<script setup>
 import { useAuthStore } from '~/composables/stores/auth'
 import { usePrefStore } from '~/composables/stores/prefecture'
 import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { Cropper } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
 
-definePageMeta({
-    layout: 'map'
-})
-
-defineProps({
+const { user } = defineProps({
     user: Object
 })
 
@@ -18,10 +14,10 @@ const prefStore = usePrefStore()
 const { $storage } = useNuxtApp()
 
 const currentProfile = ref({
-    nickname: user.nickname,
-    comment: user.comment,
-    prefectureId: user.prefectureId,
-    iconImagePath: user.iconImagePath
+    nickname: user?.nickname ?? null,
+    comment: user?.comment ?? null,
+    prefectureId: user?.prefectureId ?? null,
+    iconImagePath: user?.iconImagePath ?? null
 })
 
 const nickname = ref('')
@@ -193,31 +189,10 @@ watch(comment, () => {
         commentError.value = ''
     }
 })
-
-// ログイン状態に合わせてcurrentProfileをセット
-// watch(() => authStore.loginUser,
-//     (newVal) => {
-//         if (newVal) {
-//             currentProfile.value = authStore.loginUser
-//             prefId.value = authStore.loginUser.prefectureId
-//         }
-//         else {
-//             currentProfile.value = {
-//                 nickname: '',
-//                 comment: '',
-//                 prefectureId: '',
-//                 iconImagePath: ''
-//             }
-
-//             prefId.value = 13
-//         }
-//     },
-//     { immediate: true }
-// )
 </script>
 
 <template>
-    <div class="max-w-md mx-auto mt-10 p-6 border rounded-2xl shadow">
+    <div class="max-w-80 mx-auto mt-10 p-6 border rounded-2xl shadow">
         <h2 class="text-2xl font-bold mb-4 text-center">
             プロフィール
         </h2>
@@ -285,7 +260,7 @@ watch(comment, () => {
             <NuxtImg
                 :src="currentProfile.iconImagePath || '/images/default_user.jpeg'"
                 alt="プロフィール画像"
-                class="w-32 h-32 object-cover rounded-none mb-4"
+                class="w-32 h-32 object-cover rounded-sm mb-4"
             />
         </client-only>
         <input
@@ -341,13 +316,4 @@ watch(comment, () => {
             </a>
         </div>
     </div>
-</template> -->
-<script setup>
-definePageMeta({
-    layout: 'map'
-})
-</script>
-
-<template>
-    <div />
 </template>

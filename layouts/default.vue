@@ -3,9 +3,7 @@
 
 <template>
     <div class="flex flex-col min-h-screen">
-        <client-only>
-            <HeaderBar />
-        </client-only>
+        <HeaderBar />
         <div class="flex-1">
             <slot />
         </div>

@@ -3,6 +3,9 @@ import { useAuthStore } from '~/composables/stores/auth'
 import { useGoodStore } from '~/composables/stores/good'
 import { useReviewStore } from '~/composables/stores/review'
 import { useUserStore } from '~/composables/stores/user'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const authStore = useAuthStore()
 const userStore = useUserStore()
@@ -59,6 +62,10 @@ const onReportClicked = () => {
     isOpenReviewReportDialog.value = true
 }
 
+const openUserProfile = () => {
+    router.push(`/user/${review.value.review.createdUserId}`)
+}
+
 /**
  * 画像クリック時にギャラリー表示するための情報をdrawerに伝える
  * @param reviewImage 
@@ -85,6 +92,7 @@ const onImageClick = (reviewImage) => {
                 :src=" userStore.usersById[review.review.createdUserId].iconImagePath || '/images/default_user.jpeg'"
                 alt="icon"
                 class="w-8 h-8 object-cover rounded-sm"
+                @click="openUserProfile"
             />
             <p class="text-gray-700 font-medium text-sm truncate">
                 {{ userStore.usersById[review.review.createdUserId].nickname }}
