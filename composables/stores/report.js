@@ -3,14 +3,16 @@ import { defineStore } from 'pinia'
 export const useReportStore = defineStore('reportStore', () => {
     const config = useRuntimeConfig()
 
-    const reportsById = ref({}) // key: reportId, value: {reportDto}
-    const disPlayReportsId = ref([])
+    const userReportsById = ref({}) // key: userReportId, value: {reportDto}
+    const displayUserReportsId = ref([])
+    const reviewReportsById = ref({}) // key: reviewReportId, value: {reportDto}
+    const disPlayReviewReportsId = ref([])
 
     /**
      * status = pendingのreportを全件取得
      * @param {*} token 
      */
-    const fetchPendingReports = async (token) => {
+    const fetchPendingReviewReports = async (token) => {
         try {
             const res = await $fetch(`${config.public.apiBase}/api/report/pending/all`, {
                 method: 'GET',
@@ -19,11 +21,11 @@ export const useReportStore = defineStore('reportStore', () => {
                 }
             })
 
-            disPlayReportsId.value = []
+            disPlayReviewReportsId.value = []
 
             for (const report of res) {
-                reportsById.value[report.id] = report
-                disPlayReportsId.value.push(report.id)
+                reviewReportsById.value[report.id] = report
+                disPlayReviewReportsId.value.push(report.id)
             }
         }
         catch (error) {
@@ -31,12 +33,32 @@ export const useReportStore = defineStore('reportStore', () => {
         }
     }
 
+    const sendUserReport = async (reportRequest, token) => {
+        try {
+            const res = await $fetch(`${config.public.apiBase}/api/report/user`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                body: reportRequest
+            })
+
+            if (res !== undefined) {
+                throw new Error('バックエンドエラー')
+            }
+        }
+        catch (error) {
+            console.error('通報失敗', error)
+            throw error
+        }
+    }
+
     /**
-     * 通報
+     * review通報
      * @param {*} reportRequest 
      * @param {*} token 
      */
-    const sendReport = async (reportRequest, token) => {
+    const sendReviewReport = async (reportRequest, token) => {
         try {
             const res = await $fetch(`${config.public.apiBase}/api/report/review`, {
                 method: 'POST',
@@ -56,27 +78,5 @@ export const useReportStore = defineStore('reportStore', () => {
         }
     }
 
-    // const resolvedReport = async(reportId, token) => {
-    //     try {
-    //         const res = $fetch(`${config.public.apiBase}/api/report/resolved/${reportId}`, {
-    //             method: 'PUT',
-    //             headers: {
-    //                 Authorization: `Bearer ${token}`
-    //             }
-    //         })
-
-    //         if(res !== undefined){
-    //             throw new Error('バックエンドエラー')
-    //         }
-
-    //         delete reportsById.value[reportId]
-    //         disPlayReportsId.value = disPlayReportsId.value.filter((id) => id !== reportId)
-            
-    //     }catch(error){
-    //         console.error('更新失敗', error)
-    //         throw error
-    //     }
-    // }
-
-    return { reportsById, disPlayReportsId, sendReport, fetchPendingReports }
+    return { reviewReportsById, disPlayReviewReportsId, sendUserReport, sendReviewReport, fetchPendingReviewReports }
 })

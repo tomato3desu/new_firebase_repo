@@ -136,6 +136,22 @@ create table if not exists review_report(
     CONSTRAINT unique_report unique (review_id, reporter_id)
 );
 
+create table if not exists user_report(
+    id int auto_increment primary key,
+    user_id int not null,
+    reporter_id int not null,
+    reason varchar(50) not null,
+    comment text,
+    status varchar(20) not null default 'pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT user_report_fk_user_id FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        on DELETE CASCADE,
+    CONSTRAINT user_report_fk_reporter_id FOREIGN KEY (reporter_id)
+        REFERENCES users(id)
+        on DELETE CASCADE
+);
+
 
 
 

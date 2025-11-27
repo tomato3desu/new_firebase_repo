@@ -1,22 +1,22 @@
 <script setup>
-import { useReviewStore } from '~/composables/stores/review'
 import { useAuthStore } from '~/composables/stores/auth'
+import { useUserStore } from '~/composables/stores/user'
 import { useReportStore } from '~/composables/stores/report'
 
 const authStore = useAuthStore()
-const reviewStore = useReviewStore()
+const userStore = useUserStore()
 const reportStore = useReportStore()
 
 const isOpen = defineModel()
 
 const props = defineProps({
-    reviewId: {
+    userId: {
         type: Number,
         required: true
     }
 })
 
-const review = computed(() => reviewStore.reviewsById[props.reviewId])
+const user = computed(() => userStore.usersById[props.userId])
 
 const reason = ref(null)
 const comment = ref(null)
@@ -24,16 +24,18 @@ const commentError = ref(null)
 
 const sendToBackend = async () => {
     if (commentError.value) return
-
+    
     const reportRequest = {
-        reviewId: review.value.review.id,
+        reporterId: props.userId,
         reason: reason.value,
         comment: comment.value
     }
 
+    console.log(reportRequest)
+
     try {
         const token = await authStore.getIdToken()
-        await reportStore.sendReviewReport(reportRequest, token)
+        await reportStore.sendUserReport(reportRequest, token)
         window.alert('通報成功')
         close()
     }
@@ -77,7 +79,7 @@ watch(comment, (value) => {
                     type="radio" 
                     value="inappropriate" 
                 >
-                不適切な内容・画像
+                不適切な名前・プロフィール
             </label>
             <label>
                 <input 
@@ -85,15 +87,15 @@ watch(comment, (value) => {
                     type="radio" 
                     value="offensive" 
                 >
-                攻撃的な内容
+                攻撃的なユーザー
             </label>
             <label>
                 <input 
                     v-model="reason"
                     type="radio" 
-                    value="wrong_location"
+                    value="mass_production"
                 >
-                位置情報間違い
+                不適切なピン・レビューの量産
             </label>
             <label>
                 <input 

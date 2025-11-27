@@ -16,7 +16,7 @@ const isDisplayPermitted = computed(() => user.value.role === 'admin')
 const reportIds = computed(() => reportStore.disPlayReportsId || [])
 
 const reviewIds = computed(() => {
-    const ids = reportIds.value.map(id => reportStore.reportsById[id].reviewId)
+    const ids = reportIds.value.map(id => reportStore.ReviewReportsById[id].reviewId)
     return [...new Set(ids)]
 })
 
@@ -128,28 +128,28 @@ onMounted(async () => {
                         :key="reportId"
                     >
                         <td class="py-2 px-4">
-                            {{ reportStore.reportsById[reportId].id }}
+                            {{ reportStore.ReviewReportsById[reportId].id }}
                         </td>
                         <td class="py-2 px-4">
-                            {{ reportStore.reportsById[reportId].reporterId }}
+                            {{ reportStore.ReviewReportsById[reportId].reporterId }}
                         </td>
                         <td class="py-2 px-4">
-                            {{ reportStore.reportsById[reportId].reviewId }}
+                            {{ reportStore.ReviewReportsById[reportId].reviewId }}
                         </td>
                         <td class="py-2 px-4">
-                            {{ reportStore.reportsById[reportId].status }}
+                            {{ reportStore.ReviewReportsById[reportId].status }}
                         </td>
                         <td class="py-2 px-4">
-                            {{ reportStore.reportsById[reportId].createdAt }}
+                            {{ reportStore.ReviewReportsById[reportId].createdAt }}
                         </td>
                         <td class="py-2 px-4">
-                            {{ reportStore.reportsById[reportId].reason }}
+                            {{ reportStore.ReviewReportsById[reportId].reason }}
                         </td>
                         <td class="py-2 px-4">
-                            {{ reportStore.reportsById[reportId].comment }}
+                            {{ reportStore.ReviewReportsById[reportId].comment }}
                         </td>
                         <td class="py-2 px-4 text-sky-500">
-                            <button @click="showReview(reportStore.reportsById[reportId].reviewId, reportId)">
+                            <button @click="showReview(reportStore.ReviewReportsById[reportId].reviewId, reportId)">
                                 showReview
                             </button>
                         </td>

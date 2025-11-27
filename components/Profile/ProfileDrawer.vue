@@ -47,7 +47,10 @@ watch(
             :class="isOpen ? 'w-96' : 'w-0'"
         >
             <!-- Drawer 中身（閉じてるときは非表示） -->
-            <div v-if="isOpen" class="h-full overflow-y-auto p-4">
+            <div
+                v-if="isOpen"
+                class="h-full overflow-y-auto p-4"
+            >
                 <ProfileEdit
                     v-if="mode === 'edit'"
                     :user="authStore.loginUser"

@@ -7,7 +7,13 @@ const { user } = defineProps({
 
 const prefStore = usePrefStore()
 
-onMounted(async() => {
+const isOpenUserReportDialog = ref(false)
+
+const onReportClicked = () => {
+    isOpenUserReportDialog.value = true
+}
+
+onMounted(async () => {
     await prefStore.setAllPrefs()
 })
 </script>
@@ -25,7 +31,17 @@ onMounted(async() => {
             {{ user?.comment }}
         </p>
         <p class="text-gray-600">
-            {{ prefStore.prefsById[user?.prefectureId].name }}
+            {{ prefStore.prefsById[user?.prefectureId]?.name }}
         </p>
+        <font-awesome-icon 
+            icon="fa-solid fa-triangle-exclamation" 
+            class="w-6 h-6 text-gray-700"
+            @click="onReportClicked"
+        />
     </div>
+    <ProfileUserReportDialog
+        v-if="user"
+        v-model="isOpenUserReportDialog"
+        :user-id="user.id"
+    />
 </template>
