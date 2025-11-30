@@ -235,6 +235,7 @@ watch(comment, () => {
         />
         <client-only>
             <p
+                v-if="prefStore.prefsById[prefId]"
                 class="text-gray-500"
             >
                 {{ prefStore.prefsById[prefId].name }}

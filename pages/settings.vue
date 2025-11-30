@@ -1,6 +1,10 @@
 <script setup>
 import { useAuthStore } from '~/composables/stores/auth'
 
+definePageMeta({
+    middleware: 'auth'
+})
+
 const authStore = useAuthStore()
 
 const isLoggedIn = computed(() => authStore.isLoggedIn)

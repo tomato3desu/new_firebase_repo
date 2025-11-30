@@ -1,9 +1,10 @@
 <script setup>
-import { importLibrary } from "@googlemaps/js-api-loader"
 import { usePinStore } from "~/composables/stores/pin"
 import { useAuthStore } from "~/composables/stores/auth"
 import { usePrefStore } from "~/composables/stores/prefecture"
 import { useBookmarkStore } from "~/composables/stores/bookmark"
+
+const { $googleMaps } = useNuxtApp()
 
 // ストア
 const authStore = useAuthStore()
@@ -31,12 +32,10 @@ const isOpenSearchDrawer = ref(false)
 const mapElement = ref(null)
 let map
 let mapClickListener = null
-const markers = ref([])
+let markers = []
 const isInitialized = ref(false)
 
 onMounted(async () => {
-    const { Map } = await importLibrary("maps")
-
     await prefStore.setAllPrefs()
 
     let lat = 34.700428654912486
@@ -48,7 +47,7 @@ onMounted(async () => {
     }
 
     // mapを作成
-    map = new Map(mapElement.value, {
+    map = await $googleMaps.loadMap(mapElement.value, {
         center: { lat: lat, lng: lng },
         zoom: 12,
         mapId: config.public.googleMapId
@@ -63,7 +62,7 @@ onMounted(async () => {
     }
     
     // ピン描画
-    markers.value = []
+    markers = []
     await pinStore.getAllPins()
     for (const pinId in pinStore.pinsById) {
         renderMarker(pinStore.pinsById[pinId])
@@ -126,7 +125,7 @@ const onResultClicked = ({ latitude, longitude }) => {
  * @param pin 
  */
 const renderMarker = async (pin) => {
-    const { AdvancedMarkerElement, PinElement } = await importLibrary("marker")
+    const { AdvancedMarkerElement, PinElement } = await $googleMaps.loadMarkerLib()
     let pinElement
 
     const bookmarks = bookmarkStore.bookmarkedPinsByUserId[authStore.loginUser?.id] || []
@@ -165,7 +164,7 @@ const renderMarker = async (pin) => {
         emit('pin-clicked', pin.id)
     })
 
-    markers.value.push({
+    markers.push({
         pinId: pin.id,
         marker: marker
     })
@@ -194,13 +193,13 @@ watch(
 
         // 削除されたピン → マーカーを削除
         for (const deletedId of deletedIds) {
-            const markerIndex = markers.value.findIndex(
+            const markerIndex = markers.findIndex(
                 (m) => m.pinId === deletedId
             )
             if (markerIndex !== -1) {
-                markers.value[markerIndex].marker.setMap(null)
-                markers.value[markerIndex].marker.remove()
-                markers.value.splice(markerIndex, 1)
+                markers[markerIndex].marker.setMap(null)
+                markers[markerIndex].marker.remove()
+                markers.splice(markerIndex, 1)
             }
         }
     }, {
@@ -208,6 +207,7 @@ watch(
     }
 )
 
+// TODO 色変わってない！！
 // mybookmarkedPinIdsを監視し、変更があれば再描画
 watch(
     () => bookmarkStore.mybookmarkedPinIds,
@@ -216,15 +216,22 @@ watch(
         const newIds = newList || []
         const oldIds = oldList || []
 
+        console.log(markers)
+
         // 追加・削除されたピンを特定
         const added = newIds.filter(id => !oldIds.includes(id))
         const removed = oldIds.filter(id => !newIds.includes(id))
 
+        console.log(added)
+        console.log(removed)
+
         // 🔹 追加されたブックマーク → マーカー色変更
         for (const pinId of added) {
-            const marker = markers.value.find(m => m.pinId === pinId)
+            const marker = markers.find(m => m.pinId === pinId)
+            console.log("ブックマークされたマーカー", marker)
+            console.log("markercontent", marker.content)
             if (marker) {
-                const { PinElement } = await importLibrary("marker")
+                const { PinElement } = await $googleMaps.loadMarkerLib()
                 const pinElement = new PinElement({
                     background: "#00ff7f",
                     borderColor: "#ffffff",
@@ -232,15 +239,17 @@ watch(
                     glyphColor: "#ffffff",
                     glyphText: String(pinId),
                 })
-                marker.content = pinElement.element
+
+                marker.marker.content = pinElement.element
             }
         }
 
         // 🔹 削除されたブックマーク → 元の色に戻す
         for (const pinId of removed) {
-            const marker = markers.value.find(m => m.pinId === pinId)
+            const marker = markers.find(m => m.pinId === pinId)
+            console.log("ブックマーク解除されたマーカー", marker)
             if (marker) {
-                const { PinElement } = await importLibrary("marker")
+                const { PinElement } = await $googleMaps.loadMarkerLib()
                 const pinElement = new PinElement({
                     background: "#00ffff",
                     borderColor: "#ffffff",
@@ -248,7 +257,8 @@ watch(
                     glyphColor: "#ffffff",
                     glyphText: String(pinId),
                 })
-                marker.content = pinElement.element
+
+                marker.marker.content = pinElement.element
             }
         }
     },

@@ -15,6 +15,7 @@ const close = () => {
 
 const logout = async () => {
     await authStore.logout()
+    navigateTo('/')
     close()
 }
 </script>

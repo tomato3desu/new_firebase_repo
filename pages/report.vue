@@ -4,6 +4,10 @@ import { useReportStore } from '~/composables/stores/report'
 import { useReviewStore } from '~/composables/stores/review'
 import { ref as storageRef, deleteObject } from 'firebase/storage'
 
+definePageMeta({
+    middleware: 'admin'
+})
+
 const authStore = useAuthStore()
 const reportStore = useReportStore()
 const reviewStore = useReviewStore()
@@ -16,7 +20,7 @@ const isDisplayPermitted = computed(() => user.value.role === 'admin')
 const reportIds = computed(() => reportStore.disPlayReportsId || [])
 
 const reviewIds = computed(() => {
-    const ids = reportIds.value.map(id => reportStore.ReviewReportsById[id].reviewId)
+    const ids = reportIds.value.map(id => reportStore.reviewReportsById[id].reviewId)
     return [...new Set(ids)]
 })
 
@@ -86,7 +90,7 @@ const extractPathFromUrl = (url) => {
 
 onMounted(async () => {
     const token = await authStore.getIdToken()
-    await reportStore.fetchPendingReports(token)
+    await reportStore.fetchPendingReviewReports(token)
     console.log(reviewIds.value)
     await reviewStore.fetchReviewsByIds(reviewIds.value)
 })
