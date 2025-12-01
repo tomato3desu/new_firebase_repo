@@ -57,7 +57,7 @@ onMounted(async () => {
 <template>
     <div 
         v-if="isOpen"
-        class="fixed right-0 top-16 z-50 flex "
+        class="fixed right-0 top-16 z-40 flex "
     >
         <div class="w-4 flex items-center">
             <button
