@@ -132,8 +132,23 @@ create table if not exists review_report(
         on DELETE CASCADE,
     CONSTRAINT fk_reporter_id FOREIGN KEY (reporter_id)
         REFERENCES users(id)
+        on DELETE CASCADE
+);
+
+create table if not exists pin_report(
+    id int auto_increment primary key,
+    pin_id int not null,
+    reporter_id int not null,
+    reason varchar(50) not null,
+    comment text,
+    status varchar(20) not null default 'pending',
+    created_at DATETIME default CURRENT_TIMESTAMP,
+    CONSTRAINT pin_report_fk_pin_id FOREIGN KEY (pin_id)
+        REFERENCES pins(id)
         on DELETE CASCADE,
-    CONSTRAINT unique_report unique (review_id, reporter_id)
+    CONSTRAINT pin_report_fk_reporter_id FOREIGN KEY (reporter_id)
+        REFERENCES users(id)
+        on DELETE CASCADE
 );
 
 create table if not exists user_report(
@@ -174,3 +189,6 @@ SELECT
 from reviews r
 LEFT JOIN review_good rg on r.id = rg.good_review_id
 group by r.id;
+
+
+update users set is_active = 1 where id = 9;

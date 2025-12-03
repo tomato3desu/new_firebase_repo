@@ -37,6 +37,7 @@ const reviewIds = computed(() => {
 
 const isOpenUpdatePinDialog = ref(false)
 const isOpenCreateReviewDialog = ref(false)
+const isOpenPinReportDialog = ref(false)
 const isEditParmitted = computed(() => { // ログインユーザー＝ピン作成者ならtrue
     const user = authStore.loginUser
     const p = pin.value
@@ -80,6 +81,10 @@ const toggleBookmark = async () => {
 
 const openUserProfile = () => {
     router.push(`/user/${pin.value.createdUserId}`)
+}
+
+const onReportClicked = () => {
+    isOpenPinReportDialog.value = true
 }
 
 const close = () => {
@@ -129,6 +134,11 @@ onMounted(async () => {
                     @click="openUserProfile"
                 />
                 <p>{{ userStore.usersById[pin.createdUserId].nickname }}</p>
+                <font-awesome-icon 
+                    icon="fa-solid fa-triangle-exclamation" 
+                    class="w-4 h-4 text-gray-700 ml-4"
+                    @click="onReportClicked"
+                />
                 <font-awesome-icon 
                     v-if="isBookmarked"
                     icon="fa-solid fa-bookmark"
@@ -225,6 +235,10 @@ onMounted(async () => {
     />
     <MapUpdatePinDialog
         v-model="isOpenUpdatePinDialog"
+        :pin-id="pin.id"
+    />
+    <MapPinReportDrawer
+        v-model="isOpenPinReportDialog"
         :pin-id="pin.id"
     />
 </template>

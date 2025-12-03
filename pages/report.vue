@@ -4,6 +4,7 @@ import { useReportStore } from '~/composables/stores/report'
 import { useReviewStore } from '~/composables/stores/review'
 import { useUserStore } from '~/composables/stores/user'
 import { ref as storageRef, deleteObject } from 'firebase/storage'
+import { useRouter } from 'vue-router'
 
 definePageMeta({
     middleware: 'admin'
@@ -14,17 +15,26 @@ const reportStore = useReportStore()
 const reviewStore = useReviewStore()
 const userStore = useUserStore()
 
+const router = useRouter()
+
 const { $storage } = useNuxtApp()
 
 const user = computed(() => authStore.loginUser)
 const isDisplayPermitted = computed(() => user.value.role === 'admin')
 
 const userReportIds = computed(() => reportStore.displayUserReportsId || [])
+const pinReportIds = computed(() => reportStore.displayPinReportsId || [])
 const reviewReportIds = computed(() => reportStore.displayReviewReportsId || [])
 
 // reportIdからuserIdを特定
 const userIds = computed(() => {
-    const ids = userReportIds.value.map(id => reportStore.userReportsById[id])
+    const ids = userReportIds.value.map(id => reportStore.userReportsById[id].userId)
+    return [...new Set(ids)]
+})
+
+// reportIdからpinIdを特定
+const pinIds = computed(() => {
+    const ids = pinReportIds.value.map(id => reportStore.pinReportsById[id].pinId)
     return [...new Set(ids)]
 })
 
@@ -51,6 +61,10 @@ const closeUser = () => {
     selectedUser.value = null
 }
 
+const showPin = (pinId) => {
+    router.push(`/?pinId=${pinId}`)
+}
+
 const showReview = (reviewId, reportId) => {
     selectedReviewId.value = reviewId
     selectedReviewReportId.value = reportId
@@ -61,6 +75,48 @@ const closeReview = () => {
     selectedReviewReportId.value = null
 }
 
+const changeUserStatusResolved = async (reportId) => {
+    const confirm = window.confirm('本当に解決済みに変更しますか？')
+    if (!confirm) return
+
+    try {
+        const token = await authStore.getIdToken()
+        await reportStore.sendUserReportResolved(reportId, token)
+    }
+    catch (error) {
+        console.error(error)
+    }
+}
+
+const changePinStatusResolved = async (reportId) => {
+    const confirm = window.confirm('本当に解決済みに変更しますか？')
+    console.log(reportId)
+    if (!confirm) return
+
+    try {
+        const token = await authStore.getIdToken()
+        await reportStore.sendPinReportResolved(reportId, token)
+    }
+    catch (error) {
+        console.error(error)
+    }
+}
+
+const changeReviewStatusResolved = async (reportId) => {
+    const confirm = window.confirm('本当に解決済みに変更しますか？')
+    console.log(reportId)
+    if (!confirm) return
+
+    try {
+        const token = await authStore.getIdToken()
+        await reportStore.sendReviewReportResolved(reportId, token)
+    }
+    catch (error) {
+        console.error(error)
+    }
+}
+
+// TODO BAN後displayから削除
 const banUser = async () => {
     const isConfirm = window.confirm("本当にBANしますか？")
     if (isConfirm) {
@@ -126,6 +182,8 @@ onMounted(async () => {
     const token = await authStore.getIdToken()
     await reportStore.fetchPendingUserReports(token)
     console.log(userIds.value)
+    await reportStore.fetchPendingPinReports(token)
+    console.log(pinIds.value)
     await reportStore.fetchPendingReviewReports(token)
     console.log(reviewIds.value)
     await reviewStore.fetchReviewsByIds(reviewIds.value)
@@ -181,7 +239,12 @@ onMounted(async () => {
                             {{ reportStore.userReportsById[reportId].userId }}
                         </td>
                         <td class="py-2 px-4">
-                            {{ reportStore.userReportsById[reportId].status }}
+                            <button
+                                class="text-sky-400"
+                                @click="changeUserStatusResolved(reportId)"
+                            >
+                                {{ reportStore.userReportsById[reportId].status }}
+                            </button>
                         </td>
                         <td class="py-2 px-4">
                             {{ reportStore.userReportsById[reportId].createdAt }}
@@ -224,6 +287,78 @@ onMounted(async () => {
                     </button>
                 </div>
             </div>
+        </div>
+        <!-- pin -->
+        <div>
+            <p class="text-3xl p-4 m-4">
+                ピン通報
+            </p>
+            <table class="min-w-full bg-white shadow rounded-lg overflow-hidden">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="py-3 px-4 text-left">
+                            id
+                        </th>
+                        <th class="py-3 px-4 text-left">
+                            reporterId
+                        </th>
+                        <th class="py-3 px-4 text-left">
+                            pinId
+                        </th>
+                        <th class="py-3 px-4 text-left">
+                            status
+                        </th>
+                        <th class="py-3 px-4 text-left">
+                            createdAt
+                        </th>
+                        <th class="py-3 px-4 text-left">
+                            reason
+                        </th>
+                        <th class="py-3 px-4 text-left break-words">
+                            comment
+                        </th>
+                        <th class="py-3 px-4 text-left" />
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        v-for="reportId of pinReportIds"
+                        :key="reportId"
+                    >
+                        <td class="py-2 px-4">
+                            {{ reportStore.pinReportsById[reportId].id }}
+                        </td>
+                        <td class="py-2 px-4">
+                            {{ reportStore.pinReportsById[reportId].reporterId }}
+                        </td>
+                        <td class="py-2 px-4">
+                            {{ reportStore.pinReportsById[reportId].pinId }}
+                        </td>
+                        <td class="py-2 px-4">
+                            <button
+                                class="text-sky-400"
+                                @click="changePinStatusResolved(reportId)"
+                            >
+                                {{ reportStore.pinReportsById[reportId].status }}
+                            </button>
+                        </td>
+                        <td class="py-2 px-4">
+                            {{ reportStore.pinReportsById[reportId].createdAt }}
+                        </td>
+                        <td class="py-2 px-4">
+                            {{ reportStore.pinReportsById[reportId].reason }}
+                        </td>
+                        <td class="py-2 px-4">
+                            {{ reportStore.pinReportsById[reportId].comment }}
+                        </td>
+                        <td class="py-2 px-4 text-sky-500">
+                            <button @click="showPin(reportStore.pinReportsById[reportId].pinId)">
+                                showPin
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <!-- review -->
         <div>
@@ -272,7 +407,12 @@ onMounted(async () => {
                             {{ reportStore.reviewReportsById[reportId].reviewId }}
                         </td>
                         <td class="py-2 px-4">
-                            {{ reportStore.reviewReportsById[reportId].status }}
+                            <button
+                                class="text-sky-400"
+                                @click="changeReviewStatusResolved(reportId)"
+                            >
+                                {{ reportStore.reviewReportsById[reportId].status }}
+                            </button>
                         </td>
                         <td class="py-2 px-4">
                             {{ reportStore.reviewReportsById[reportId].createdAt }}
