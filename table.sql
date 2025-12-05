@@ -56,6 +56,8 @@ ADD CONSTRAINT fk_pref_pins FOREIGN KEY (pref_id)
     ON DELETE SET NULL
     ON UPDATE CASCADE;
 
+
+
 create table if not exists reviews(
     id int auto_increment primary key,
     created_user_id int not null,
@@ -73,6 +75,7 @@ create table if not exists reviews(
     CONSTRAINT check_darkness CHECK (darkness_level between 1 and 5),
     CONSTRAINT check_access_level CHECK (access_level between 1 and 5)
 );
+
 
 alter table season 
 ALTER TABLE reviews 

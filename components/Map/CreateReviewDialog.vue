@@ -18,6 +18,7 @@ const props = defineProps({
 const darknessLevel = ref(3)
 const accessLevel = ref(3)
 const files = ref([])
+const errorFile = ref('')
 const previewUrls = ref([])
 const uploadedUrls = ref([])
 const error = ref('')
@@ -29,12 +30,16 @@ const season = ref(null)
 const visitedDate = ref(null)
 const visitedTime = ref(null)
 const isActiveReviewBtn = computed(() => 
-    !errorTitle.value 
+    !errorFile.value
+    && !errorTitle.value 
     && !errorDesc.value
     && season.value
     && visitedDate.value
     && visitedTime.value 
-    && authStore.isLoggedIn)
+    && authStore.isLoggedIn
+)
+
+const MAX_IMAGES = 10
 
 /**
  * inputのファイル変更時にpreviewUrlsを変更
@@ -44,8 +49,13 @@ const handleFileChange = (event) => {
     const selectedFiles = event.target.files
     if (!selectedFiles || selectedFiles.length === 0) return
 
-    files.value = Array.from(selectedFiles) // fileList => arrayに変換して格納
+    const newFiles = Array.from(selectedFiles)
 
+    if(files.value.length + newFiles.length > MAX_IMAGES){
+        errorFile.value = `画像は最大${MAX_IMAGES}枚までです`
+    }
+
+    files.value = [...files.value, ...newFiles]
     previewUrls.value = files.value.map(file => URL.createObjectURL(file))
 }
 
@@ -53,6 +63,7 @@ const handleFileChange = (event) => {
  * レビューを作成
  */
 const createNewReview = async () => {
+    if(errorFile.value || errorTitle.value || errorDesc.value) return
     if (!title.value || !description.value || !season.value || !visitedDate.value || !visitedTime.value) return // バリデーションエラーがあれば即レス
 
     await addToStorage() // storageに追加
@@ -98,6 +109,7 @@ const close = () => {
     darknessLevel.value = 3
     accessLevel.value = 3
     files.value = []
+    errorFile.value = ''
     previewUrls.value = []
     uploadedUrls.value = []
     error.value = ''
@@ -278,6 +290,12 @@ watch(description, (value) => {
                         class="mb-4 w-full border p-2 rounded"
                         @change="handleFileChange"
                     >
+                    <p
+                        v-if="errorFile"
+                        class="text-red-400"
+                    >
+                        {{ errorFile }}
+                    </p>
                     <NuxtImg
                         v-for="previewUrl in previewUrls"
                         :key="previewUrl"
