@@ -35,14 +35,13 @@ const onclickSearchResult = () => {
         class="h-20 border border-gray-400 rounded-md bg-cover bg-center"
         :style="{ backgroundImage: `url(${thumbnailImagePath})` }"
     >
-        <p class="text-white">
+        <p class="text-white ml-2">
             {{ title }}
         </p>
-        <button
-            class="rounded-md bg-teal-500"
+        <font-awesome-icon 
+            icon="fa-solid fa-paper-plane" 
+            class="w-4 h-4 text-teal-500 ml-2 mt-2"
             @click="onclickSearchResult"
-        >
-            move
-        </button>
+        />
     </div>
 </template>

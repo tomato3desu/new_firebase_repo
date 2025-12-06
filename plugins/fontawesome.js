@@ -17,6 +17,10 @@ import {
     faComment,
     faPenToSquare,
     faClock,
+    faRotate,
+    faT,
+    faEarthAsia,
+    faPaperPlane
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(faStar)
@@ -35,6 +39,10 @@ library.add(faMoon)
 library.add(faComment)
 library.add(faPenToSquare)
 library.add(faClock)
+library.add(faRotate)
+library.add(faT)
+library.add(faEarthAsia)
+library.add(faPaperPlane)
 
 config.autoAddCss = false
 

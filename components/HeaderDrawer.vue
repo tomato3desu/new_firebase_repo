@@ -30,7 +30,7 @@ const logout = async () => {
     <!-- drawer本体 -->
     <div
         v-if="isOpen"
-        class="fixed right-0 top-16 w-80 h-full bg-white shadow-xl z-50 p-6 transform transition-transform duration-300"
+        class="fixed right-0 top-16 w-80 max-w-[100vw] sm:w-100  h-full bg-white shadow-xl z-50 p-6 transform transition-transform duration-300"
         :class="isOpen ? 'translate-x-0' : 'translate-x-full'"
         @click.stop
     >

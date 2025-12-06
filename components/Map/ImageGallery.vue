@@ -63,16 +63,16 @@ onMounted(() => {
         />
         <!-- 矢印 -->
         <div
-            class="absolute left-8 text-4xl text-white cursor-pointer select-none"
+            class="absolute left-8 text-2xl text-white cursor-pointer select-none"
             @click="prevImage"
         >
-            ‹
+            ◀
         </div>
         <div
-            class="absolute right-8 text-4xl text-white cursor-pointer select-none"
+            class="absolute right-8 text-2xl text-white cursor-pointer select-none"
             @click="nextImage"
         >
-            ›
+            ▶
         </div>
     </div>
 </template>

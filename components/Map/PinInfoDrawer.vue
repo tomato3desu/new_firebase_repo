@@ -142,7 +142,7 @@ onMounted(async () => {
                 <NuxtImg
                     :src=" userStore.usersById[pin.createdUserId].iconImagePath || '/images/default_user.jpeg'"
                     alt="icon"
-                    class="w-8 h-8 object-cover rounded-sm mr-4 border-gray-300 border"
+                    class="w-8 h-8 object-cover rounded-sm mr-4"
                     @click="openUserProfile"
                 />
                 <p class="text-gray-700 mr-4 font-medium">
@@ -222,7 +222,7 @@ onMounted(async () => {
                         icon="fa-solid fa-location-dot"
                         class="h-4 w-4 text-gray-700 mr-2" 
                     />
-                    <p class="text-sm">
+                    <p class="text-sm break-words">
                         {{ pin.address }}
                     </p>
                 </div>

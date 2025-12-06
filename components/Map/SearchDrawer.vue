@@ -57,7 +57,7 @@ onMounted(async () => {
 <template>
     <div 
         v-if="isOpen"
-        class="fixed right-0 top-16 z-40 flex "
+        class="fixed right-0 top-16 z-40 flex"
     >
         <div class="w-4 flex items-center">
             <button
@@ -67,9 +67,15 @@ onMounted(async () => {
                 ▶
             </button>
         </div>
-        <div class="w-80 sm:w-[calc(max-28px)] bg-white shadow-lg relative h-[calc(100vh-4rem)] overflow-y-auto">
-            <div>
-                <label class="block text-gray-700 text-sm font-medium mb-1">タイトル</label>
+        <div class="w-60 max-w-[calc(100vw-40px)] sm:w-80 bg-white shadow-lg relative h-[calc(100vh-4rem)] px-2 overflow-y-auto">
+            <div class="mt-2 mb-1">
+                <div class="flex items-center">
+                    <font-awesome-icon
+                        icon="fa-solid fa-t"
+                        class="w-4 h-4 mr-0.5"
+                    />
+                    <label class="block text-gray-700 text-sm font-medium">タイトル</label>
+                </div>
                 <input 
                     v-model="titleKeyword" 
                     type="text" 
@@ -78,73 +84,107 @@ onMounted(async () => {
                 >
             </div>
             <div>
-                <label class="block text-gray-700 text-sm font-medium mb-1">平均暗さレベル</label>
-                <select v-model="minAvgDarkness">
+                <div class="flex items-center mt-2 mb-1">
+                    <font-awesome-icon
+                        icon="fa-solid fa-moon"
+                        class="h-4 w-4 text-gray-700 mr-0.5"
+                    />
+                    <label class="block text-gray-700 text-sm font-medium">暗さ</label>
+                </div>
+                <select 
+                    v-model="minAvgDarkness"
+                    class="rounded-sm focus:outline-none focus:ring focus:ring-blue-300"
+                >
                     <option
                         :value="1"
                         selected
+                        class="text-gray-700"
                     >
-                        未選択
+                        -----
                     </option>
-                    <option :value="1">
+                    <option :value="1" class="text-gray-700">
                         1
                     </option>
-                    <option :value="2">
+                    <option :value="2" class="text-gray-700">
                         2
                     </option>
                     <option
                         :value="3"
+                        class="text-gray-700"
                     >
                         3
                     </option>
-                    <option :value="4">
+                    <option :value="4" class="text-gray-700">
                         4
                     </option>
-                    <option :value="5">
+                    <option :value="5" class="text-gray-700">
                         5
                     </option>
                 </select>
             </div>
             <div>
-                <label class="block text-gray-700 text-sm font-medium mb-1">アクセス</label>
-                <select v-model="minAvgAccess">
+                <div class="flex items-center mt-2 mb-1">
+                    <font-awesome-icon
+                        icon="fa-solid fa-route"
+                        class="h-4 w-4 text-gray-700 mr-2"
+                    />
+                    <label class="block text-gray-700 text-sm font-medium">アクセス</label>
+                </div>
+                <select 
+                    v-model="minAvgAccess"
+                    class="rounded-sm focus:outline-none focus:ring focus:ring-blue-300"
+                >
                     <option
                         :value="1"
                         selected
+                        class="text-gray-700"
                     >
-                        未選択
+                        -----
                     </option>
-                    <option :value="1">
+                    <option :value="1" class="text-gray-700">
                         1
                     </option>
-                    <option :value="2">
+                    <option :value="2" class="text-gray-700">
                         2
                     </option>
                     <option
                         :value="3"
+                        class="text-gray-700"
                     >
                         3
                     </option>
-                    <option :value="4">
+                    <option :value="4" class="text-gray-700">
                         4
                     </option>
-                    <option :value="5">
+                    <option :value="5" class="text-gray-700">
                         5
                     </option>
                 </select>
             </div>
             <div v-if="prefStore.prefsById">
-                <select v-model="prefId">
+                <div class="flex items-center mt-2 mb-1">
+                    <font-awesome-icon
+                        icon="fa-solid fa-earth-asia"
+                        class="w-4 h-4 text-gray-700 mr-2"
+                    />
+                    <label class="block text-gray-700 text-sm font-medium">都道府県</label>
+                </div>
+                <select
+                    v-model="prefId"
+                    class="rounded-sm focus:outline-none focus:ring focus:ring-blue-300"
+                >
                     <option
-                        disabled
                         selected
+                        value=""
+                        class="text-gray-700"
                     >
-                        未選択
+                        -----
                     </option>
                     <option
                         v-for="pref in prefStore.prefsById"
                         :key="pref.id"
                         :value="pref.id"
+                        class="text-gray-700"
                     >
                         {{ pref.name }}
                     </option>
@@ -158,7 +198,7 @@ onMounted(async () => {
                     search
                 </button>
                 <button
-                    class="px-4 py-2 rounded disabled:bg-green-200  bg-green-500 text-white hover:bg-green-600 transition"
+                    class=" px-4 py-2 rounded disabled:bg-green-200  bg-green-500 text-white hover:bg-green-600 transition"
                     @click="clearResult"
                 >
                     clear

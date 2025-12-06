@@ -91,7 +91,7 @@ const onImageClick = (reviewImage) => {
             <NuxtImg
                 :src=" userStore.usersById[review.review.createdUserId].iconImagePath || '/images/default_user.jpeg'"
                 alt="icon"
-                class="w-8 h-8 object-cover rounded-sm border-gray-300 border mr-4"
+                class="w-8 h-8 object-cover rounded-sm mr-4"
                 @click="openUserProfile"
             />
             <p class="text-gray-700 font-medium truncate">
