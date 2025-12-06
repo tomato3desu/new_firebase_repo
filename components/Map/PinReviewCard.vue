@@ -81,40 +81,42 @@ const onImageClick = (reviewImage) => {
 <template>
     <div 
         v-if="review && review.review"
-        class="rounded-sm border-b border-gray-300 flex flex-col"
+        class="border-b border-gray-300 flex flex-col pl-2"
     >
         <!-- ユーザー情報 -->
         <div
             v-if="userStore.usersById[review.review.createdUserId]"
-            class="flex items-center justify-between"
+            class="flex items-center mt-2"
         >
             <NuxtImg
                 :src=" userStore.usersById[review.review.createdUserId].iconImagePath || '/images/default_user.jpeg'"
                 alt="icon"
-                class="w-8 h-8 object-cover rounded-sm"
+                class="w-8 h-8 object-cover rounded-sm border-gray-300 border mr-4"
                 @click="openUserProfile"
             />
-            <p class="text-gray-700 font-medium text-sm truncate">
+            <p class="text-gray-700 font-medium truncate">
                 {{ userStore.usersById[review.review.createdUserId].nickname }}
             </p>
-            <button
+            <font-awesome-icon 
                 v-if="isEditParmitted"
-                :review="review" 
-                class="text-yellow-300"
+                icon="fa-solid fa-pen-to-square" 
+                class="h-4 w-4 text-gray-700 absolute right-4"
                 @click="updateReview"
-            >
-                編集
-            </button>
+            />
         </div>
         <!-- 確認用ID -->
         <p>{{ review.review.id }}</p>
         <!-- タイトル -->
-        <p class="text-base font-semibold text-gray-900 break-words whitespace-pre-wrap">
+        <p class="text-base font-medium text-gray-700 break-words whitespace-pre-wrap">
             {{ review.review.title }}
         </p>
         <!-- 評価 -->
-        <div class="text-sm text-gray-600">
-            <div class="flex">
+        <div class=" text-gray-700">
+            <div class="flex items-center">
+                <font-awesome-icon 
+                    icon="fa-solid fa-moon" 
+                    class="h-4 w-4 text-gray-700 mr-2"
+                />
                 <p>暗さ：</p>
                 <font-awesome-icon
                     v-for="n in review?.review.darknessLevel"
@@ -129,7 +131,11 @@ const onImageClick = (reviewImage) => {
                     class="text-gray-400 h-4 w-4"
                 />
             </div>
-            <div class="flex">
+            <div class="flex items-center">
+                <font-awesome-icon 
+                    icon="fa-solid fa-route" 
+                    class="h-4 w-4 text-gray-700 mr-2"
+                />
                 <p>アクセス：</p>
                 <font-awesome-icon
                     v-for="n in review.review.accessLevel"
@@ -146,7 +152,11 @@ const onImageClick = (reviewImage) => {
             </div>
         </div>
         <!-- 訪問日時 -->
-        <div class="text-gray-700 text-sm">
+        <div class="text-gray-700 flex items-center">
+            <font-awesome-icon 
+                icon="fa-solid fa-clock" 
+                class="h-4 w-4 text-gray-700 mr-2"
+            />
             <p>訪問日時：{{ review.review.visitedDate }}日{{ review.review.visitedTime }}頃</p>
         </div>
         <!-- 本文 -->
@@ -175,21 +185,23 @@ const onImageClick = (reviewImage) => {
             />
         </div>
         <!-- good, good数 -->
-        <div class="flex">
-            <div class="flex">
+        <div class="flex items-center mb-1">
+            <div class="flex items-center">
                 <font-awesome-icon
                     v-if="isGood"
                     icon="fa-solid fa-thumbs-up"
-                    class="w-4 h-4 text-gray-700"
+                    class="w-4 h-4 text-gray-700 mr-0.5"
                     @click="onGoodClicked"
                 />
                 <font-awesome-icon
                     v-else
                     icon="fa-solid fa-thumbs-up"
-                    class="w-4 h-4 text-gray-300"
+                    class="w-4 h-4 text-gray-300 mr-0.5"
                     @click="onGoodClicked"
                 />
-                <p>{{ review.goodCount }}</p>
+                <p class="mr-4">
+                    {{ review.goodCount }}
+                </p>
             </div>
             <!-- 通報ボタン -->
             <div>

@@ -51,7 +51,7 @@ const handleFileChange = (event) => {
 
     const newFiles = Array.from(selectedFiles)
 
-    if(files.value.length + newFiles.length > MAX_IMAGES){
+    if (files.value.length + newFiles.length > MAX_IMAGES) {
         errorFile.value = `画像は最大${MAX_IMAGES}枚までです`
     }
 
@@ -63,7 +63,7 @@ const handleFileChange = (event) => {
  * レビューを作成
  */
 const createNewReview = async () => {
-    if(errorFile.value || errorTitle.value || errorDesc.value) return
+    if (errorFile.value || errorTitle.value || errorDesc.value) return
     if (!title.value || !description.value || !season.value || !visitedDate.value || !visitedTime.value) return // バリデーションエラーがあれば即レス
 
     await addToStorage() // storageに追加

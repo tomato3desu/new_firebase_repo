@@ -4,7 +4,6 @@ import { useAuthStore } from '~/composables/stores/auth'
 import { useUserStore } from '~/composables/stores/user'
 import { usePinStore } from '~/composables/stores/pin'
 import { useBookmarkStore } from '~/composables/stores/bookmark'
-import { usePrefStore } from '~/composables/stores/prefecture'
 import { useGoodStore } from '~/composables/stores/good'
 import { useRouter } from 'vue-router'
 
@@ -15,7 +14,6 @@ const reviewStore = useReviewStore()
 const userStore = useUserStore()
 const pinStore = usePinStore()
 const bookmarkStore = useBookmarkStore()
-const prefStore = usePrefStore()
 const goodStore = useGoodStore()
 
 const props = defineProps({
@@ -108,9 +106,10 @@ onMounted(async () => {
         <!-- Drawer本体 -->
         <div
             v-if="pin"
-            class="w-80 sm:w-[calc(max-28px)] bg-white shadow-lg relative h-[calc(100vh-4rem)] overflow-y-auto"
+            class="w-60 max-w-[calc(100vw-40px)] sm:w-80 bg-white shadow-lg relative h-[calc(100vh-4rem)] overflow-y-auto"
         >
             <!-- コンテンツ -->
+            <!-- top -->
             <div
                 class="bg-cover bg-center rounded-none h-32 flex flex-col justify-center"
                 :style="pin.thumbnailImagePath
@@ -122,84 +121,122 @@ onMounted(async () => {
                         {{ pin.title }}
                     </h2>
                 </div>
-            </div>
-            <div
-                v-if="userStore.usersById[pin.createdUserId]"
-                class="flex items-center"
-            >
-                <NuxtImg
-                    :src=" userStore.usersById[pin.createdUserId].iconImagePath || '/images/default_user.jpeg'"
-                    alt="icon"
-                    class="w-8 h-8 object-cover rounded-sm"
-                    @click="openUserProfile"
-                />
-                <p>{{ userStore.usersById[pin.createdUserId].nickname }}</p>
-                <font-awesome-icon 
-                    icon="fa-solid fa-triangle-exclamation" 
-                    class="w-4 h-4 text-gray-700 ml-4"
-                    @click="onReportClicked"
-                />
                 <font-awesome-icon 
                     v-if="isBookmarked"
                     icon="fa-solid fa-bookmark"
-                    class="text-teal-400 w-4 h-4 absolute right-4"
+                    class="text-teal-400 w-6 h-6 absolute top-4 right-4"
                     @click="toggleBookmark"
                 />
                 <font-awesome-icon 
                     v-else
                     icon="fa-solid fa-bookmark"
-                    class="text-gray-400 h-4 w-4 absolute right-4"
+                    class="text-gray-400 h-6 w-6 absolute top-4 right-4"
                     @click="toggleBookmark"
                 />
             </div>
-            <div>
-                <a
-                    :href="`https://www.google.com/maps?q=${pin.latitude},${pin.longitude}`"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="block text-sm text-sky-400"
-                >
-                    Googleマップで開く
-                </a>
-                <div class="flex">
-                    <p>暗さ：</p>
+            <!-- pin情報 -->
+            <div
+                v-if="userStore.usersById[pin.createdUserId]"
+                class="flex items-center pl-2 mt-2"
+            >
+                <NuxtImg
+                    :src=" userStore.usersById[pin.createdUserId].iconImagePath || '/images/default_user.jpeg'"
+                    alt="icon"
+                    class="w-8 h-8 object-cover rounded-sm mr-4 border-gray-300 border"
+                    @click="openUserProfile"
+                />
+                <p class="text-gray-700 mr-4 font-medium">
+                    {{ userStore.usersById[pin.createdUserId].nickname }}
+                </p>
+                <font-awesome-icon 
+                    v-if="isEditParmitted"
+                    icon="fa-solid fa-pen-to-square" 
+                    class="h-4 w-4 text-gray-700 absolute right-12"
+                    @click="updatePin" 
+                />
+                <font-awesome-icon 
+                    icon="fa-solid fa-triangle-exclamation" 
+                    class="w-4 h-4 text-gray-700 absolute right-4"
+                    @click="onReportClicked"
+                />
+            </div>
+            <div class="pl-2">
+                <div class="flex items-center justify-center">
+                    <a
+                        :href="`https://www.google.com/maps?q=${pin.latitude},${pin.longitude}`"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-block text-sm text-sky-400 hover:underline"
+                    >
+                        Googleマップで開く
+                    </a>
+                </div>
+                <div class="flex items-center">
+                    <font-awesome-icon 
+                        icon="fa-solid fa-moon" 
+                        class="h-4 w-4 text-gray-700 mr-2"
+                    />
+                    <p class="mr-0.5">
+                        暗さ：
+                    </p>
                     <font-awesome-icon
                         icon="fa-solid fa-star"
-                        class="text-yellow-400 h-4 w-4"
+                        class="text-yellow-400 h-4 w-4 mr-2"
                     />
                     <p>{{ pin.avgDarkness?.toFixed(1) }}</p>
                 </div>
-                <div class="flex">
-                    <p>アクセス：</p>
+                <div class="flex items-center">
+                    <font-awesome-icon 
+                        icon="fa-solid fa-route" 
+                        class="h-4 w-4 text-gray-700 mr-2"
+                    />
+                    <p class="mr-0.5">
+                        アクセス：
+                    </p>
                     <font-awesome-icon
                         icon="fa-solid fa-star"
-                        class="text-yellow-400 h-4 w-4"
+                        class="text-yellow-400 h-4 w-4 mr-2"
                     />
                     <p>{{ pin.avgAccess?.toFixed(1) }}</p>
                 </div>
-                <p>レビュー数：{{ pin.reviewCount }}</p>
-                <p>ブックマーク数：{{ pin.pinBookmarkCount }}</p>
-                <p>{{ prefStore.prefsById[pin.prefectureId]?.name }}</p>
-                <p>{{ pin.address }}</p>
+                <div class="flex items-center">
+                    <font-awesome-icon 
+                        icon="fa-solid fa-comment" 
+                        class="h-4 w-4 text-gray-700 mr-2"
+                    />
+                    <p class="mr-0.5">
+                        レビュー数：{{ pin.reviewCount }}
+                    </p>
+                </div>
+                <div class="flex items-center">
+                    <font-awesome-icon 
+                        icon="fa-solid fa-bookmark"
+                        class="h-4 w-4 text-gray-700 mr-2"
+                    />
+                    <p class="mr-0.5">
+                        ブックマーク数：{{ pin.pinBookmarkCount }}
+                    </p>
+                </div>
+                <div class="flex items-center">
+                    <font-awesome-icon 
+                        icon="fa-solid fa-location-dot"
+                        class="h-4 w-4 text-gray-700 mr-2" 
+                    />
+                    <p class="text-sm">
+                        {{ pin.address }}
+                    </p>
+                </div>
                 <p>{{ pin.description }}</p>
             </div>
-            <div class="flex items-center justify-center">
+            <div class="flex items-center justify-center border-b">
                 <button
-                    class="text-lg text-sky-500"
+                    class="text-lg text-sky-400 hover:underline mb-2"
                     @click="createReview"
                 >
                     レビュー作成
                 </button>
             </div>
-            <div v-if="isEditParmitted">
-                <button
-                    class="text-lg text-yellow-300"
-                    :pin="pin"
-                    @click="updatePin"
-                >
-                    編集
-                </button>
-            </div>
+            <!-- review -->
             <div>
                 <div
                     v-if="!reviewIds || reviewIds.length === 0"

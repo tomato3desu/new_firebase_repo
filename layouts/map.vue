@@ -1,15 +1,21 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from '~/composables/stores/user'
 import { usePinStore } from '~/composables/stores/pin'
+import { useReviewStore } from '~/composables/stores/review'
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
 const pinStore = usePinStore()
+const reviewStore = useReviewStore()
 
 const isOpenDrawer = computed(() => Boolean(route.query.pinId))
 const selectedPinId = computed(() => Number(route.query.pinId))
 
-const onPinClicked = (pinId) => {
+const onPinClicked = async (pinId) => {
+    await reviewStore.getReviewsByPin(pinId)
+    await userStore.fetchUserIfNeeded(pinStore.pinsById[pinId].createdUserId)
     router.push({ query: { pinId } })
 }
 

@@ -77,7 +77,7 @@ const handleFileChange = (event) => {
 
 const addToStorage = async () => {
     if (!file.value) return
-        
+    console.log(file.value)
     try {
         const fileName = `${Date.now()}-pinStore.jpg`
         const fileRef = storageRef($storage, `pinImage/${fileName}`)

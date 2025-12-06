@@ -35,8 +35,8 @@ const error = ref(null)
 const updatePin = async () => {
     if (errorTitle.value || errorDesc.value) return // バリデーションエラーがあれば即レス
 
-    if (file.value) await addToStorage() // fileがあればstorageに追加
-
+    const oldImagePath = pin.value?.thumbnailImagePath // 古い画像を退避
+    if (file.value) await addToStorage()
     // update情報
     const updatePinInfo = {
         id: pin.value.id,
@@ -50,7 +50,7 @@ const updatePin = async () => {
         const updatedPin = await pinStore.updatePin(updatePinInfo, token)
         console.log('更新完了', updatedPin)
         // 元の画像を削除
-        if (uploadedUrl.value && pin.value?.thumbnailImagePath) await deleteThumbnailImage(pin.value.thumbnailImagePath)
+        if (uploadedUrl.value && oldImagePath) await deleteThumbnailImage(oldImagePath) 
         close()
     }
     catch (error) {
@@ -106,7 +106,6 @@ const addToStorage = async () => {
         await uploadBytes(fileRef, file.value)
         const url = await getDownloadURL(fileRef)
         uploadedUrl.value = url
-        console.log(uploadedUrl.value)
     }
     catch (err) {
         uploadedUrl.value = null
