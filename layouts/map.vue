@@ -13,10 +13,18 @@ const reviewStore = useReviewStore()
 const isOpenDrawer = computed(() => Boolean(route.query.pinId))
 const selectedPinId = computed(() => Number(route.query.pinId))
 
+const mapRef = ref(null)
+
 const onPinClicked = async (pinId) => {
     await reviewStore.getReviewsByPin(pinId)
     await userStore.fetchUserIfNeeded(pinStore.pinsById[pinId].createdUserId)
     router.push({ query: { pinId } })
+}
+
+const onMoveClicked = (latLng) => {
+    if(mapRef.value && latLng){
+        mapRef.value.onResultClicked(latLng)
+    }
 }
 
 const closeDrawer = () => router.push({ query: {} })
@@ -38,7 +46,10 @@ watch(
 
         <div class="h-full relative">
             <!-- 共通 Map -->
-            <MapDefaultMap @pin-clicked="onPinClicked" />
+            <MapDefaultMap 
+                ref="mapRef"
+                @pin-clicked="onPinClicked" 
+            />
 
             <!-- Drawer（共通） -->
             <MapPinInfoDrawer
@@ -47,7 +58,9 @@ watch(
                 @close="closeDrawer"
             />
 
-            <ProfileDrawer />
+            <ProfileDrawer 
+                @move-clicked="onMoveClicked"
+            />
             <slot />
         </div>
     </div>

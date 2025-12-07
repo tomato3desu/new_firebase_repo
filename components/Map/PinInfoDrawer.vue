@@ -254,7 +254,7 @@ onMounted(async () => {
         </div>
         <div class="w-5 flex items-center">
             <button
-                class="text-gray-700 bg-gray-400 h-20 rounded-r-md"
+                class="text-gray-700 bg-gray-400 h-20 rounded-r-lg"
                 @click="close"
             >
                 ◀

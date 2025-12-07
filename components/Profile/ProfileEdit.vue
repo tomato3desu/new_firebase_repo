@@ -192,7 +192,7 @@ watch(comment, () => {
 </script>
 
 <template>
-    <div class="max-w-80 mx-auto mt-10 p-6 border rounded-2xl shadow">
+    <div class="max-w-80 mx-auto mt-10 p-6 border rounded-2xl shadow bg-white">
         <h2 class="text-2xl font-bold mb-4 text-center">
             プロフィール
         </h2>

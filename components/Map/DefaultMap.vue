@@ -170,6 +170,10 @@ const renderMarker = async (pin) => {
     })
 }
 
+defineExpose({
+    onResultClicked
+})
+
 // pinStore.pinsByIdを監視し、変更があれば再描画
 watch(
     () => pinStore.displayPinsId,
@@ -207,7 +211,6 @@ watch(
     }
 )
 
-// TODO 色変わってない！！
 // mybookmarkedPinIdsを監視し、変更があれば再描画
 watch(
     () => bookmarkStore.mybookmarkedPinIds,

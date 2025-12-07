@@ -5,6 +5,8 @@ import { useUserStore } from '~/composables/stores/user'
 import { useBookmarkStore } from '~/composables/stores/bookmark'
 import { usePinStore } from '~/composables/stores/pin'
 
+const emits = defineEmits(['move-clicked'])
+
 const route = useRoute()
 const authStore = useAuthStore()
 const userStore = useUserStore()
@@ -25,6 +27,13 @@ const targetUserId = computed(() => {
         : route.params.id
 })
 
+const onMoveClicked = ({ latitude, longitude }) => {
+    emits('move-clicked', {
+        latitude: latitude,
+        longitude: longitude
+    })
+}
+
 watch(
     () => targetUserId.value,
     async (id) => {
@@ -43,9 +52,10 @@ watch(
     <div v-if="mode">
         <!-- Drawer本体 -->
         <div
-            class="fixed top-0 right-0 h-full bg-white shadow-xl z-40 transition-all duration-300"
-            :class="isOpen ? 'w-96' : 'w-0'"
+            class="max-w-[calc(100vw-20px)] fixed top-0 right-0 h-full shadow-xl z-40 transition-all duration-300"
+            :class="isOpen ? 'w-88' : 'w-0'"
         >
+            <div class="h-6"></div>
             <!-- Drawer 中身（閉じてるときは非表示） -->
             <div
                 v-if="isOpen"
@@ -58,6 +68,7 @@ watch(
                 <ProfileView
                     v-if="mode === 'view'"
                     :user="userStore.usersById[targetUserId]"
+                    @move-clicked="onMoveClicked"
                 />
             </div>
 

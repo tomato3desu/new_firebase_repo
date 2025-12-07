@@ -49,7 +49,7 @@ const toggleDrawer = () => {
                 <NuxtImg
                     :src="user?.iconImagePath || 'images/default_user.jpeg'"
                     alt="icon"
-                    class="w-12 h-12 object-cover rounded-sm"
+                    class="w-12 h-12 object-cover rounded-sm mr-4"
                 />
             </div>
         </div>
