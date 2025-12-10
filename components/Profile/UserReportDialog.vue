@@ -1,10 +1,8 @@
 <script setup>
 import { useAuthStore } from '~/composables/stores/auth'
-import { useUserStore } from '~/composables/stores/user'
 import { useReportStore } from '~/composables/stores/report'
 
 const authStore = useAuthStore()
-const userStore = useUserStore()
 const reportStore = useReportStore()
 
 const isOpen = defineModel()
@@ -15,8 +13,6 @@ const props = defineProps({
         required: true
     }
 })
-
-const user = computed(() => userStore.usersById[props.userId])
 
 const reason = ref(null)
 const comment = ref(null)

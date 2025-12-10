@@ -49,7 +49,7 @@ onMounted(() => {
     >
         <!-- 閉じるボタン -->
         <button
-            class="absolute top-4 right-4 text-white text-2xl"
+            class="absolute top-4 right-4 text-slate-50 text-2xl"
             @click="close"
         >
             ✕
@@ -63,13 +63,13 @@ onMounted(() => {
         />
         <!-- 矢印 -->
         <div
-            class="absolute left-8 text-2xl text-white cursor-pointer select-none"
+            class="absolute left-8 text-2xl text-slate-50 cursor-pointer select-none"
             @click="prevImage"
         >
             ◀
         </div>
         <div
-            class="absolute right-8 text-2xl text-white cursor-pointer select-none"
+            class="absolute right-8 text-2xl text-slate-50 cursor-pointer select-none"
             @click="nextImage"
         >
             ▶

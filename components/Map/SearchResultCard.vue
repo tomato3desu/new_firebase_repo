@@ -32,15 +32,15 @@ const onclickSearchResult = () => {
 <template>
     <div 
         v-if="pin"
-        class="h-20 border border-gray-400 rounded-md bg-cover bg-center"
+        class="h-20 border text-slate-50 border-slate-500 rounded-md bg-cover bg-center"
         :style="{ backgroundImage: `url(${thumbnailImagePath})` }"
     >
-        <p class="text-white ml-2">
+        <p class="ml-2">
             {{ title }}
         </p>
         <font-awesome-icon 
             icon="fa-solid fa-paper-plane" 
-            class="w-4 h-4 text-teal-500 ml-2 mt-2"
+            class="w-4 h-4 text-teal-400 ml-2 mt-2"
             @click="onclickSearchResult"
         />
     </div>

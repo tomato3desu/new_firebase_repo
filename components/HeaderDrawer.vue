@@ -23,14 +23,14 @@ const logout = async () => {
 <template>
     <div 
         v-if="isOpen"
-        class="fixed inset-0 bg-black bg-opacity-50 z-40"
+        class="fixed inset-0 bg-slate-900 bg-opacity-50 z-40"
         @click="close"
     />
 
     <!-- drawer本体 -->
     <div
         v-if="isOpen"
-        class="fixed right-0 top-16 w-80 max-w-[100vw] sm:w-100  h-full bg-white shadow-xl z-50 p-6 transform transition-transform duration-300"
+        class="fixed right-0 top-16 w-80 max-w-[100vw] sm:w-100  h-full bg-gradient-to-br from-slate-900 from- via-slate-700 via- to-slate-400 to- shadow-xl z-50 p-6 transform transition-transform duration-300"
         :class="isOpen ? 'translate-x-0' : 'translate-x-full'"
         @click.stop
     >
@@ -40,51 +40,62 @@ const logout = async () => {
                 :src="user?.iconImagePath || '/images/default_user.jpeg'"
                 class="w-20 h-20 object-cover rounded-sm mb-2"
             />
-            <p class="text-xl font-bold">
+            <p class="text-xl font-bold text-slate-50">
                 {{ user?.nickname }}
-            </p>
-            <p class="text-sm text-gray-500">
-                {{ user?.email }}
             </p>
         </div>
 
         <!-- メニュー -->
         <nav class="space-y-4">
-            <div class="flex items-center mt-6">
+            <div class="flex items-center mt-6 text-slate-50">
                 <font-awesome-icon 
                     icon="fa-solid fa-map"
-                    class="h-8 w-8"
+                    class="h-8 w-8 "
                 />
                 <NuxtLink
                     to="/"
-                    class="block text-lg text-gray-700 hover:text-sky-500 pl-6"
+                    class="block text-lg hover:text-sky-300 pl-6"
                     @click="close"
                 >
                     Map
                 </NuxtLink>
             </div>
-            <div class="flex items-center mt-6">
+            <div class="flex items-center mt-6 text-slate-50">
                 <font-awesome-icon
                     icon="fa-solid fa-user"
                     class="h-8 w-8"
                 />
                 <NuxtLink
                     to="/profile"
-                    class="block text-lg text-gray-700 hover:text-sky-500 pl-6"
+                    class="block text-lg hover:text-sky-300 pl-6"
                     @click="close"
                 >
                     Profile
                 </NuxtLink>
             </div>
 
-            <div class="flex items-center mt-6">
+            <div class="flex items-center mt-6 text-slate-50">
+                <font-awesome-icon
+                    icon="fa-solid fa-crown"
+                    class="h-8 w-8"
+                />
+                <NuxtLink
+                    to="/ranking"
+                    class="block text-lg hover:text-sky-300 pl-6"
+                    @click="close"
+                >
+                    Ranking
+                </NuxtLink>
+            </div>
+
+            <div class="flex items-center mt-6 text-slate-50">
                 <font-awesome-icon
                     icon="fa-solid fa-gear"
                     class="h-8 w-8"
                 />
                 <NuxtLink
                     to="/settings"
-                    class="block text-lg text-gray-700 hover:text-sky-500 pl-6"
+                    class="block text-lg hover:text-sky-300 pl-6"
                     @click="close"
                 >
                     Settings
@@ -93,7 +104,7 @@ const logout = async () => {
 
             <div 
                 v-if="isAdmin"
-                class="flex items-center mt-6"
+                class="flex items-center mt-6 text-slate-50"
             >
                 <font-awesome-icon 
                     icon="fa-solid fa-triangle-exclamation" 
@@ -101,7 +112,7 @@ const logout = async () => {
                 />
                 <NuxtLink
                     to="/report"
-                    class="block text-lg text-gray-700 hover:text-sky-500 pl-6"
+                    class="block text-lg  hover:text-sky-300 pl-6"
                     @click="close"
                 >
                     Report
@@ -114,7 +125,7 @@ const logout = async () => {
                     class="h-8 w-8"
                 />
                 <button
-                    class="w-full text-left text-lg text-red-500 hover:text-red-600 pl-6"
+                    class="w-full text-left text-lg text-red-400 hover:text-red-500 pl-6"
                     @click="logout"
                 >
                     Sign Out

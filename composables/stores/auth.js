@@ -16,6 +16,7 @@ export const useAuthStore = defineStore('authStore', () => {
     const config = useRuntimeConfig()
 
     const loginUser = ref(null)
+    const loginUserEmail = ref(null)
     const isLoggedIn = ref(false)
     
     /**
@@ -59,6 +60,7 @@ export const useAuthStore = defineStore('authStore', () => {
         const data = await res.json()
 
         loginUser.value = data
+        loginUserEmail.value = email
         // userStoreにuser情報を保存
         const userStore = useUserStore()
         userStore.usersById[data.id] = data
@@ -83,7 +85,7 @@ export const useAuthStore = defineStore('authStore', () => {
      * @returns 
      */
     const sendPasswordReset = async () => {
-        const email = getFirebaseEmail()
+        const email = loginUserEmail.value
         if (!email) {
             throw new Error("メールアドレスを取得できませんでした")
         }
@@ -106,7 +108,7 @@ export const useAuthStore = defineStore('authStore', () => {
     const updateEmailAddress = async (currentPassword, newEmail) => {
         if (!loginUser.value) throw new Error("ログインしていません")
         
-        const email = getFirebaseEmail()
+        const email = loginUserEmail.value
         // 再認証
         const credential = EmailAuthProvider.credential(email, currentPassword)
         await reauthenticateWithCredential($auth.currentUser, credential)
@@ -123,7 +125,7 @@ export const useAuthStore = defineStore('authStore', () => {
 
         if (!user) throw new Error("ログインしていません")
 
-        const email = getFirebaseEmail()
+        const email = loginUserEmail.value
         if (!email) throw new Error("メールアドレスが取得できません")
 
         try {
@@ -179,6 +181,7 @@ export const useAuthStore = defineStore('authStore', () => {
 
     const logout = () => {
         loginUser.value = null
+        loginUserEmail.value = null
         isLoggedIn.value = false
         return $auth.signOut()
     }
@@ -198,13 +201,9 @@ export const useAuthStore = defineStore('authStore', () => {
         if (!user) throw new Error('No authenticated user')
         return await user.getIdToken()
     }
-
-    const getFirebaseEmail = () => {
-        return $auth.currentUser?.email || null
-    }
-
     return {
         loginUser,
+        loginUserEmail,
         isLoggedIn,
         login,
         register,
@@ -213,8 +212,7 @@ export const useAuthStore = defineStore('authStore', () => {
         deleteAccount,
         updateProfile,
         logout,
-        getIdToken,
-        getFirebaseEmail
+        getIdToken
     }
 },
 {

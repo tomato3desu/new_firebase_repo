@@ -208,45 +208,45 @@ watch(description, (value) => {
         v-if="isOpen"
         class="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
     >
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 max-h-[80vh] overflow-y-auto">
+        <div class="text-slate-50 bg-gradient-to-br from-slate-900 from- via-slate-700 via- to-slate-400 to- rounded-lg shadow-lg w-full max-w-md p-6 max-h-[80vh] overflow-y-auto">
             <h2 class="text-xl font-semibold mb-4">
                 ピンを編集
             </h2>
 
             <div class="mb-4">
-                <p class="text-gray-500">
+                <p>
                     {{ pin.title }}
                 </p>
-                <label class="block text-gray-700 text-sm font-medium mb-1">タイトル</label>
+                <label class="block text-sm font-medium mb-1">タイトル</label>
                 <p
                     v-if="errorTitle"
-                    class="text-red-600"
+                    class="text-red-500"
                 >
                     {{ errorTitle }}
                 </p>
                 <input
                     v-model="title"
                     type="text"
-                    class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                    class="text-slate-800 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                     placeholder="タイトルを入力"
                 >
             </div>
 
             <div class="mb-4">
-                <p class="text-gray-500">
+                <p>
                     {{ pin.description }}
                 </p>
-                <label class="block text-gray-700 text-sm font-medium mb-1">詳細</label>
+                <label class="block text-sm font-medium mb-1">詳細</label>
                 <p
                     v-if="errorDesc"
-                    class="text-red-600"
+                    class="text-red-500"
                 >
                     {{ errorDesc }}
                 </p>
                 <textarea
                     v-model="description"
                     type="text"
-                    class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                    class="text-slate-800 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                     placeholder="説明を入力"
                 />
             </div>
@@ -257,7 +257,7 @@ watch(description, (value) => {
                     :src="pin.thumbnailImagePath"
                     class="mb-4"
                 />
-                <label class="block text-gray-700 text-sm font-medium mb-1">画像</label>
+                <label class="block text-sm font-medium mb-1">画像</label>
                 <input
                     type="file"
                     accept="image/*"

@@ -14,7 +14,7 @@ const bookmarkStore = useBookmarkStore()
 
 const config = useRuntimeConfig()
 
-const emit = defineEmits(['pin-clicked'])
+const emit = defineEmits(['pin-clicked', 'map-ready'])
 
 const user = computed(() => authStore.loginUser)
 
@@ -34,6 +34,7 @@ let map
 let mapClickListener = null
 let markers = []
 const isInitialized = ref(false)
+let ColorScheme
 
 onMounted(async () => {
     await prefStore.setAllPrefs()
@@ -46,11 +47,15 @@ onMounted(async () => {
         lng = prefStore.prefsById[user.value.prefectureId].longitude
     }
 
+    // mapのcolorschemeをimport
+    ColorScheme = await $googleMaps.loadCoreLib()
+
     // mapを作成
     map = await $googleMaps.loadMap(mapElement.value, {
         center: { lat: lat, lng: lng },
         zoom: 12,
-        mapId: config.public.googleMapId
+        mapId: config.public.googleMapId,
+        colorScheme: ColorScheme.DARK,
     })
 
     // Geocoder インスタンス作成
@@ -70,6 +75,8 @@ onMounted(async () => {
 
     // 初期化完了 → 次から watch が動く
     isInitialized.value = true
+    // 初期化完了をlayouts/mapに送信
+    emit('map-ready')
 })
 
 /**
@@ -119,6 +126,10 @@ const onClickSearch = async () => {
 const onResultClicked = ({ latitude, longitude }) => {
     map.panTo(new google.maps.LatLng(latitude, longitude))
 }
+
+defineExpose({
+    onResultClicked
+})
 
 /**
  * マーカーを描画する関数
@@ -170,10 +181,6 @@ const renderMarker = async (pin) => {
     })
 }
 
-defineExpose({
-    onResultClicked
-})
-
 // pinStore.pinsByIdを監視し、変更があれば再描画
 watch(
     () => pinStore.displayPinsId,
@@ -219,14 +226,9 @@ watch(
         const newIds = newList || []
         const oldIds = oldList || []
 
-        console.log(markers)
-
         // 追加・削除されたピンを特定
         const added = newIds.filter(id => !oldIds.includes(id))
         const removed = oldIds.filter(id => !newIds.includes(id))
-
-        console.log(added)
-        console.log(removed)
 
         // 🔹 追加されたブックマーク → マーカー色変更
         for (const pinId of added) {
@@ -295,11 +297,11 @@ watch(
         class="h-full w-full min-h-[calc(100vh-4rem)]"
     />
     <div 
-        class="absolute w-8 h-8 top-0 right-16 m-2 z-40 bg-white shadow-lg rounded-sm"
+        class="absolute w-8 h-8 top-0 right-16 m-2 z-40 bg-neutral-700 shadow-lg rounded-sm"
     >
         <font-awesome-icon
             icon="fa-solid fa-magnifying-glass"
-            class="w-6 h-6 text-gray-600 m-1"
+            class="w-6 h-6 text-white m-1"
             @click="onClickSearch"
         />
     </div>

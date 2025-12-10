@@ -154,7 +154,7 @@ watch(description, (value) => {
             v-if="isOpen"
             class="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
         >
-            <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 max-h-[80vh] overflow-y-auto">
+            <div class="text-slate-50 bg-gradient-to-br from-slate-900 from- via-slate-700 via- to-slate-400 to- rounded-lg shadow-lg w-full max-w-md p-6 max-h-[80vh] overflow-y-auto">
                 <h2 class="text-xl font-semibold mb-4">
                     レビュー作成
                 </h2>
@@ -162,8 +162,11 @@ watch(description, (value) => {
                 <div class="mb-4 flex items-center justify-center">
                     <!-- TODO 星でレビューの評価を選択できる -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-medium mb-1">暗さ</label>
-                        <select v-model="darknessLevel">
+                        <label class="block text-sm font-medium mb-1">暗さ</label>
+                        <select 
+                            v-model="darknessLevel"
+                            class="text-slate-800 border rounded p-1 focus:outline-none focus:ring focus:ring-blue-300"
+                        >
                             <option :value="1">
                                 1
                             </option>
@@ -185,8 +188,11 @@ watch(description, (value) => {
                         </select>
                     </div>
                     <div>
-                        <label class="block text-gray-700 text-sm font-medium mb-1">アクセス</label>
-                        <select v-model="accessLevel">
+                        <label class="block text-sm font-medium mb-1">アクセス</label>
+                        <select 
+                            v-model="accessLevel"
+                            class="text-slate-800 border rounded p-1 focus:outline-none focus:ring focus:ring-blue-300"
+                        >
                             <option :value="1">
                                 1
                             </option>
@@ -209,10 +215,11 @@ watch(description, (value) => {
                     </div>
                 </div>
                 <div>
-                    <label class="block text-gray-700 text-sm font-medium mb-1">季節</label>
+                    <label class="block text-sm font-medium mb-1">季節</label>
                     <select
                         v-model="season"
                         required
+                        class="text-slate-800 border rounded p-1 focus:outline-none focus:ring focus:ring-blue-300"
                     >
                         <option value="spring">
                             春
@@ -230,59 +237,59 @@ watch(description, (value) => {
                 </div>
                 <div class="flex items-center mb-4">
                     <div>
-                        <label class="block text-gray-700 text-sm font-medium mb-1">訪問日</label>
+                        <label class="block text-sm font-medium mb-1">訪問日</label>
                         <input
                             v-model="visitedDate"
                             type="date"
                             required
-                            class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                            class="text-slate-800 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                         >
                     </div>
                     <div>
-                        <label class="block text-gray-700 text-sm font-medium mb-1">訪問時間</label>
+                        <label class="block text-sm font-medium mb-1">訪問時間</label>
                         <input
                             v-model="visitedTime"
                             type="time"
                             required
-                            class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                            class="text-slate-800 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                         >
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-medium mb-1">タイトル</label>
+                    <label class="block text-sm font-medium mb-1">タイトル</label>
                     <input
                         v-model="title"
                         type="text"
-                        class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                        class="text-slate-800 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                         placeholder="タイトルを入力"
                     >
                     <p
                         v-if="errorTitle"
-                        class="text-red-400"
+                        class="text-red-500"
                     >
                         {{ errorTitle }}
                     </p>
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-medium mb-1">詳細</label>
+                    <label class="block text-sm font-medium mb-1">詳細</label>
                     <textarea
                         v-model="description"
                         type="text"
-                        class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                        class="text-slate-800 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                         placeholder="説明を入力"
                     />
                     <p
                         v-if="errorDesc"
-                        class="text-red-400"
+                        class="text-red-500"
                     >
                         {{ errorDesc }}
                     </p>
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-medium mb-1">画像</label>
+                    <label class="block text-sm font-medium mb-1">画像</label>
                     <input
                         type="file"
                         accept="image/*"
@@ -292,7 +299,7 @@ watch(description, (value) => {
                     >
                     <p
                         v-if="errorFile"
-                        class="text-red-400"
+                        class="text-red-500"
                     >
                         {{ errorFile }}
                     </p>

@@ -31,10 +31,9 @@ export default defineNuxtPlugin(() => {
                     return { AdvancedMarkerElement, PinElement }
                 },
 
-                // Autocomplete（Places）
-                loadPlacesAutocomplete: async () => {
-                    const { PlaceAutocompleteElement } = await importLibrary("places")
-                    return PlaceAutocompleteElement
+                loadCoreLib: async () => {
+                    const { ColorScheme } = await importLibrary('core')
+                    return ColorScheme
                 }
             }
         }

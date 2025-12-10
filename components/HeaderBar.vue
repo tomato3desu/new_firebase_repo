@@ -20,14 +20,19 @@ const toggleDrawer = () => {
 </script>
 
 <template>
-    <div class="bg-white border-b-4 shadow-md border-gray-300 h-16 flex items-center justify-between px-4 sticky top-0 z-50">
+    <div class="bg-gradient-to-tl from-slate-900 from- via-slate-700 via- to-slate-400 to- border-b border-slate-400 shadow-md h-16 flex items-center px-4 sticky top-0 z-50">
+        <!-- <NuxtImg
+            :src="'images/space_bouenkyou.png'"
+            alt="icon"
+            class="w-8 h-8 object-cover rounded-sm mr-4"
+        /> -->
         <NuxtLink
             to="/"
-            class="text-4xl font-bit text-emerald-300"
+            class="text-4xl font-bit text-yellow-300 mr-4 flex items-center"
         >
-            tomato
+            StarSeeker
         </NuxtLink>
-        <div class="flex items-center">
+        <div class="flex items-center ml-auto">
             <NuxtLink
                 v-if="!isLoggedIn"
                 to="/login"
@@ -49,7 +54,7 @@ const toggleDrawer = () => {
                 <NuxtImg
                     :src="user?.iconImagePath || 'images/default_user.jpeg'"
                     alt="icon"
-                    class="w-12 h-12 object-cover rounded-sm mr-4"
+                    class="w-12 h-12 object-cover rounded-sm mr-auto"
                 />
             </div>
         </div>

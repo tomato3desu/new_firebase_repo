@@ -101,12 +101,12 @@ onMounted(async () => {
 
 <template>
     <div
-        class="fixed left-0 top-16 z-50 flex "
+        class="fixed left-0 top-16 z-40 flex "
     >
         <!-- Drawer本体 -->
         <div
             v-if="pin"
-            class="w-60 max-w-[calc(100vw-40px)] sm:w-80 bg-white shadow-lg relative h-[calc(100vh-4rem)] overflow-y-auto"
+            class="w-60 max-w-[calc(100vw-40px)] sm:w-80 bg-gradient-to-tl from-slate-900 from- via-slate-700 via- to-slate-400 to- shadow-lg relative h-[calc(100vh-4rem)] overflow-y-auto"
         >
             <!-- コンテンツ -->
             <!-- top -->
@@ -116,7 +116,7 @@ onMounted(async () => {
                     ? { backgroundImage: `url(${pin.thumbnailImagePath})` }
                     : { backgroundImage: `url('images/saturn.png')` }"
             >
-                <div class="text-white p-4 rounded-lg">
+                <div class="text-slate-50 p-4 rounded-lg">
                     <h2 class="text-lg font-bold">
                         {{ pin.title }}
                     </h2>
@@ -124,20 +124,20 @@ onMounted(async () => {
                 <font-awesome-icon 
                     v-if="isBookmarked"
                     icon="fa-solid fa-bookmark"
-                    class="text-teal-400 w-6 h-6 absolute top-4 right-4"
+                    class="text-yellow-300 w-6 h-6 absolute top-4 right-4"
                     @click="toggleBookmark"
                 />
                 <font-awesome-icon 
                     v-else
                     icon="fa-solid fa-bookmark"
-                    class="text-gray-400 h-6 w-6 absolute top-4 right-4"
+                    class="text-slate-50 h-6 w-6 absolute top-4 right-4"
                     @click="toggleBookmark"
                 />
             </div>
             <!-- pin情報 -->
             <div
                 v-if="userStore.usersById[pin.createdUserId]"
-                class="flex items-center pl-2 mt-2"
+                class="flex items-center pl-2 mt-2 text-slate-50"
             >
                 <NuxtImg
                     :src=" userStore.usersById[pin.createdUserId].iconImagePath || '/images/default_user.jpeg'"
@@ -145,22 +145,22 @@ onMounted(async () => {
                     class="w-8 h-8 object-cover rounded-sm mr-4"
                     @click="openUserProfile"
                 />
-                <p class="text-gray-700 mr-4 font-medium">
+                <p class=" mr-4 font-medium">
                     {{ userStore.usersById[pin.createdUserId].nickname }}
                 </p>
                 <font-awesome-icon 
                     v-if="isEditParmitted"
                     icon="fa-solid fa-pen-to-square" 
-                    class="h-4 w-4 text-gray-700 absolute right-12"
+                    class="h-4 w-4 absolute right-12"
                     @click="updatePin" 
                 />
                 <font-awesome-icon 
                     icon="fa-solid fa-triangle-exclamation" 
-                    class="w-4 h-4 text-gray-700 absolute right-4"
+                    class="w-4 h-4 absolute right-4"
                     @click="onReportClicked"
                 />
             </div>
-            <div class="pl-2">
+            <div class="pl-2 text-slate-50">
                 <div class="flex items-center justify-center">
                     <a
                         :href="`https://www.google.com/maps?q=${pin.latitude},${pin.longitude}`"
@@ -174,35 +174,35 @@ onMounted(async () => {
                 <div class="flex items-center">
                     <font-awesome-icon 
                         icon="fa-solid fa-moon" 
-                        class="h-4 w-4 text-gray-700 mr-2"
+                        class="h-4 w-4 mr-2"
                     />
                     <p class="mr-0.5">
                         暗さ：
                     </p>
                     <font-awesome-icon
                         icon="fa-solid fa-star"
-                        class="text-yellow-400 h-4 w-4 mr-2"
+                        class="text-yellow-300 h-4 w-4 mr-2"
                     />
                     <p>{{ pin.avgDarkness?.toFixed(1) }}</p>
                 </div>
                 <div class="flex items-center">
                     <font-awesome-icon 
                         icon="fa-solid fa-route" 
-                        class="h-4 w-4 text-gray-700 mr-2"
+                        class="h-4 w-4 mr-2"
                     />
                     <p class="mr-0.5">
                         アクセス：
                     </p>
                     <font-awesome-icon
                         icon="fa-solid fa-star"
-                        class="text-yellow-400 h-4 w-4 mr-2"
+                        class="text-yellow-300 h-4 w-4 mr-2"
                     />
                     <p>{{ pin.avgAccess?.toFixed(1) }}</p>
                 </div>
                 <div class="flex items-center">
                     <font-awesome-icon 
                         icon="fa-solid fa-comment" 
-                        class="h-4 w-4 text-gray-700 mr-2"
+                        class="h-4 w-4 mr-2"
                     />
                     <p class="mr-0.5">
                         レビュー数：{{ pin.reviewCount }}
@@ -211,7 +211,7 @@ onMounted(async () => {
                 <div class="flex items-center">
                     <font-awesome-icon 
                         icon="fa-solid fa-bookmark"
-                        class="h-4 w-4 text-gray-700 mr-2"
+                        class="h-4 w-4 mr-2"
                     />
                     <p class="mr-0.5">
                         ブックマーク数：{{ pin.pinBookmarkCount }}
@@ -220,7 +220,7 @@ onMounted(async () => {
                 <div class="flex items-center">
                     <font-awesome-icon 
                         icon="fa-solid fa-location-dot"
-                        class="h-4 w-4 text-gray-700 mr-2" 
+                        class="h-4 w-4 mr-2" 
                     />
                     <p class="text-sm break-words">
                         {{ pin.address }}
@@ -240,7 +240,7 @@ onMounted(async () => {
             <div>
                 <div
                     v-if="!reviewIds || reviewIds.length === 0"
-                    class="text-gray-400 text-center py-4"
+                    class="text-slate-50 text-center py-4"
                 >
                     レビューがまだありません
                 </div>
@@ -254,7 +254,7 @@ onMounted(async () => {
         </div>
         <div class="w-5 flex items-center">
             <button
-                class="text-gray-700 bg-gray-400 h-20 rounded-r-lg"
+                class="bg-slate-300 hover:bg-slate-500 text-slate-800 h-20 rounded-r-lg"
                 @click="close"
             >
                 ◀

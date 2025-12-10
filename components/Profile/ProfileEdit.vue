@@ -1,6 +1,7 @@
 <script setup>
 import { useAuthStore } from '~/composables/stores/auth'
 import { usePrefStore } from '~/composables/stores/prefecture'
+import { useBookmarkStore } from '~/composables/stores/bookmark'
 import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { Cropper } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
@@ -9,9 +10,14 @@ const { user } = defineProps({
     user: Object
 })
 
+const emits = defineEmits(['move-clicked'])
+
 const authStore = useAuthStore()
 const prefStore = usePrefStore()
+const bookmarkStore = useBookmarkStore()
 const { $storage } = useNuxtApp()
+
+const bookmarks = computed(() => bookmarkStore.bookmarkedPinsByUserId[user?.id])
 
 const currentProfile = ref({
     nickname: user?.nickname ?? null,
@@ -166,8 +172,16 @@ const extractPathFromUrl = (url) => {
     }
 }
 
+const onMoveClicked = ({ latitude, longitude }) => {
+    emits('move-clicked', {
+        latitude: latitude,
+        longitude: longitude
+    })
+}
+
 onMounted(() => {
     prefStore.setAllPrefs()
+    bookmarkStore.fetchBookmarksByUserId(user?.id)
 })
 
 // nicknameのバリデーションチェック
@@ -192,20 +206,18 @@ watch(comment, () => {
 </script>
 
 <template>
-    <div class="max-w-80 mx-auto mt-10 p-6 border rounded-2xl shadow bg-white">
+    <div class="max-w-80 mx-auto mt-10 p-6 text-slate-50 border border-slate-500 rounded-2xl shadow bg-gradient-to-br from-slate-900 from- via-slate-700 via- to-slate-400 to-">
         <h2 class="text-2xl font-bold mb-4 text-center">
             プロフィール
         </h2>
         <client-only>
-            <p
-                class="text-gray-500"
-            >
+            <p>
                 ニックネーム：{{ currentProfile.nickname }}
             </p>
         </client-only>
         <p
             v-if="nicknameError"
-            class="text-red-600"
+            class="text-red-500"
         >
             {{ nicknameError }}
         </p>
@@ -213,30 +225,27 @@ watch(comment, () => {
             v-model="nickname"
             type="text"
             placeholder="ニックネーム編集"
-            class="mb-4 w-full border p-2 rounded"
+            class="text-slate-800 mb-4 w-full border p-2 rounded focus:outline-none focus:ring focus:ring-blue-300"
         >
         <client-only>
-            <p
-                class="text-gray-500"
-            >
+            <p>
                 コメント：{{ currentProfile.comment }}
             </p>
         </client-only>
         <p
             v-if="commentError"
-            class="text-red-600"
+            class="text-red-500"
         >
             {{ commentError }}
         </p>
         <textarea
             v-model="comment"
             placeholder="コメント編集"
-            class="mb-4 w-full border p-2 rounded"
+            class="text-slate-800 mb-4 w-full border p-2 rounded focus:outline-none focus:ring focus:ring-blue-300"
         />
         <client-only>
             <p
                 v-if="prefStore.prefsById[prefId]"
-                class="text-gray-500"
             >
                 {{ prefStore.prefsById[prefId].name }}
             </p>
@@ -245,6 +254,7 @@ watch(comment, () => {
             <div v-if="prefStore.prefsById">
                 <select
                     v-model="prefId"
+                    class="text-slate-800 rounded-sm focus:outline-none focus:ring focus:ring-blue-300"
                 >
                     <option
                         v-for="pref in prefStore.prefsById"
@@ -290,7 +300,7 @@ watch(comment, () => {
         </div>
         <button
             :disabled="!isActiveUpdateBtn"
-            class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded disabled:opacity-50"
+            class="w-full bg-teal-400 hover:bg-teal-500 py-2 rounded disabled:opacity-50"
             @click="updateProfile"
         >
             {{ isUploading ? "更新中..." : "更新" }}
@@ -301,20 +311,14 @@ watch(comment, () => {
         >
             {{ error }}
         </p>
-        <div
-            v-if="uploadedUrl"
-            class="mt-6"
-        >
-            <p class="font-semibold">
-                更新完了！
-            </p>
-            <a
-                :href="uploadedUrl"
-                target="_blank"
-                class="text-blue-600 underline break-all"
-            >
-                {{ uploadedUrl }}
-            </a>
-        </div>
+    </div>
+    <div 
+        v-for="pinId in bookmarks" 
+        :key="pinId"
+    >
+        <MapSearchResultCard
+            :pin-id="pinId"
+            @result-clicked="onMoveClicked"
+        />
     </div>
 </template>

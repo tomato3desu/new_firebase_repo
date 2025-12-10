@@ -22,9 +22,20 @@ const onPinClicked = async (pinId) => {
 }
 
 const onMoveClicked = (latLng) => {
-    if(mapRef.value && latLng){
+    if (mapRef.value && latLng) {
         mapRef.value.onResultClicked(latLng)
     }
+}
+
+const moveToQueryPin = () => {
+    if (!selectedPinId.value) return
+    const pin = pinStore.pinsById[selectedPinId.value]
+    if (!pin) return
+
+    mapRef.value.onResultClicked({
+        latitude: pin.latitude,
+        longitude: pin.longitude,
+    })
 }
 
 const closeDrawer = () => router.push({ query: {} })
@@ -32,11 +43,16 @@ const closeDrawer = () => router.push({ query: {} })
 watch(
     () => selectedPinId.value,
     async (newId) => {
-        if (newId && !pinStore.pinsById[newId]) {
+        if (!newId) return
+
+        if (!pinStore.pinsById[newId]) {
             await pinStore.fetchPinById(newId)
         }
-    },
-    { immediate: true }
+
+        if (mapRef.value) { // mapRefがある場合(ない場合はemit(map-ready)で起動)
+            moveToQueryPin()
+        }
+    }
 )
 </script>
 
@@ -49,6 +65,7 @@ watch(
             <MapDefaultMap 
                 ref="mapRef"
                 @pin-clicked="onPinClicked" 
+                @map-ready="moveToQueryPin"
             />
 
             <!-- Drawer（共通） -->

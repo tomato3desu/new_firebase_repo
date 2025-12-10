@@ -6,6 +6,10 @@ export const usePinStore = defineStore('pinStore', () => {
     const fetchedAt = ref({}) // key: pinId value: datetime
     const displayPinsId = ref([]) // 表示するpinのid
 
+    const bookmarkRanking = ref([])
+    const darknessRanking = ref([])
+    const accessRanking = ref([])
+
     /**
      * キャッシュの期限を判定するメソッド
      * @param {number} pinId
@@ -204,7 +208,83 @@ export const usePinStore = defineStore('pinStore', () => {
         displayPinsId.value = Object.keys(pinsById.value).map(id => Number(id))
     }
 
-    return { pinsById, displayPinsId, getAllPins, fetchPinById, refreshPin, addPin, deletePin, updatePin, searchPins, clearDisplayPinsId }
+    const fetchRankingAll = async () => {
+        try {
+            const res = await $fetch(`${config.public.apiBase}/api/pin/ranking/all`, {
+                method: 'GET'
+            })
+
+            bookmarkRanking.value = []
+            darknessRanking.value = []
+            accessRanking.value = []
+
+            for (const pin of res.bookmarkRanking) {
+                pinsById.value[pin.id] = pin
+                bookmarkRanking.value.push(pin.id)
+            }
+
+            for (const pin of res.darknessRanking) {
+                pinsById.value[pin.id] = pin
+                darknessRanking.value.push(pin.id)
+            }
+
+            for (const pin of res.accessRanking) {
+                pinsById.value[pin.id] = pin
+                accessRanking.value.push(pin.id)
+            }
+        }
+        catch (error) {
+            console.error("fetchRanking error", error)
+        }
+    }
+
+    const fetchRankingByPrefId = async (prefId) => {
+        try {
+            const res = await $fetch(`${config.public.apiBase}/api/pin/ranking/${prefId}`, {
+                method: 'GET'
+            })
+
+            bookmarkRanking.value = []
+            darknessRanking.value = []
+            accessRanking.value = []
+
+            for (const pin of res.bookmarkRanking) {
+                pinsById.value[pin.id] = pin
+                bookmarkRanking.value.push(pin.id)
+            }
+
+            for (const pin of res.darknessRanking) {
+                pinsById.value[pin.id] = pin
+                darknessRanking.value.push(pin.id)
+            }
+
+            for (const pin of res.accessRanking) {
+                pinsById.value[pin.id] = pin
+                accessRanking.value.push(pin.id)
+            }
+        }
+        catch (error) {
+            console.error("fetchRanking error", error)
+        }
+    }
+
+    return { 
+        pinsById,
+        displayPinsId, 
+        bookmarkRanking,
+        darknessRanking,
+        accessRanking,
+        getAllPins, 
+        fetchPinById, 
+        refreshPin, 
+        addPin, 
+        deletePin, 
+        updatePin, 
+        searchPins, 
+        clearDisplayPinsId,
+        fetchRankingAll,
+        fetchRankingByPrefId
+    }
 }, {
     persist: false
 })

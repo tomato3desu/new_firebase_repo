@@ -33,25 +33,27 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="w-80 max-w-[calc(100vw-20px)] mx-auto mt-10 p-6 border rounded-2xl shadow overflow-y-auto bg-white">
+    <div class="max-w-[calc(100vw-20px)] mx-auto mt-10 p-6 text-slate-50 border border-slate-500 rounded-2xl shadow overflow-y-auto bg-gradient-to-br from-slate-900 from- via-slate-700 via- to-slate-400 to-">
         <NuxtImg
             :src="user?.iconImagePath || '/images/default_user.jpeg'"
-            class="w-32 h-32 object-cover rounded-sm mb-4"
+            class="w-32 h-32 object-cover rounded-sm mb-4 mx-auto"
         />
-        <p class="text-xl font-bold">
-            {{ user?.nickname }}
-        </p>
-        <p class="text-gray-600">
+        <div class="flex items-center">
+            <p class="text-xl font-bold">
+                {{ user?.nickname }}
+            </p>
+            <font-awesome-icon
+                icon="fa-solid fa-triangle-exclamation"
+                class="w-6 h-6 ml-auto cursor-pointer"
+                @click="onReportClicked"
+            />
+        </div>
+        <p>
             {{ user?.comment }}
         </p>
-        <p class="text-gray-600">
+        <p>
             {{ prefStore.prefsById[user?.prefectureId]?.name }}
         </p>
-        <font-awesome-icon 
-            icon="fa-solid fa-triangle-exclamation" 
-            class="w-6 h-6 text-gray-700"
-            @click="onReportClicked"
-        />
     </div>
     <div 
         v-for="pinId in bookmarks" 

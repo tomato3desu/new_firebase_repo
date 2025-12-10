@@ -8,7 +8,7 @@ definePageMeta({
 const authStore = useAuthStore()
 
 const isLoggedIn = computed(() => authStore.isLoggedIn)
-const email = ref(authStore.getFirebaseEmail())
+const email = computed(() => authStore.loginUserEmail)
 const isOpenResetEmail = ref(false)
 
 // メール変更用
@@ -77,95 +77,122 @@ const deleteAccount = async () => {
 </script>
 
 <template>
-    <div>
-        <div class="p-4">
-            <h2>メールアドレス・パスワード設定</h2>
-            <p>{{ email }}</p>
-            <button
-                @click="openResetEmail"
-            >
-                emailを変更
-            </button>
-            <div v-if="isOpenResetEmail">
-                <div class="mb-4">
-                    <label
-                        for="email"
-                        class="block text-sm font-medium text-gray-700"
-                    >新しいメールアドレス</label>
-                    <input
-                        id="newEmail"
-                        v-model="newEmail"
-                        placeholder="New Email"
-                        required
-                        class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm"
-                    >
-                    <p
-                        v-if="emailError"
-                        class="text-red-600"
-                    >
-                        {{ emailError }}
-                    </p>
-                </div>
-                <div class="relative mb-6">
-                    <label
-                        for="password"
-                        class="block text-sm font-medium text-gray-700"
-                    >現在のパスワードを入力</label>
-                    <input
-                        id="password"
-                        v-model="password"
-                        placeholder="password"
-                        type="password"
-                        required
-                        class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm"
-                    >
-                    <p
-                        v-if="passwordError"
-                        class="text-red-700"
-                    >
-                        {{ passwordError }}
-                    </p>
+    <div class="min-h-screen bg-gray-50 flex justify-center p-6">
+        <div class="w-full max-w-md bg-white p-6 rounded-lg shadow-md space-y-8">
+            <!-- メールアドレス・パスワード設定 -->
+            <section>
+                <h2 class="text-xl font-bold mb-2 border-b pb-2">
+                    メールアドレス・パスワード設定
+                </h2>
+
+                <p class="text-gray-600 mb-4">
+                    現在のメール: <span class="font-semibold">{{ email }}</span>
+                </p>
+
+                <button
+                    class="w-full bg-sky-500 text-white py-2 rounded-md hover:bg-sky-600 transition"
+                    @click="openResetEmail"
+                >
+                    メールアドレスを変更
+                </button>
+
+                <div
+                    v-if="isOpenResetEmail"
+                    class="mt-4 space-y-4"
+                >
+                    <!-- 新しいメール -->
+                    <div>
+                        <label
+                            for="newEmail"
+                            class="block text-sm font-medium text-gray-700"
+                        >新しいメールアドレス</label>
+                        <input
+                            id="newEmail"
+                            v-model="newEmail"
+                            placeholder="New Email"
+                            required
+                            class="mt-1 w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        >
+                        <p
+                            v-if="emailError"
+                            class="text-red-500 mt-1"
+                        >
+                            {{ emailError }}
+                        </p>
+                    </div>
+
+                    <!-- パスワード -->
+                    <div>
+                        <label
+                            for="password"
+                            class="block text-sm font-medium text-gray-700"
+                        >現在のパスワード</label>
+                        <input
+                            id="password"
+                            v-model="password"
+                            type="password"
+                            placeholder="password"
+                            required
+                            class="mt-1 w-full px-4 py-2 border rounded-md focus:ring-sky-500 focus:border-sky-500"
+                        >
+                        <p
+                            v-if="passwordError"
+                            class="text-red-500 mt-1"
+                        >
+                            {{ passwordError }}
+                        </p>
+                    </div>
+
                     <button
+                        class="w-full bg-teal-500 text-white py-2 rounded-md hover:bg-teal-600 transition"
                         @click="sendResetEmail"
                     >
-                        メールアドレスを変更
+                        メールアドレス変更メールを送信
                     </button>
                 </div>
-            </div>
-            <div>
+
                 <button
+                    class="w-full mt-4 bg-yellow-400 text-white py-2 rounded-md hover:bg-yellow-500 transition"
                     @click="sendResetPassword"
                 >
                     パスワードを再設定
                 </button>
-            </div>
-        </div>
+            </section>
 
-        <div>
-            <h2>アカウントを削除</h2>
-            <label
-                for="currentPassword"
-                class="block text-sm font-medium text-gray-700"
-            >現在のパスワードを入力</label>
-            <input
-                id="currentPassword"
-                v-model="currentPassword"
-                placeholder="currentPassword"
-                type="password"
-                required
-                class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm"
-            >
-            <p
-                v-if="currentPasswordError"
-                class="text-red-700"
-            >
-                {{ currentPasswordError }}
-            </p>
-            <button
-                @click="deleteAccount"
-            >
-                削除
-            </button>
+            <hr>
+
+            <!-- アカウント削除 -->
+            <section>
+                <h2 class="text-xl font-bold mb-2 border-b pb-2 text-red-500">
+                    アカウント削除
+                </h2>
+
+                <label
+                    for="currentPassword"
+                    class="block text-sm font-medium text-gray-700"
+                >現在のパスワード</label>
+                <input
+                    id="currentPassword"
+                    v-model="currentPassword"
+                    type="password"
+                    placeholder="currentPassword"
+                    required
+                    class="mt-1 w-full px-4 py-2 border rounded-md focus:ring-red-500 focus:border-red-500"
+                >
+                <p
+                    v-if="currentPasswordError"
+                    class="text-red-500 mt-1"
+                >
+                    {{ currentPasswordError }}
+                </p>
+
+                <button
+                    class="w-full mt-4 bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition"
+                    @click="deleteAccount"
+                >
+                    アカウントを削除
+                </button>
+            </section>
         </div>
     </div>
 </template>

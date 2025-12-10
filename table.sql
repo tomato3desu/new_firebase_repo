@@ -194,4 +194,10 @@ LEFT JOIN review_good rg on r.id = rg.good_review_id
 group by r.id;
 
 
-update users set is_active = 1 where id = 9;
+select p.id, p.created_user_id, p.latitude, p.longitude, p.title, p.description, p.pref_id, p.address, p.thumbnail_image_path,
+       pa.avg_darkness, pa.avg_access, pa.review_count, pa.pin_bookmark_count
+from pins p 
+inner join pin_review_average pa
+on p.id = pa.pin_id
+order by pa.pin_bookmark_count desc, pa.review_count desc
+limit 10;

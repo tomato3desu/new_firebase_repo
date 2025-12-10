@@ -53,9 +53,9 @@ watch(
         <!-- Drawer本体 -->
         <div
             class="max-w-[calc(100vw-20px)] fixed top-0 right-0 h-full shadow-xl z-40 transition-all duration-300"
-            :class="isOpen ? 'w-88' : 'w-0'"
+            :class="isOpen ? 'w-80' : 'w-0'"
         >
-            <div class="h-6"></div>
+            <div class="h-6" />
             <!-- Drawer 中身（閉じてるときは非表示） -->
             <div
                 v-if="isOpen"
@@ -64,6 +64,7 @@ watch(
                 <ProfileEdit
                     v-if="mode === 'edit'"
                     :user="authStore.loginUser"
+                    @move-clicked="onMoveClicked"
                 />
                 <ProfileView
                     v-if="mode === 'view'"
@@ -74,8 +75,8 @@ watch(
 
             <!-- スライドボタン：Drawerの左端に配置 → 一緒に動く -->
             <button
-                class="absolute top-1/2 -left-4 h-20 z-40 bg-gray-400 text-gray-700 
-                       flex justify-center items-center rounded-l-lg hover:bg-gray-500 transition-all duration-300"
+                class="absolute top-1/2 -left-4 h-20 z-40 bg-slate-300 text-slate-800 
+                       flex justify-center items-center rounded-l-lg hover:bg-slate-500 transition-all duration-300"
                 @click="isOpen = !isOpen"
             >
                 {{ isOpen ? '▶' : '◀' }}

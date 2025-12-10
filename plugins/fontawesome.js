@@ -20,8 +20,10 @@ import {
     faRotate,
     faT,
     faEarthAsia,
-    faPaperPlane
+    faPaperPlane,
+    faCrown
 } from '@fortawesome/free-solid-svg-icons'
+import { faStar as faRegularStar } from '@fortawesome/free-regular-svg-icons'
 
 library.add(faStar)
 library.add(faBookmark)
@@ -43,6 +45,8 @@ library.add(faRotate)
 library.add(faT)
 library.add(faEarthAsia)
 library.add(faPaperPlane)
+library.add(faCrown)
+library.add(faRegularStar)
 
 config.autoAddCss = false
 

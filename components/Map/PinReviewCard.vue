@@ -81,7 +81,7 @@ const onImageClick = (reviewImage) => {
 <template>
     <div 
         v-if="review && review.review"
-        class="border-b border-gray-300 flex flex-col pl-2"
+        class="text-slate-50 border-b border-slate-50 flex flex-col pl-2"
     >
         <!-- ユーザー情報 -->
         <div
@@ -94,77 +94,77 @@ const onImageClick = (reviewImage) => {
                 class="w-8 h-8 object-cover rounded-sm mr-4"
                 @click="openUserProfile"
             />
-            <p class="text-gray-700 font-medium truncate">
+            <p class="font-medium truncate">
                 {{ userStore.usersById[review.review.createdUserId].nickname }}
             </p>
             <font-awesome-icon 
                 v-if="isEditParmitted"
                 icon="fa-solid fa-pen-to-square" 
-                class="h-4 w-4 text-gray-700 absolute right-4"
+                class="h-4 w-4 absolute right-4"
                 @click="updateReview"
             />
         </div>
         <!-- 確認用ID -->
         <p>{{ review.review.id }}</p>
         <!-- タイトル -->
-        <p class="text-base font-medium text-gray-700 break-words whitespace-pre-wrap">
+        <p class="text-base font-medium break-words whitespace-pre-wrap">
             {{ review.review.title }}
         </p>
         <!-- 評価 -->
-        <div class=" text-gray-700">
+        <div class="">
             <div class="flex items-center">
                 <font-awesome-icon 
                     icon="fa-solid fa-moon" 
-                    class="h-4 w-4 text-gray-700 mr-2"
+                    class="h-4 w-4 mr-2"
                 />
                 <p>暗さ：</p>
                 <font-awesome-icon
                     v-for="n in review?.review.darknessLevel"
                     :key="n"
                     icon="fa-solid fa-star"
-                    class="text-yellow-400 h-4 w-4"
+                    class="text-yellow-300 h-4 w-4"
                 />
                 <font-awesome-icon
                     v-for="n in (5 - review.review.darknessLevel)"
                     :key="n"
                     icon="fa-solid fa-star"
-                    class="text-gray-400 h-4 w-4"
+                    class="h-4 w-4"
                 />
             </div>
             <div class="flex items-center">
                 <font-awesome-icon 
                     icon="fa-solid fa-route" 
-                    class="h-4 w-4 text-gray-700 mr-2"
+                    class="h-4 w-4 mr-2"
                 />
                 <p>アクセス：</p>
                 <font-awesome-icon
                     v-for="n in review.review.accessLevel"
                     :key="n"
                     icon="fa-solid fa-star"
-                    class="text-yellow-400 h-4 w-4"
+                    class="text-yellow-300 h-4 w-4"
                 />
                 <font-awesome-icon
                     v-for="n in (5 - review?.review.accessLevel)"
                     :key="n"
                     icon="fa-solid fa-star"
-                    class="text-gray-400 h-4 w-4"
+                    class="h-4 w-4"
                 />
             </div>
         </div>
         <!-- 訪問日時 -->
-        <div class="text-gray-700 flex items-center">
+        <div class="flex items-center">
             <font-awesome-icon 
                 icon="fa-solid fa-clock" 
-                class="h-4 w-4 text-gray-700 mr-2"
+                class="h-4 w-4 mr-2"
             />
             <p>訪問日時：{{ review.review.visitedDate }}日{{ review.review.visitedTime }}頃</p>
         </div>
         <!-- 本文 -->
-        <div class="text-gray-700 text-sm whitespace-pre-wrap break-words leading-relaxed">
+        <div class="text-sm whitespace-pre-wrap break-words leading-relaxed">
             {{ truncatedText }}
             <button
                 v-if="shouldTruncate"
-                class="text-sky-500 ml-2 hover:underline text-xs"
+                class="text-sky-300 ml-2 hover:underline text-xs"
                 @click="showFull = !showFull"
             >
                 {{ showFull ? '閉じる' : 'もっと見る' }}
@@ -190,13 +190,13 @@ const onImageClick = (reviewImage) => {
                 <font-awesome-icon
                     v-if="isGood"
                     icon="fa-solid fa-thumbs-up"
-                    class="w-4 h-4 text-gray-700 mr-0.5"
+                    class="w-4 h-4 text-yellow-300 mr-0.5"
                     @click="onGoodClicked"
                 />
                 <font-awesome-icon
                     v-else
                     icon="fa-solid fa-thumbs-up"
-                    class="w-4 h-4 text-gray-300 mr-0.5"
+                    class="w-4 h-4 mr-0.5"
                     @click="onGoodClicked"
                 />
                 <p class="mr-4">
@@ -207,7 +207,7 @@ const onImageClick = (reviewImage) => {
             <div>
                 <font-awesome-icon 
                     icon="fa-solid fa-triangle-exclamation" 
-                    class="w-4 h-4 text-gray-700"
+                    class="w-4 h-4"
                     @click="onReportClicked"
                 />
             </div>
