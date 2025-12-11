@@ -130,14 +130,14 @@ onMounted(async () => {
                 <font-awesome-icon 
                     v-else
                     icon="fa-solid fa-bookmark"
-                    class="text-slate-50 h-6 w-6 absolute top-4 right-4"
+                    class="text-slate-50 hover:text-yellow-300 h-6 w-6 absolute top-4 right-4"
                     @click="toggleBookmark"
                 />
             </div>
             <!-- pin情報 -->
             <div
                 v-if="userStore.usersById[pin.createdUserId]"
-                class="flex items-center pl-2 mt-2 text-slate-50"
+                class="flex items-center px-2 mt-2 text-slate-50"
             >
                 <NuxtImg
                     :src=" userStore.usersById[pin.createdUserId].iconImagePath || '/images/default_user.jpeg'"
@@ -151,12 +151,12 @@ onMounted(async () => {
                 <font-awesome-icon 
                     v-if="isEditParmitted"
                     icon="fa-solid fa-pen-to-square" 
-                    class="h-4 w-4 absolute right-12"
+                    class="h-4 w-4 absolute right-12 hover:text-yellow-300"
                     @click="updatePin" 
                 />
                 <font-awesome-icon 
                     icon="fa-solid fa-triangle-exclamation" 
-                    class="w-4 h-4 absolute right-4"
+                    class="w-4 h-4 absolute right-4 hover:text-yellow-300"
                     @click="onReportClicked"
                 />
             </div>

@@ -65,7 +65,7 @@ watch(comment, (value) => {
         v-if="isOpen"
         class="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
     >
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 max-h-[80vh] overflow-y-auto">
+        <div class="text-slate-50 bg-gradient-to-tl from-slate-900 from- via-slate-700 via- to-slate-400 to- rounded-lg shadow-lg w-full max-w-md p-6 max-h-[80vh] overflow-y-auto">
             <h2
                 class="text-xl font-semibold mb-4"
             >
@@ -105,7 +105,7 @@ watch(comment, (value) => {
             </label>
             <p 
                 v-if="commentError && reason === 'other'"
-                class="text-red-600 mb-1"
+                class="text-red-500 mb-1"
             >
                 {{ commentError }}
             </p>
@@ -113,7 +113,7 @@ watch(comment, (value) => {
                 v-if="reason === 'other'"
                 v-model="comment"
                 placeholder="詳細を入力してください"
-                class="mb-4 w-full border p-2 rounded"
+                class="text-slate-800 mb-4 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
             />
             <div class="flex items-center">
                 <button

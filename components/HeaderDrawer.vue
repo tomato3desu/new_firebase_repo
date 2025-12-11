@@ -122,7 +122,7 @@ const logout = async () => {
             <div class="flex items-center mt-6">
                 <font-awesome-icon
                     icon="fa-solid fa-arrow-right-from-bracket"
-                    class="h-8 w-8"
+                    class="h-8 w-8 text-slate-50"
                 />
                 <button
                     class="w-full text-left text-lg text-red-400 hover:text-red-500 pl-6"

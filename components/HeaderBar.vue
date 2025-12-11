@@ -28,7 +28,7 @@ const toggleDrawer = () => {
         /> -->
         <NuxtLink
             to="/"
-            class="text-4xl font-bit text-yellow-300 mr-4 flex items-center"
+            class="text-4xl font-bit text-yellow-300 hover:text-yellow-400 mr-4 flex items-center"
         >
             StarSeeker
         </NuxtLink>
@@ -36,14 +36,14 @@ const toggleDrawer = () => {
             <NuxtLink
                 v-if="!isLoggedIn"
                 to="/login"
-                class="text-xl text-sky-400 break-words mr-2"
+                class="text-xl text-sky-400 hover:text-sky-500 break-words mr-2"
             >
                 sign in
             </NuxtLink>
             <NuxtLink
                 v-if="!isLoggedIn"
                 to="/register"
-                class="text-xl text-emerald-400 break-words"
+                class="text-xl text-teal-400 hover:text-teal-500 break-words"
             >sign up</NuxtLink>
             <!-- ログイン中アイコン -->
             <div

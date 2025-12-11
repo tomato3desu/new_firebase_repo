@@ -40,7 +40,7 @@ const onclickSearchResult = () => {
         </p>
         <font-awesome-icon 
             icon="fa-solid fa-paper-plane" 
-            class="w-4 h-4 text-teal-400 ml-2 mt-2"
+            class="w-4 h-4 text-teal-400 hover:text-teal-500 ml-2 mt-2"
             @click="onclickSearchResult"
         />
     </div>

@@ -44,14 +44,14 @@ onMounted(async () => {
             </p>
             <font-awesome-icon
                 icon="fa-solid fa-triangle-exclamation"
-                class="w-6 h-6 ml-auto cursor-pointer"
+                class="w-6 h-6 ml-auto cursor-pointer hover:text-yellow-300"
                 @click="onReportClicked"
             />
         </div>
-        <p>
+        <p class="">
             {{ user?.comment }}
         </p>
-        <p>
+        <p class="mx-auto">
             {{ prefStore.prefsById[user?.prefectureId]?.name }}
         </p>
     </div>

@@ -67,7 +67,7 @@ onMounted(async () => {
                 ▶
             </button>
         </div>
-        <div class="w-60 max-w-[calc(100vw-40px)] sm:w-80 text-slate-50 bg-gradient-to-br from-slate-900 from- via-slate-700 via- to-slate-400 to- shadow-lg relative h-[calc(100vh-4rem)] px-2 overflow-y-auto">
+        <div class="w-60 max-w-[calc(100vw-40px)] sm:w-80 text-slate-50 bg-gradient-to-br from-slate-900 from- via-slate-700 via- to-slate-400 to- shadow-lg relative h-[calc(100vh-4rem)] p-2 overflow-y-auto">
             <div class="mt-2 mb-1">
                 <div class="flex items-center">
                     <font-awesome-icon

@@ -1,6 +1,10 @@
 <script setup>
 import { useAuthStore } from '~/composables/stores/auth'
 
+definePageMeta({
+    layout: 'map'
+})
+
 const authStore = useAuthStore()
 
 const email = ref('')
@@ -63,27 +67,27 @@ const cancel = () => {
 </script>
 
 <template>
-    <div class="bg-gray-100 min-h-[calc(100vh-4rem)] flex items-center justify-center">
-        <div class="bg-white p-8 rounded-lg shadow-lg w-96">
-            <p class="text-2xl font-bold mb-6 text-center text-gray-800">
+    <div class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+        <div class="text-slate-50 bg-gradient-to-tl from-slate-900 from- via-slate-700 via- to-slate-400 to- p-8 rounded-lg shadow-lg w-96 z-50">
+            <p class="text-2xl font-bold mb-6 text-center">
                 ログイン
             </p>
             <form @submit.prevent="login">
                 <div class="mb-4">
                     <label
                         for="email"
-                        class="block text-sm font-medium text-gray-700"
+                        class="block text-sm font-medium"
                     >メールアドレス</label>
                     <input
                         id="email"
                         v-model="email"
                         placeholder="email"
                         required
-                        class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm"
+                        class="text-slate-800 mt-1 w-full px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300 rounded-md shadow-sm"
                     >
                     <p
                         v-if="emailError"
-                        class="text-red-600"
+                        class="text-red-500"
                     >
                         {{ emailError }}
                     </p>
@@ -91,7 +95,7 @@ const cancel = () => {
                 <div class="relative mb-6">
                     <label
                         for="password"
-                        class="block text-sm font-medium text-gray-700"
+                        class="block text-sm font-medium"
                     >パスワード</label>
                     <input
                         id="password"
@@ -99,25 +103,25 @@ const cancel = () => {
                         placeholder="password"
                         type="password"
                         required
-                        class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm"
+                        class="text-slate-800 mt-1 w-full px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300 rounded-md shadow-sm"
                     >
                     <p
                         v-if="passwordError"
-                        class="text-red-700"
+                        class="text-red-500"
                     >
                         {{ passwordError }}
                     </p>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <button
-                        class="w-full bg-gray-400 text-white py-2 px-4 rounded-md shadow hover:bg-gray-600"
+                        class="w-full bg-gray-400 py-2 px-4 rounded-md shadow hover:bg-gray-600"
                         @click="cancel"
                     >
                         キャンセル
                     </button>
                     <button
                         type="submit"
-                        class="w-full bg-sky-500 text-white py-2 px-4 rounded-md shadow hover:bg-sky-600"
+                        class="w-full bg-sky-500 py-2 px-4 rounded-md shadow hover:bg-sky-600"
                     >
                         ログイン
                     </button>

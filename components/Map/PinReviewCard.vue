@@ -81,7 +81,7 @@ const onImageClick = (reviewImage) => {
 <template>
     <div 
         v-if="review && review.review"
-        class="text-slate-50 border-b border-slate-50 flex flex-col pl-2"
+        class="text-slate-50 border-b border-slate-50 flex flex-col px-2"
     >
         <!-- ユーザー情報 -->
         <div
@@ -100,7 +100,7 @@ const onImageClick = (reviewImage) => {
             <font-awesome-icon 
                 v-if="isEditParmitted"
                 icon="fa-solid fa-pen-to-square" 
-                class="h-4 w-4 absolute right-4"
+                class="h-4 w-4 absolute right-4 hover:text-yellow-300"
                 @click="updateReview"
             />
         </div>
@@ -196,7 +196,7 @@ const onImageClick = (reviewImage) => {
                 <font-awesome-icon
                     v-else
                     icon="fa-solid fa-thumbs-up"
-                    class="w-4 h-4 mr-0.5"
+                    class="w-4 h-4 mr-0.5 hover:text-yellow-300"
                     @click="onGoodClicked"
                 />
                 <p class="mr-4">
@@ -207,7 +207,7 @@ const onImageClick = (reviewImage) => {
             <div>
                 <font-awesome-icon 
                     icon="fa-solid fa-triangle-exclamation" 
-                    class="w-4 h-4"
+                    class="w-4 h-4 hover:text-yellow-300"
                     @click="onReportClicked"
                 />
             </div>
