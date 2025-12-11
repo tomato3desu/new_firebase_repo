@@ -21,7 +21,8 @@ import {
     faT,
     faEarthAsia,
     faPaperPlane,
-    faCrown
+    faCrown,
+    faClover,
 } from '@fortawesome/free-solid-svg-icons'
 import { faStar as faRegularStar } from '@fortawesome/free-regular-svg-icons'
 
@@ -46,6 +47,8 @@ library.add(faT)
 library.add(faEarthAsia)
 library.add(faPaperPlane)
 library.add(faCrown)
+library.add(faClover)
+
 library.add(faRegularStar)
 
 config.autoAddCss = false

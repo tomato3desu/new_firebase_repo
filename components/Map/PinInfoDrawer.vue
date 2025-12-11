@@ -33,6 +33,23 @@ const reviewIds = computed(() => {
     return reviewStore.reviewsByPinId[p.id] ?? []
 })
 
+const selectedSeason = ref(null) // null = 全件 / 'spring' / 'summer' / 'autumn' / 'winter'
+
+const filteredReviewIds = computed(() => {
+    const p = pin.value
+    if (!p) return []
+
+    const ids = reviewStore.reviewsByPinId[p.id] ?? []
+
+    // season未選択なら全件
+    if (!selectedSeason.value) return ids
+
+    return ids.filter(id => {
+        const r = reviewStore.reviewsById[id]
+        return r && r.review.season === selectedSeason.value
+    })
+})
+
 const isOpenUpdatePinDialog = ref(false)
 const isOpenCreateReviewDialog = ref(false)
 const isOpenPinReportDialog = ref(false)
@@ -238,14 +255,48 @@ onMounted(async () => {
             </div>
             <!-- review -->
             <div>
+                <div class="p-2">
+                    <button 
+                        class="bg-slate-50 hover:bg-slate-300 px-2 py-0.5 my-2 rounded-md"
+                        @click="selectedSeason = null"
+                    >
+                        all
+                    </button>
+                    <div class="text-slate-800 flex items-center gap-2">
+                        <button
+                            class="bg-slate-50 hover:bg-slate-300 px-2 py-0.5 rounded-md"
+                            @click="selectedSeason = 'spring'"
+                        >
+                            spring
+                        </button>
+                        <button 
+                            class="bg-slate-50 hover:bg-slate-300 px-2 py-0.5 rounded-md"
+                            @click="selectedSeason = 'summer'"
+                        >
+                            summer
+                        </button>
+                        <button 
+                            class="bg-slate-50 hover:bg-slate-300 px-2 py-0.5 rounded-md"
+                            @click="selectedSeason = 'autumn'"
+                        >
+                            autumn
+                        </button>
+                        <button 
+                            class="bg-slate-50 hover:bg-slate-300 px-2 py-0.5 rounded-md"
+                            @click="selectedSeason = 'winter'"
+                        >
+                            winter
+                        </button>
+                    </div>
+                </div>
                 <div
-                    v-if="!reviewIds || reviewIds.length === 0"
+                    v-if="!filteredReviewIds || filteredReviewIds.length === 0"
                     class="text-slate-50 text-center py-4"
                 >
                     レビューがまだありません
                 </div>
                 <MapPinReviewCard
-                    v-for="reviewId in reviewIds"
+                    v-for="reviewId in filteredReviewIds"
                     :key="reviewId"
                     :review-id="reviewId"
                     @image-clicked="onImageClicked"
