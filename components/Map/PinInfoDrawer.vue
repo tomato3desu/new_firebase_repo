@@ -5,9 +5,10 @@ import { useUserStore } from '~/composables/stores/user'
 import { usePinStore } from '~/composables/stores/pin'
 import { useBookmarkStore } from '~/composables/stores/bookmark'
 import { useGoodStore } from '~/composables/stores/good'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
+const route = useRoute()
 
 const authStore = useAuthStore()
 const reviewStore = useReviewStore()
@@ -27,12 +28,7 @@ const emit = defineEmits(['close', 'pin-deleted'])
 
 const pin = computed(() => pinStore.pinsById[props.pinId] ?? null)
 
-const reviewIds = computed(() => {
-    const p = pin.value
-    if (!p) return []
-    return reviewStore.reviewsByPinId[p.id] ?? []
-})
-
+const selectedReviewId = ref(null)
 const selectedSeason = ref(null) // null = 全件 / 'spring' / 'summer' / 'autumn' / 'winter'
 
 const filteredReviewIds = computed(() => {
@@ -41,7 +37,12 @@ const filteredReviewIds = computed(() => {
 
     const ids = reviewStore.reviewsByPinId[p.id] ?? []
 
-    // season未選択なら全件
+    // season = all なら全件
+    if (selectedSeason.value === 'all') return ids
+    // selectedReviewIdがあり、seasonがなければ selectedReviewIdのみの配列を返す
+    // selectedReviewIdよりseasonを優先させるため
+    if (!selectedSeason.value && selectedReviewId.value && ids.includes(selectedReviewId.value)) return [selectedReviewId.value]
+    // どちらもなければidsが返る（初期状態）
     if (!selectedSeason.value) return ids
 
     return ids.filter(id => {
@@ -114,6 +115,18 @@ onMounted(async () => {
     await userStore.fetchUsersIfNeeded(userIds)
     await goodStore.fetchMyGoodReviews()
 })
+
+watch(
+    () => route.query.reviewId,
+    (newVal) => {
+        if (newVal) {
+            selectedReviewId.value = Number(newVal)
+        } else {
+            selectedReviewId.value = null
+        }
+    },
+    { immediate: true }
+)
 </script>
 
 <template>
@@ -258,7 +271,7 @@ onMounted(async () => {
                 <div class="p-2">
                     <button 
                         class="bg-slate-50 hover:bg-slate-300 px-2 py-0.5 my-2 rounded-md"
-                        @click="selectedSeason = null"
+                        @click="selectedSeason = 'all'"
                     >
                         all
                     </button>

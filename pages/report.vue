@@ -65,14 +65,8 @@ const showPin = (pinId) => {
     router.push(`/?pinId=${pinId}`)
 }
 
-const showReview = (reviewId, reportId) => {
-    selectedReviewId.value = reviewId
-    selectedReviewReportId.value = reportId
-}
-
-const closeReview = () => {
-    selectedReviewId.value = null
-    selectedReviewReportId.value = null
+const showReview = (pinId, reviewId) => {
+    router.push(`/?pinId=${pinId}&reviewId=${reviewId}`)
 }
 
 const changeUserStatusResolved = async (reportId) => {
@@ -432,7 +426,7 @@ onMounted(async () => {
                                 {{ reportStore.reviewReportsById[reportId].comment }}
                             </td>
                             <td class="py-2 px-4 text-sky-500">
-                                <button @click="showReview(reportStore.reviewReportsById[reportId].reviewId, reportId)">
+                                <button @click="showReview(reviewStore.reviewsById[reportStore.reviewReportsById[reportId].reviewId].review.reviewedPinId, reportStore.reviewReportsById[reportId].reviewId)">
                                     showReview
                                 </button>
                             </td>
