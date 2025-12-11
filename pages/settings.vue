@@ -77,15 +77,15 @@ const deleteAccount = async () => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-50 flex justify-center p-6">
-        <div class="w-full max-w-md bg-white p-6 rounded-lg shadow-md space-y-8">
+    <div class="min-h-screen bg-slate-300 flex justify-center p-6">
+        <div class="text-slate-50 bg-gradient-to-tl from-slate-900 from- via-slate-700 via- to-slate-400 to- w-full max-w-md p-6 rounded-lg shadow-md space-y-8">
             <!-- メールアドレス・パスワード設定 -->
             <section>
                 <h2 class="text-xl font-bold mb-2 border-b pb-2">
                     メールアドレス・パスワード設定
                 </h2>
 
-                <p class="text-gray-600 mb-4">
+                <p class="mb-4">
                     現在のメール: <span class="font-semibold">{{ email }}</span>
                 </p>
 
@@ -104,14 +104,14 @@ const deleteAccount = async () => {
                     <div>
                         <label
                             for="newEmail"
-                            class="block text-sm font-medium text-gray-700"
+                            class="block text-sm font-medium"
                         >新しいメールアドレス</label>
                         <input
                             id="newEmail"
                             v-model="newEmail"
                             placeholder="New Email"
                             required
-                            class="mt-1 w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                            class="text-slate-800 mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
                         >
                         <p
                             v-if="emailError"
@@ -125,7 +125,7 @@ const deleteAccount = async () => {
                     <div>
                         <label
                             for="password"
-                            class="block text-sm font-medium text-gray-700"
+                            class="block text-sm font-medium"
                         >現在のパスワード</label>
                         <input
                             id="password"
@@ -133,7 +133,7 @@ const deleteAccount = async () => {
                             type="password"
                             placeholder="password"
                             required
-                            class="mt-1 w-full px-4 py-2 border rounded-md focus:ring-sky-500 focus:border-sky-500"
+                            class="text-slate-800 mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
                         >
                         <p
                             v-if="passwordError"
@@ -169,7 +169,7 @@ const deleteAccount = async () => {
 
                 <label
                     for="currentPassword"
-                    class="block text-sm font-medium text-gray-700"
+                    class="block text-sm font-medium"
                 >現在のパスワード</label>
                 <input
                     id="currentPassword"
@@ -177,7 +177,7 @@ const deleteAccount = async () => {
                     type="password"
                     placeholder="currentPassword"
                     required
-                    class="mt-1 w-full px-4 py-2 border rounded-md focus:ring-red-500 focus:border-red-500"
+                    class="text-slate-800 mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
                 >
                 <p
                     v-if="currentPasswordError"

@@ -13,6 +13,9 @@ const userStore = useUserStore()
 const bookmarkStore = useBookmarkStore()
 const pinStore = usePinStore()
 
+const user = computed(() => userStore.usersById[targetUserId.value])
+const bookmarks = computed(() => bookmarkStore.bookmarkedPinsByUserId[user.value?.id])
+
 const isOpen = ref(true)
 
 const mode = computed(() => {
@@ -64,13 +67,20 @@ watch(
                 <ProfileEdit
                     v-if="mode === 'edit'"
                     :user="authStore.loginUser"
-                    @move-clicked="onMoveClicked"
                 />
                 <ProfileView
                     v-if="mode === 'view'"
                     :user="userStore.usersById[targetUserId]"
-                    @move-clicked="onMoveClicked"
                 />
+                <div 
+                    v-for="pinId in bookmarks" 
+                    :key="pinId"
+                >
+                    <MapSearchResultCard
+                        :pin-id="pinId"
+                        @result-clicked="onMoveClicked"
+                    />
+                </div>
             </div>
 
             <!-- スライドボタン：Drawerの左端に配置 → 一緒に動く -->

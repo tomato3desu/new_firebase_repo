@@ -10,14 +10,10 @@ const { user } = defineProps({
     user: Object
 })
 
-const emits = defineEmits(['move-clicked'])
-
 const authStore = useAuthStore()
 const prefStore = usePrefStore()
 const bookmarkStore = useBookmarkStore()
 const { $storage } = useNuxtApp()
-
-const bookmarks = computed(() => bookmarkStore.bookmarkedPinsByUserId[user?.id])
 
 const currentProfile = ref({
     nickname: user?.nickname ?? null,
@@ -172,13 +168,6 @@ const extractPathFromUrl = (url) => {
     }
 }
 
-const onMoveClicked = ({ latitude, longitude }) => {
-    emits('move-clicked', {
-        latitude: latitude,
-        longitude: longitude
-    })
-}
-
 onMounted(() => {
     prefStore.setAllPrefs()
     bookmarkStore.fetchBookmarksByUserId(user?.id)
@@ -311,14 +300,5 @@ watch(comment, () => {
         >
             {{ error }}
         </p>
-    </div>
-    <div 
-        v-for="pinId in bookmarks" 
-        :key="pinId"
-    >
-        <MapSearchResultCard
-            :pin-id="pinId"
-            @result-clicked="onMoveClicked"
-        />
     </div>
 </template>

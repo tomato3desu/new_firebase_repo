@@ -28,7 +28,7 @@ const onCardClicked = () => {
 
 <template>
     <div
-        class="flex items-center gap-4 w-full bg-white rounded-xl shadow-sm hover:shadow-md transition p-4 border border-gray-100 cursor-pointer"
+        class="flex items-center gap-4 w-full bg-slate-50 hover:bg-slate-200 rounded-xl shadow-sm hover:shadow-md transition p-4 border border-slate-300 cursor-pointer"
         @click="onCardClicked"
     >
         <!-- Rank -->

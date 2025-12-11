@@ -2,8 +2,6 @@
 import { usePrefStore } from '~/composables/stores/prefecture'
 import { useBookmarkStore } from '~/composables/stores/bookmark'
 
-const emits = defineEmits(['move-clicked'])
-
 const { user } = defineProps({
     user: Object
 })
@@ -11,19 +9,10 @@ const { user } = defineProps({
 const prefStore = usePrefStore()
 const bookmarkStore = useBookmarkStore()
 
-const bookmarks = computed(() => bookmarkStore.bookmarkedPinsByUserId[user?.id])
-
 const isOpenUserReportDialog = ref(false)
 
 const onReportClicked = () => {
     isOpenUserReportDialog.value = true
-}
-
-const onMoveClicked = ({ latitude, longitude }) => {
-    emits('move-clicked', {
-        latitude: latitude,
-        longitude: longitude
-    })
 }
 
 onMounted(async () => {
@@ -54,15 +43,6 @@ onMounted(async () => {
         <p class="mx-auto">
             {{ prefStore.prefsById[user?.prefectureId]?.name }}
         </p>
-    </div>
-    <div 
-        v-for="pinId in bookmarks" 
-        :key="pinId"
-    >
-        <MapSearchResultCard
-            :pin-id="pinId"
-            @result-clicked="onMoveClicked"
-        />
     </div>
     <ProfileUserReportDialog
         v-if="user"

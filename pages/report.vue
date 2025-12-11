@@ -191,96 +191,101 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div v-if="isDisplayPermitted">
+    <div 
+        v-if="isDisplayPermitted" 
+        class="bg-slate-300 h-full"
+    >
         <!-- user -->
         <div>
             <p class="text-3xl p-4 m-4">
                 ユーザー通報
             </p>
-            <table class="min-w-full bg-white shadow rounded-lg overflow-hidden">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="py-3 px-4 text-left">
-                            id
-                        </th>
-                        <th class="py-3 px-4 text-left">
-                            reporterId
-                        </th>
-                        <th class="py-3 px-4 text-left">
-                            userId
-                        </th>
-                        <th class="py-3 px-4 text-left">
-                            status
-                        </th>
-                        <th class="py-3 px-4 text-left">
-                            createdAt
-                        </th>
-                        <th class="py-3 px-4 text-left">
-                            reason
-                        </th>
-                        <th class="py-3 px-4 text-left break-words">
-                            comment
-                        </th>
-                        <th class="py-3 px-4 text-left" />
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="reportId of userReportIds"
-                        :key="reportId"
-                    >
-                        <td class="py-2 px-4">
-                            {{ reportStore.userReportsById[reportId].id }}
-                        </td>
-                        <td class="py-2 px-4">
-                            {{ reportStore.userReportsById[reportId].reporterId }}
-                        </td>
-                        <td class="py-2 px-4">
-                            {{ reportStore.userReportsById[reportId].userId }}
-                        </td>
-                        <td class="py-2 px-4">
-                            <button
-                                class="text-sky-400"
-                                @click="changeUserStatusResolved(reportId)"
-                            >
-                                {{ reportStore.userReportsById[reportId].status }}
-                            </button>
-                        </td>
-                        <td class="py-2 px-4">
-                            {{ reportStore.userReportsById[reportId].createdAt }}
-                        </td>
-                        <td class="py-2 px-4">
-                            {{ reportStore.userReportsById[reportId].reason }}
-                        </td>
-                        <td class="py-2 px-4">
-                            {{ reportStore.userReportsById[reportId].comment }}
-                        </td>
-                        <td class="py-2 px-4 text-sky-500">
-                            <button @click="showUser(reportId)">
-                                showUser
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="overflow-x-auto">
+                <table class="min-w-full shadow bg-white rounded-lg overflow-hidden">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="py-3 px-4 text-left">
+                                id
+                            </th>
+                            <th class="py-3 px-4 text-left">
+                                reporterId
+                            </th>
+                            <th class="py-3 px-4 text-left">
+                                userId
+                            </th>
+                            <th class="py-3 px-4 text-left">
+                                status
+                            </th>
+                            <th class="py-3 px-4 text-left">
+                                createdAt
+                            </th>
+                            <th class="py-3 px-4 text-left">
+                                reason
+                            </th>
+                            <th class="py-3 px-4 text-left break-words">
+                                comment
+                            </th>
+                            <th class="py-3 px-4 text-left" />
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            v-for="reportId of userReportIds"
+                            :key="reportId"
+                        >
+                            <td class="py-2 px-4">
+                                {{ reportStore.userReportsById[reportId].id }}
+                            </td>
+                            <td class="py-2 px-4">
+                                {{ reportStore.userReportsById[reportId].reporterId }}
+                            </td>
+                            <td class="py-2 px-4">
+                                {{ reportStore.userReportsById[reportId].userId }}
+                            </td>
+                            <td class="py-2 px-4">
+                                <button
+                                    class="text-sky-400"
+                                    @click="changeUserStatusResolved(reportId)"
+                                >
+                                    {{ reportStore.userReportsById[reportId].status }}
+                                </button>
+                            </td>
+                            <td class="py-2 px-4">
+                                {{ reportStore.userReportsById[reportId].createdAt }}
+                            </td>
+                            <td class="py-2 px-4">
+                                {{ reportStore.userReportsById[reportId].reason }}
+                            </td>
+                            <td class="py-2 px-4">
+                                {{ reportStore.userReportsById[reportId].comment }}
+                            </td>
+                            <td class="py-2 px-4 text-sky-500">
+                                <button @click="showUser(reportId)">
+                                    showUser
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div
             v-if="selectedUser"
             class="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
         >
-            <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 max-h-[80vh] overflow-y-auto">
+            <div class="rounded-lg shadow-lg w-full max-w-md p-6 max-h-[80vh] overflow-y-auto">
                 <ProfileEdit
                     :user="selectedUser"
                 />
-                <div class="flex gap-4">
+                <div class="flex gap-4 mx-10">
                     <button
-                        class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 transition"
+                        class="px-4 py-2 rounded text-slate-50 bg-gray-300 hover:bg-gray-400 transition"
                         @click="closeUser"
                     >
                         閉じる
                     </button>
                     <button
-                        class="px-4 py-2 rounded bg-red-500 hover:bg-gray-600 transition"
+                        class="px-4 py-2 rounded text-slate-50 bg-red-500 hover:bg-red-600 transition"
                         @click="banUser"
                     >
                         アカウント停止
@@ -293,154 +298,158 @@ onMounted(async () => {
             <p class="text-3xl p-4 m-4">
                 ピン通報
             </p>
-            <table class="min-w-full bg-white shadow rounded-lg overflow-hidden">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="py-3 px-4 text-left">
-                            id
-                        </th>
-                        <th class="py-3 px-4 text-left">
-                            reporterId
-                        </th>
-                        <th class="py-3 px-4 text-left">
-                            pinId
-                        </th>
-                        <th class="py-3 px-4 text-left">
-                            status
-                        </th>
-                        <th class="py-3 px-4 text-left">
-                            createdAt
-                        </th>
-                        <th class="py-3 px-4 text-left">
-                            reason
-                        </th>
-                        <th class="py-3 px-4 text-left break-words">
-                            comment
-                        </th>
-                        <th class="py-3 px-4 text-left" />
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="reportId of pinReportIds"
-                        :key="reportId"
-                    >
-                        <td class="py-2 px-4">
-                            {{ reportStore.pinReportsById[reportId].id }}
-                        </td>
-                        <td class="py-2 px-4">
-                            {{ reportStore.pinReportsById[reportId].reporterId }}
-                        </td>
-                        <td class="py-2 px-4">
-                            {{ reportStore.pinReportsById[reportId].pinId }}
-                        </td>
-                        <td class="py-2 px-4">
-                            <button
-                                class="text-sky-400"
-                                @click="changePinStatusResolved(reportId)"
-                            >
-                                {{ reportStore.pinReportsById[reportId].status }}
-                            </button>
-                        </td>
-                        <td class="py-2 px-4">
-                            {{ reportStore.pinReportsById[reportId].createdAt }}
-                        </td>
-                        <td class="py-2 px-4">
-                            {{ reportStore.pinReportsById[reportId].reason }}
-                        </td>
-                        <td class="py-2 px-4">
-                            {{ reportStore.pinReportsById[reportId].comment }}
-                        </td>
-                        <td class="py-2 px-4 text-sky-500">
-                            <button @click="showPin(reportStore.pinReportsById[reportId].pinId)">
-                                showPin
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white shadow rounded-lg overflow-hidden">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="py-3 px-4 text-left">
+                                id
+                            </th>
+                            <th class="py-3 px-4 text-left">
+                                reporterId
+                            </th>
+                            <th class="py-3 px-4 text-left">
+                                pinId
+                            </th>
+                            <th class="py-3 px-4 text-left">
+                                status
+                            </th>
+                            <th class="py-3 px-4 text-left">
+                                createdAt
+                            </th>
+                            <th class="py-3 px-4 text-left">
+                                reason
+                            </th>
+                            <th class="py-3 px-4 text-left break-words">
+                                comment
+                            </th>
+                            <th class="py-3 px-4 text-left" />
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            v-for="reportId of pinReportIds"
+                            :key="reportId"
+                        >
+                            <td class="py-2 px-4">
+                                {{ reportStore.pinReportsById[reportId].id }}
+                            </td>
+                            <td class="py-2 px-4">
+                                {{ reportStore.pinReportsById[reportId].reporterId }}
+                            </td>
+                            <td class="py-2 px-4">
+                                {{ reportStore.pinReportsById[reportId].pinId }}
+                            </td>
+                            <td class="py-2 px-4">
+                                <button
+                                    class="text-sky-400"
+                                    @click="changePinStatusResolved(reportId)"
+                                >
+                                    {{ reportStore.pinReportsById[reportId].status }}
+                                </button>
+                            </td>
+                            <td class="py-2 px-4">
+                                {{ reportStore.pinReportsById[reportId].createdAt }}
+                            </td>
+                            <td class="py-2 px-4">
+                                {{ reportStore.pinReportsById[reportId].reason }}
+                            </td>
+                            <td class="py-2 px-4">
+                                {{ reportStore.pinReportsById[reportId].comment }}
+                            </td>
+                            <td class="py-2 px-4 text-sky-500">
+                                <button @click="showPin(reportStore.pinReportsById[reportId].pinId)">
+                                    showPin
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <!-- review -->
         <div>
             <p class="text-3xl p-4 m-4">
                 レビュー通報
             </p>
-            <table class="min-w-full bg-white shadow rounded-lg overflow-hidden">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="py-3 px-4 text-left">
-                            id
-                        </th>
-                        <th class="py-3 px-4 text-left">
-                            reporterId
-                        </th>
-                        <th class="py-3 px-4 text-left">
-                            reviewId
-                        </th>
-                        <th class="py-3 px-4 text-left">
-                            status
-                        </th>
-                        <th class="py-3 px-4 text-left">
-                            createdAt
-                        </th>
-                        <th class="py-3 px-4 text-left">
-                            reason
-                        </th>
-                        <th class="py-3 px-4 text-left break-words">
-                            comment
-                        </th>
-                        <th class="py-3 px-4 text-left" />
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="reportId of reviewReportIds"
-                        :key="reportId"
-                    >
-                        <td class="py-2 px-4">
-                            {{ reportStore.reviewReportsById[reportId].id }}
-                        </td>
-                        <td class="py-2 px-4">
-                            {{ reportStore.reviewReportsById[reportId].reporterId }}
-                        </td>
-                        <td class="py-2 px-4">
-                            {{ reportStore.reviewReportsById[reportId].reviewId }}
-                        </td>
-                        <td class="py-2 px-4">
-                            <button
-                                class="text-sky-400"
-                                @click="changeReviewStatusResolved(reportId)"
-                            >
-                                {{ reportStore.reviewReportsById[reportId].status }}
-                            </button>
-                        </td>
-                        <td class="py-2 px-4">
-                            {{ reportStore.reviewReportsById[reportId].createdAt }}
-                        </td>
-                        <td class="py-2 px-4">
-                            {{ reportStore.reviewReportsById[reportId].reason }}
-                        </td>
-                        <td class="py-2 px-4">
-                            {{ reportStore.reviewReportsById[reportId].comment }}
-                        </td>
-                        <td class="py-2 px-4 text-sky-500">
-                            <button @click="showReview(reportStore.reviewReportsById[reportId].reviewId, reportId)">
-                                showReview
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white shadow rounded-lg overflow-hidden">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="py-3 px-4 text-left">
+                                id
+                            </th>
+                            <th class="py-3 px-4 text-left">
+                                reporterId
+                            </th>
+                            <th class="py-3 px-4 text-left">
+                                reviewId
+                            </th>
+                            <th class="py-3 px-4 text-left">
+                                status
+                            </th>
+                            <th class="py-3 px-4 text-left">
+                                createdAt
+                            </th>
+                            <th class="py-3 px-4 text-left">
+                                reason
+                            </th>
+                            <th class="py-3 px-4 text-left break-words">
+                                comment
+                            </th>
+                            <th class="py-3 px-4 text-left" />
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            v-for="reportId of reviewReportIds"
+                            :key="reportId"
+                        >
+                            <td class="py-2 px-4">
+                                {{ reportStore.reviewReportsById[reportId].id }}
+                            </td>
+                            <td class="py-2 px-4">
+                                {{ reportStore.reviewReportsById[reportId].reporterId }}
+                            </td>
+                            <td class="py-2 px-4">
+                                {{ reportStore.reviewReportsById[reportId].reviewId }}
+                            </td>
+                            <td class="py-2 px-4">
+                                <button
+                                    class="text-sky-400"
+                                    @click="changeReviewStatusResolved(reportId)"
+                                >
+                                    {{ reportStore.reviewReportsById[reportId].status }}
+                                </button>
+                            </td>
+                            <td class="py-2 px-4">
+                                {{ reportStore.reviewReportsById[reportId].createdAt }}
+                            </td>
+                            <td class="py-2 px-4">
+                                {{ reportStore.reviewReportsById[reportId].reason }}
+                            </td>
+                            <td class="py-2 px-4">
+                                {{ reportStore.reviewReportsById[reportId].comment }}
+                            </td>
+                            <td class="py-2 px-4 text-sky-500">
+                                <button @click="showReview(reportStore.reviewReportsById[reportId].reviewId, reportId)">
+                                    showReview
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div
             v-if="selectedReviewId"
             class="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
         >
-            <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 max-h-[80vh] overflow-y-auto">
+            <div class="text-slate-50 bg-gradient-to-tl from-slate-900 from- via-slate-700 via- to-slate-400 to- rounded-lg shadow-lg w-full max-w-md p-6 max-h-[80vh] overflow-y-auto">
                 <MapPinReviewCard
                     :review-id="selectedReviewId"
                 />
-                <div class="flex gap-4">
+                <div class="flex gap-4 mt-4">
                     <button
                         class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 transition"
                         @click="closeReview"

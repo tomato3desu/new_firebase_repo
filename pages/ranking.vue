@@ -30,11 +30,11 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div>
+    <div class="text-slate-50 bg-gradient-to-tl from-slate-900 from- via-slate-700 via- to-slate-400 to-">
         <!-- pref -->
         <div class="flex justify-center my-6">
             <select
-                class="border p-2 rounded bg-white shadow"
+                class="border p-2 rounded bg-slate-50 text-slate-800 shadow focus:outline-none focus:ring focus:ring-blue-300"
                 @change="getRanking($event.target.value)"
             >
                 <option value="0">
@@ -55,7 +55,7 @@ onMounted(async () => {
             <div class="flex items-center justify-center my-4">
                 <font-awesome-icon
                     icon="fa-solid fa-bookmark"
-                    class="text-gray-700 h-8 w-8"
+                    class=" h-8 w-8"
                 />
                 <p class="text-2xl ml-2">
                     ブックマーク数
@@ -72,7 +72,7 @@ onMounted(async () => {
             <div class="flex items-center justify-center  my-4">
                 <font-awesome-icon
                     icon="fa-solid fa-moon"
-                    class="h-8 w-8 text-gray-700"
+                    class="h-8 w-8"
                 />
                 <p class="text-2xl ml-2">
                     暗さ
@@ -89,7 +89,7 @@ onMounted(async () => {
             <div class="flex items-center justify-center  my-4">
                 <font-awesome-icon
                     icon="fa-solid fa-route"
-                    class="h-8 w-8 text-gray-700"
+                    class="h-8 w-8"
                 />
                 <p class="text-2xl ml-2">
                     アクセス
