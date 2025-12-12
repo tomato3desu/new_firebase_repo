@@ -14,7 +14,6 @@ const selectedPrefId = ref(0)
 const getRanking = async (prefId) => {
     selectedPrefId.value = Number(prefId)
     if (selectedPrefId.value === 0) {
-        console.log("tomato")
         await pinStore.fetchRankingAll()
         return
     }
@@ -30,9 +29,9 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="text-slate-50 bg-gradient-to-tl from-slate-900 from- via-slate-700 via- to-slate-400 to-">
+    <div class="text-slate-50 bg-gradient-to-tl from-slate-900 from- via-slate-700 via- to-slate-400 to- p-6 min-h-[calc(100vh-4rem)]">
         <!-- pref -->
-        <div class="flex justify-center my-6">
+        <div class="flex justify-center">
             <select
                 class="border p-2 rounded bg-slate-50 text-slate-800 shadow focus:outline-none focus:ring focus:ring-blue-300"
                 @change="getRanking($event.target.value)"
@@ -61,6 +60,10 @@ onMounted(async () => {
                     ブックマーク数
                 </p>
             </div>
+            <div
+                v-if="!bookmarkRanking || bookmarkRanking.length === 0"
+                class="h-20"
+            />
             <RankingCard
                 v-for="pinId of bookmarkRanking"
                 :key="pinId"
@@ -78,6 +81,10 @@ onMounted(async () => {
                     暗さ
                 </p>
             </div>
+            <div
+                v-if="!darknessRanking || darknessRanking.length === 0"
+                class="h-20"
+            />
             <RankingCard
                 v-for="pinId of darknessRanking"
                 :key="pinId"
@@ -95,6 +102,10 @@ onMounted(async () => {
                     アクセス
                 </p>
             </div>
+            <div
+                v-if="!accessRanking || accessRanking.length === 0"
+                class="h-20"
+            />
             <RankingCard
                 v-for="pinId of accessRanking"
                 :key="pinId"

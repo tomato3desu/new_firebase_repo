@@ -84,7 +84,6 @@ const changeUserStatusResolved = async (reportId) => {
 
 const changePinStatusResolved = async (reportId) => {
     const confirm = window.confirm('本当に解決済みに変更しますか？')
-    console.log(reportId)
     if (!confirm) return
 
     try {
@@ -98,7 +97,6 @@ const changePinStatusResolved = async (reportId) => {
 
 const changeReviewStatusResolved = async (reportId) => {
     const confirm = window.confirm('本当に解決済みに変更しますか？')
-    console.log(reportId)
     if (!confirm) return
 
     try {
@@ -175,11 +173,8 @@ const extractPathFromUrl = (url) => {
 onMounted(async () => {
     const token = await authStore.getIdToken()
     await reportStore.fetchPendingUserReports(token)
-    console.log(userIds.value)
     await reportStore.fetchPendingPinReports(token)
-    console.log(pinIds.value)
     await reportStore.fetchPendingReviewReports(token)
-    console.log(reviewIds.value)
     await reviewStore.fetchReviewsByIds(reviewIds.value)
 })
 </script>

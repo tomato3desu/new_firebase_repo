@@ -23,6 +23,7 @@ import {
     faPaperPlane,
     faCrown,
     faClover,
+    faBars,
 } from '@fortawesome/free-solid-svg-icons'
 import { faStar as faRegularStar } from '@fortawesome/free-regular-svg-icons'
 
@@ -48,6 +49,7 @@ library.add(faEarthAsia)
 library.add(faPaperPlane)
 library.add(faCrown)
 library.add(faClover)
+library.add(faBars)
 
 library.add(faRegularStar)
 

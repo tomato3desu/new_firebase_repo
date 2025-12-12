@@ -121,7 +121,8 @@ watch(
     (newVal) => {
         if (newVal) {
             selectedReviewId.value = Number(newVal)
-        } else {
+        }
+        else {
             selectedReviewId.value = null
         }
     },
@@ -136,7 +137,7 @@ watch(
         <!-- Drawer本体 -->
         <div
             v-if="pin"
-            class="w-60 max-w-[calc(100vw-40px)] sm:w-80 bg-gradient-to-tl from-slate-900 from- via-slate-700 via- to-slate-400 to- shadow-lg relative h-[calc(100vh-4rem)] overflow-y-auto"
+            class="w-80 max-w-[calc(100vw-40px)] bg-gradient-to-tl from-slate-900 from- via-slate-700 via- to-slate-400 to- shadow-lg relative h-[calc(100vh-4rem)] overflow-y-auto"
         >
             <!-- コンテンツ -->
             <!-- top -->
@@ -275,27 +276,27 @@ watch(
                     >
                         all
                     </button>
-                    <div class="text-slate-800 flex items-center gap-2">
+                    <div class="text-slate-800 grid grid-cols-3 md:grid-cols-4 items-center gap-2">
                         <button
-                            class="bg-slate-50 hover:bg-slate-300 px-2 py-0.5 rounded-md"
+                            class="bg-slate-50 hover:bg-slate-300 px-1 py-0.5 rounded-md"
                             @click="selectedSeason = 'spring'"
                         >
                             spring
                         </button>
                         <button 
-                            class="bg-slate-50 hover:bg-slate-300 px-2 py-0.5 rounded-md"
+                            class="bg-slate-50 hover:bg-slate-300 px-1 py-0.5 rounded-md"
                             @click="selectedSeason = 'summer'"
                         >
                             summer
                         </button>
                         <button 
-                            class="bg-slate-50 hover:bg-slate-300 px-2 py-0.5 rounded-md"
+                            class="bg-slate-50 hover:bg-slate-300 px-1 py-0.5 rounded-md"
                             @click="selectedSeason = 'autumn'"
                         >
                             autumn
                         </button>
                         <button 
-                            class="bg-slate-50 hover:bg-slate-300 px-2 py-0.5 rounded-md"
+                            class="bg-slate-50 hover:bg-slate-300 px-1 py-0.5 rounded-md"
                             @click="selectedSeason = 'winter'"
                         >
                             winter

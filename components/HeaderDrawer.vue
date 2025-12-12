@@ -30,7 +30,7 @@ const logout = async () => {
     <!-- drawer本体 -->
     <div
         v-if="isOpen"
-        class="fixed right-0 top-16 w-80 max-w-[100vw] sm:w-100  h-full bg-gradient-to-br from-slate-900 from- via-slate-700 via- to-slate-400 to- shadow-xl z-50 p-6 transform transition-transform duration-300"
+        class="fixed right-0 top-16 max-w-[100vw] w-80 h-full bg-gradient-to-br from-slate-900 from- via-slate-700 via- to-slate-400 to- shadow-xl z-50 p-8 transform transition-transform duration-300"
         :class="isOpen ? 'translate-x-0' : 'translate-x-full'"
         @click.stop
     >
@@ -46,7 +46,7 @@ const logout = async () => {
         </div>
 
         <!-- メニュー -->
-        <nav class="space-y-4">
+        <nav class="space-y-4 ">
             <div class="flex items-center mt-6 text-slate-50">
                 <font-awesome-icon 
                     icon="fa-solid fa-map"
