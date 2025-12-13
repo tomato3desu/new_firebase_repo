@@ -28,6 +28,8 @@ const emit = defineEmits(['close', 'pin-deleted'])
 
 const pin = computed(() => pinStore.pinsById[props.pinId] ?? null)
 
+const activeTab = ref('review') // 表示するタブを切り替え
+
 const selectedReviewId = ref(null)
 const selectedSeason = ref(null) // null = 全件 / 'spring' / 'summer' / 'autumn' / 'winter'
 
@@ -191,7 +193,7 @@ watch(
                     @click="onReportClicked"
                 />
             </div>
-            <div class="pl-2 text-slate-50">
+            <div class="pl-2 pb-4 text-slate-50">
                 <div class="flex items-center justify-center">
                     <a
                         :href="`https://www.google.com/maps?q=${pin.latitude},${pin.longitude}`"
@@ -259,61 +261,90 @@ watch(
                 </div>
                 <p>{{ pin.description }}</p>
             </div>
-            <div class="flex items-center justify-center border-b">
+            <!-- Tabs -->
+            <div class="flex border-b border-slate-600 text-slate-50">
                 <button
-                    class="text-lg text-sky-400 hover:underline mb-2"
-                    @click="createReview"
+                    class="flex-1 py-2 text-center transition"
+                    :class="activeTab === 'review'
+                        ? 'border-b-2 border-sky-400 text-sky-400'
+                        : 'hover:bg-slate-700'"
+                    @click="activeTab = 'review'"
                 >
-                    レビュー作成
+                    レビュー
+                </button>
+
+                <button
+                    class="flex-1 py-2 text-center transition"
+                    :class="activeTab === 'planet'
+                        ? 'border-b-2 border-sky-400 text-sky-400'
+                        : 'hover:bg-slate-700'"
+                    @click="activeTab = 'planet'"
+                >
+                    天体情報
                 </button>
             </div>
-            <!-- review -->
-            <div>
-                <div class="p-2">
-                    <button 
-                        class="bg-slate-50 hover:bg-slate-300 px-2 py-0.5 my-2 rounded-md"
-                        @click="selectedSeason = 'all'"
+            <div v-show="activeTab === 'review'">
+                <!-- review -->
+                <div class="flex items-center justify-center">
+                    <button
+                        class="text-lg text-sky-400 hover:underline mt-4"
+                        @click="createReview"
                     >
-                        all
+                        レビュー作成
                     </button>
-                    <div class="text-slate-800 grid grid-cols-3 md:grid-cols-4 items-center gap-2">
+                </div>
+                <div>
+                    <div class="p-2">
                         <button
-                            class="bg-slate-50 hover:bg-slate-300 px-1 py-0.5 rounded-md"
-                            @click="selectedSeason = 'spring'"
+                            class="bg-slate-50 hover:bg-slate-300 px-2 py-0.5 my-2 rounded-md"
+                            @click="selectedSeason = 'all'"
                         >
-                            spring
+                            all
                         </button>
-                        <button 
-                            class="bg-slate-50 hover:bg-slate-300 px-1 py-0.5 rounded-md"
-                            @click="selectedSeason = 'summer'"
-                        >
-                            summer
-                        </button>
-                        <button 
-                            class="bg-slate-50 hover:bg-slate-300 px-1 py-0.5 rounded-md"
-                            @click="selectedSeason = 'autumn'"
-                        >
-                            autumn
-                        </button>
-                        <button 
-                            class="bg-slate-50 hover:bg-slate-300 px-1 py-0.5 rounded-md"
-                            @click="selectedSeason = 'winter'"
-                        >
-                            winter
-                        </button>
+                        <div class="text-slate-800 grid grid-cols-3 md:grid-cols-4 items-center gap-2">
+                            <button
+                                class="bg-slate-50 hover:bg-slate-300 px-1 py-0.5 rounded-md"
+                                @click="selectedSeason = 'spring'"
+                            >
+                                spring
+                            </button>
+                            <button
+                                class="bg-slate-50 hover:bg-slate-300 px-1 py-0.5 rounded-md"
+                                @click="selectedSeason = 'summer'"
+                            >
+                                summer
+                            </button>
+                            <button
+                                class="bg-slate-50 hover:bg-slate-300 px-1 py-0.5 rounded-md"
+                                @click="selectedSeason = 'autumn'"
+                            >
+                                autumn
+                            </button>
+                            <button
+                                class="bg-slate-50 hover:bg-slate-300 px-1 py-0.5 rounded-md"
+                                @click="selectedSeason = 'winter'"
+                            >
+                                winter
+                            </button>
+                        </div>
                     </div>
+                    <div
+                        v-if="!filteredReviewIds || filteredReviewIds.length === 0"
+                        class="text-slate-50 text-center py-4"
+                    >
+                        レビューがまだありません
+                    </div>
+                    <MapPinReviewCard
+                        v-for="reviewId in filteredReviewIds"
+                        :key="reviewId"
+                        :review-id="reviewId"
+                        @image-clicked="onImageClicked"
+                    />
                 </div>
-                <div
-                    v-if="!filteredReviewIds || filteredReviewIds.length === 0"
-                    class="text-slate-50 text-center py-4"
-                >
-                    レビューがまだありません
-                </div>
-                <MapPinReviewCard
-                    v-for="reviewId in filteredReviewIds"
-                    :key="reviewId"
-                    :review-id="reviewId"
-                    @image-clicked="onImageClicked"
+            </div>
+            <div v-show="activeTab === 'planet'">
+                <MapPlanetDrawerCard
+                    :pin-id="props.pinId"
                 />
             </div>
         </div>

@@ -48,12 +48,11 @@ onMounted(() => {
         class="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center"
     >
         <!-- 閉じるボタン -->
-        <button
-            class="absolute top-4 right-4 text-slate-50 text-2xl"
+        <font-awesome-icon 
+            icon="fa-solid fa-xmark" 
+            class="absolute top-4 right-4 text-slate-50 text-2xl h-6 w-6"
             @click="close"
-        >
-            ✕
-        </button>
+        />
 
         <!-- 画像 -->
         <NuxtImg
@@ -62,17 +61,15 @@ onMounted(() => {
             class="max-h-[80vh] max-w-[80vw] object-contain transition-all duration-300"
         />
         <!-- 矢印 -->
-        <div
-            class="absolute left-8 text-2xl text-slate-50 cursor-pointer select-none"
+        <font-awesome-icon 
+            icon="fa-solid fa-angle-left" 
+            class="absolute left-8 text-2xl text-slate-50 cursor-pointer select-none  h-6 w-6"
             @click="prevImage"
-        >
-            <
-        </div>
-        <div
-            class="absolute right-8 text-2xl text-slate-50 cursor-pointer select-none"
+        />
+        <font-awesome-icon 
+            icon="fa-solid fa-angle-right" 
+            class="absolute right-8 text-2xl text-slate-50 cursor-pointer select-none  h-6 w-6"
             @click="nextImage"
-        >
-            >
-        </div>
+        />
     </div>
 </template>

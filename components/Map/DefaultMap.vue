@@ -144,11 +144,11 @@ const renderMarker = async (pin) => {
 
     if (isBookmarked) {
         pinElement = new PinElement({
-            background: "#00ff7f",
+            background: "#fde047",
             borderColor: "#ffffff",
             scale: 1.5,
             glyphColor: "#ffffff",
-            glyphText: String(pin.id),
+            glyphText: String(pin.reviewCount),
         
         })
     }
@@ -159,7 +159,7 @@ const renderMarker = async (pin) => {
             borderColor: "#ffffff",
             scale: 1.5,
             glyphColor: "#ffffff",
-            glyphText: String(pin.id),
+            glyphText: String(pin.reviewCount),
         })
     }
     
@@ -233,16 +233,15 @@ watch(
         // 🔹 追加されたブックマーク → マーカー色変更
         for (const pinId of added) {
             const marker = markers.find(m => m.pinId === pinId)
-            console.log("ブックマークされたマーカー", marker)
-            console.log("markercontent", marker.content)
+            const pin = pinStore.pinsById[pinId]
             if (marker) {
                 const { PinElement } = await $googleMaps.loadMarkerLib()
                 const pinElement = new PinElement({
-                    background: "#00ff7f",
+                    background: "#fde047",
                     borderColor: "#ffffff",
                     scale: 1.5,
                     glyphColor: "#ffffff",
-                    glyphText: String(pinId),
+                    glyphText: String(pin.reviewCount),
                 })
 
                 marker.marker.content = pinElement.element
@@ -252,7 +251,7 @@ watch(
         // 🔹 削除されたブックマーク → 元の色に戻す
         for (const pinId of removed) {
             const marker = markers.find(m => m.pinId === pinId)
-            console.log("ブックマーク解除されたマーカー", marker)
+            const pin = pinStore.pinsById[pinId]
             if (marker) {
                 const { PinElement } = await $googleMaps.loadMarkerLib()
                 const pinElement = new PinElement({
@@ -260,7 +259,7 @@ watch(
                     borderColor: "#ffffff",
                     scale: 1.5,
                     glyphColor: "#ffffff",
-                    glyphText: String(pinId),
+                    glyphText: String(pin.reviewCount),
                 })
 
                 marker.marker.content = pinElement.element

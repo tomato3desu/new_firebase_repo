@@ -260,7 +260,7 @@ watch(comment, () => {
             <NuxtImg
                 :src="currentProfile.iconImagePath || '/images/default_user.jpeg'"
                 alt="プロフィール画像"
-                class="w-32 h-32 object-cover rounded-sm mb-4"
+                class="w-32 h-32 object-cover rounded-sm my-4"
             />
         </client-only>
         <input

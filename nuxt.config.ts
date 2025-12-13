@@ -20,7 +20,9 @@ export default defineNuxtConfig({
             firebaseStorageBucket: process.env.FIREBASE_STORAGE_BUCKET,
             googleMapApiKey: process.env.GOOGLE_MAP_API_KEY,
             googleMapId: process.env.GOOGLE_MAP_ID,
-            apiBase: process.env.API_BASE_URL
+            apiBase: process.env.API_BASE_URL,
+            livlogApiKey: process.env.LIVLOG_API_KEY,
+            livlogApiBase: process.env.LIVLOG_API_BASE_URL
         }
     }
 })
