@@ -8,18 +8,6 @@ const { star } = defineProps({
     }
 })
 
-// const jpName = star.jpName
-// const enName = star.enName
-// const direction = star.direction
-// const altitude = star.altitude
-// const season = star.season + 'の星座'
-// const content = star.content
-// const origin = star.origin !== 'なし' ? star.origin : ''
-// const ecliptical = star.eclipticalFlag === '1' ? '黄道12星座' : ''
-// const ptolemy = star.ptolemyFlag === '1' ? 'トレミーの48星座' : ''
-// const icon = star.starIcon
-// const image = star.starImage
-
 const close = () => {
     isOpen.value = false
 }
@@ -50,28 +38,28 @@ const close = () => {
                 alt="image"
                 class="my-1"
             />
-            <div class="flex items-center">
+            <div class="flex items-center my-0.5">
                 <font-awesome-icon 
                     icon="fa-solid fa-compass" 
                     class="h-4 w-4 mr-2"
                 />
                 <p>方位：{{ star?.direction }}</p>
             </div>
-            <div class="flex items-center">
+            <div class="flex items-center my-0.5">
                 <font-awesome-icon
                     icon="fa-solid fa-arrows-up-down"
                     class="h-4 w-4 mr-2"
                 />
                 <p>高度：{{ star?.altitude }}</p>
             </div>
-            <div class="flex items-center">
+            <div class="flex items-center  my-0.5">
                 <font-awesome-icon 
                     icon="fa-solid fa-arrows-spin" 
                     class="h-4 w-4 mr-2"
                 />
                 <p>季節：{{ star?.season }}</p>
             </div>
-            <div class="flex items-center gap-2 text-sms">
+            <div class="flex items-center gap-2 text-sm my-0.5">
                 <p
                     v-if="star?.eclipticalFlag === '1'"
                     class="bg-slate-50 text-slate-800 rounded-md px-2 py-1"

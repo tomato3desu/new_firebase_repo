@@ -282,6 +282,16 @@ watch(
                 >
                     天体情報
                 </button>
+
+                <button
+                    class="flex-1 py-2 text-center transition"
+                    :class="activeTab === 'weather'
+                        ? 'border-b-2 border-sky-400 text-sky-400'
+                        : 'hover:bg-slate-700'"
+                    @click="activeTab = 'weather'"
+                >
+                    天気予報
+                </button>
             </div>
             <div v-show="activeTab === 'review'">
                 <!-- review -->
@@ -342,8 +352,15 @@ watch(
                     />
                 </div>
             </div>
+            <!-- planet -->
             <div v-show="activeTab === 'planet'">
                 <MapPlanetDrawerCard
+                    :pin-id="props.pinId"
+                />
+            </div>
+            <!-- weather -->
+            <div v-show="activeTab === 'weather'">
+                <MapWeatherDrawer
                     :pin-id="props.pinId"
                 />
             </div>

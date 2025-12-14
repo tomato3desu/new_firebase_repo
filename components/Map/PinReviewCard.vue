@@ -23,6 +23,16 @@ const emit = defineEmits(['image-clicked'])
 
 const review = computed(() => reviewStore.reviewsById[props?.reviewId])
 const isGood = computed(() => goodStore.myGoodReviews.includes(props.reviewId) ? true : false)
+const season = computed(() => {
+  const r = review.value?.review?.season
+
+  if (!r) return ''
+
+  if (r === 'spring') return '春'
+  if (r === 'summer') return '夏'
+  if (r === 'autumn') return '秋'
+  return '冬'
+})
 
 const isOpenUpdateReviewDialog = ref(false)
 const isOpenReviewReportDialog = ref(false)
@@ -150,6 +160,14 @@ const onImageClick = (reviewImage) => {
                     class="h-4 w-4"
                 />
             </div>
+        </div>
+        <!-- 季節 -->
+        <div class="flex items-center">
+            <font-awesome-icon 
+                icon="fa-solid fa-arrows-spin" 
+                class="h-4 w-4 mr-2"
+            />
+            <p>季節：{{ season }}</p>
         </div>
         <!-- 訪問日時 -->
         <div class="flex items-center">

@@ -21,6 +21,7 @@ const time = ref(null)
 const hour = ref(null)
 const min = ref(null)
 
+const isLoading = ref(false)
 const stars = ref([])
 
 const isOpenPlanetInfoDialong = ref(false)
@@ -28,14 +29,10 @@ const selectedStar = ref(null)
 
 const fetchPlanets = async () => {
     stars.value = []
-    console.log(date.value)
-    console.log(hour.value)
-    console.log(min.value)
-    console.log(lat.value)
-    console.log(lng.value)
     if (!date.value || !hour.value || !min.value || !lat.value || !lng.value) return
 
     try {
+        isLoading.value = true
         const res = await $fetch(`${config.public.livlogApiBase}/constellation?lat=${lat.value}&lng=${lng.value}&date=${date.value}&hour=${hour.value}&min=${min.value}`, {
             method: 'GET',
             headers: {
@@ -44,7 +41,6 @@ const fetchPlanets = async () => {
         })
 
         stars.value = []
-        console.log(res)
         for (const star of res.results) {
             console.log(star)
             stars.value.push(star)
@@ -52,6 +48,8 @@ const fetchPlanets = async () => {
     }
     catch (error) {
         console.error('livlog api fetch error', error)
+    } finally {
+        isLoading.value = false
     }
 }
 
@@ -128,6 +126,9 @@ watch(
                     get
                 </button>
             </div>
+        </div>
+        <div v-if="isLoading">
+            <p class="text-slate-50 text-center my-2">now loading ...</p>
         </div>
         <div v-if="stars">
             <div 

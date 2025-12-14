@@ -22,7 +22,9 @@ export default defineNuxtConfig({
             googleMapId: process.env.GOOGLE_MAP_ID,
             apiBase: process.env.API_BASE_URL,
             livlogApiKey: process.env.LIVLOG_API_KEY,
-            livlogApiBase: process.env.LIVLOG_API_BASE_URL
+            livlogApiBase: process.env.LIVLOG_API_BASE_URL,
+            weatherApiKey: process.env.WEATHER_API_KEY,
+            weatherApiBase: process.env.WEATHER_API_BASE_URL
         }
     }
 })
