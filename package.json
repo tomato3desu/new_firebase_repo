@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "@types/google.maps": "^3.58.1",
-    "@types/node": "^24.6.2"
+    "@types/node": "^24.6.2",
+    "baseline-browser-mapping": "^2.9.7"
   }
 }

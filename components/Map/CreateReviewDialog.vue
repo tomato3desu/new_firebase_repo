@@ -152,7 +152,7 @@ watch(description, (value) => {
     <div>
         <div
             v-if="isOpen"
-            class="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
+            class="fixed inset-0 top-16 flex items-center justify-center bg-black/50 z-50"
         >
             <div class="text-slate-50 bg-gradient-to-br from-slate-900 from- via-slate-700 via- to-slate-400 to- rounded-lg shadow-lg w-full max-w-md p-6 max-h-[80vh] overflow-y-auto">
                 <h2 class="text-xl font-semibold mb-4">

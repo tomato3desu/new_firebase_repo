@@ -8,8 +8,6 @@ const { pinId } = defineProps({
     }
 })
 
-const config = useRuntimeConfig()
-
 const pinStore = usePinStore()
 
 const pin = computed(() => pinStore.pinsById[pinId])
@@ -24,7 +22,12 @@ const fetchWeather = async () => {
 
     try {
         isLoading.value = true
-        const res = await $fetch(`${config.public.weatherApiBase}/forecast.json?key=${config.public.weatherApiKey}&q=${lat.value},${lng.value}&days=${7}&aqi=no&alerts=no`)
+        const res = await $fetch(`/api/weather`, {
+            query: {
+                lat: lat.value,
+                lng: lng.value
+            }
+        })
 
         weatherData.value = res
     }
@@ -44,6 +47,17 @@ const formatDate = (dateStr) => {
 const formatTime = (timeStr) => {
     const date = new Date(timeStr)
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+const formatMoonPhase = (mfStr) => {
+    if (mfStr === 'New Moon') return '新月'
+    if (mfStr === 'Waxing Crescent') return '三日月'
+    if (mfStr === 'First Quarter') return '上限の月'
+    if (mfStr === 'Waxing Gibbous') return '十三夜の月'
+    if (mfStr === 'Full Moon') return '満月'
+    if (mfStr === 'Waning Gibbous') return '更待月'
+    if (mfStr === 'Third Quarter') return '下弦の月'
+    return '有明月'
 }
 
 onMounted(async () => {
@@ -66,13 +80,19 @@ watch(
         class="text-slate-50 p-2"
     >
         <!-- loading -->
-        <div v-if="isLoading" class="text-center">
+        <div
+            v-if="isLoading"
+            class="text-center"
+        >
             <p class="text-slate-50 text-sm text-center my-2 animate-pulse">
                 now loading ...
             </p>
         </div>
         <!-- weather -->
-        <div v-if="weatherData" class="space-y-6">
+        <div
+            v-if="weatherData"
+            class="space-y-6"
+        >
             <div
                 v-for="day in weatherData.forecast.forecastday"
                 :key="day.date"
@@ -84,8 +104,8 @@ watch(
                 <div class="text-sm text-slate-300 space-y-1">
                     <p>日の出：{{ day.astro.sunrise }}</p>
                     <p>日の入り：{{ day.astro.sunset }}</p>
-                    <p>月相：{{ day.astro.moon_phase }}</p>
-                    <p>輝面率：{{ day.astro.moon_illumination }}</p>
+                    <p>月相：{{ formatMoonPhase(day.astro.moon_phase) }}</p>
+                    <p>輝面率：{{ day.astro.moon_illumination }}%</p>
                 </div>
                 <!-- hour -->
                 <div class="divide-y divide-slate-700">

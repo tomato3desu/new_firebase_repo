@@ -86,6 +86,16 @@ const onImageClick = (reviewImage) => {
         allImages: review.value.review.reviewImages
     })
 }
+
+const formatDate = (dateString) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('ja-JP')
+}
+
+const formatTime = (timeString) => {
+    const [hour, min] = timeString.split(':')
+    return `${hour}:${min}`
+}
 </script>
 
 <template>
@@ -104,7 +114,7 @@ const onImageClick = (reviewImage) => {
                 class="w-8 h-8 object-cover rounded-sm mr-4"
                 @click="openUserProfile"
             />
-            <p class="font-medium truncate">
+            <p class="font-medium text-sm truncate">
                 {{ userStore.usersById[review.review.createdUserId].nickname }}
             </p>
             <font-awesome-icon 
@@ -114,14 +124,12 @@ const onImageClick = (reviewImage) => {
                 @click="updateReview"
             />
         </div>
-        <!-- 確認用ID -->
-        <p>{{ review.review.id }}</p>
         <!-- タイトル -->
         <p class="text-base font-medium break-words whitespace-pre-wrap">
             {{ review.review.title }}
         </p>
         <!-- 評価 -->
-        <div class="">
+        <div>
             <div class="flex items-center">
                 <font-awesome-icon 
                     icon="fa-solid fa-moon" 
@@ -175,7 +183,7 @@ const onImageClick = (reviewImage) => {
                 icon="fa-solid fa-clock" 
                 class="h-4 w-4 mr-2"
             />
-            <p>訪問日時：{{ review.review.visitedDate }}日{{ review.review.visitedTime }}頃</p>
+            <p>訪問日時：{{ formatDate(review.review.visitedDate) }} {{ formatTime(review.review.visitedTime) }}</p>
         </div>
         <!-- 本文 -->
         <div class="text-sm whitespace-pre-wrap break-words leading-relaxed">

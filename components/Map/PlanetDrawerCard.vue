@@ -10,8 +10,6 @@ const { pinId } = defineProps({
 
 const pinStore = usePinStore()
 
-const config = useRuntimeConfig()
-
 const pin = computed(() => pinStore.pinsById[pinId])
 const lat = computed(() => pin.value.latitude)
 const lng = computed(() => pin.value.longitude)
@@ -33,16 +31,18 @@ const fetchPlanets = async () => {
 
     try {
         isLoading.value = true
-        const res = await $fetch(`${config.public.livlogApiBase}/constellation?lat=${lat.value}&lng=${lng.value}&date=${date.value}&hour=${hour.value}&min=${min.value}`, {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${config.public.livlogApiKey}`,
+        const res = await $fetch(`/api/planet`, {
+            query: {
+                lat: lat.value,
+                lng: lng.value,
+                date: date.value,
+                hour: hour.value,
+                min: min.value
             }
         })
 
         stars.value = []
         for (const star of res.results) {
-            console.log(star)
             stars.value.push(star)
         }
     }

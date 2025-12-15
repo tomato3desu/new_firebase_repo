@@ -253,9 +253,9 @@ watch(
                 <div class="flex items-center">
                     <font-awesome-icon 
                         icon="fa-solid fa-location-dot"
-                        class="h-4 w-4 mr-2" 
+                        class="h-4 w-4 mr-2 flex-shrink-0" 
                     />
-                    <p class="text-sm break-words">
+                    <p class="text-sm break-words min-w-0">
                         {{ pin.address }}
                     </p>
                 </div>
@@ -266,7 +266,9 @@ watch(
                     />
                     <p>詳細</p>
                 </div>
-                <p class="break-words">{{ pin.description }}</p>
+                <p class="text-sm break-words px-1">
+                    {{ pin.description }}
+                </p>
             </div>
             <!-- Tabs -->
             <div class="flex border-b border-slate-600 text-slate-50">
