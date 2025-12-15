@@ -24,14 +24,14 @@ const emit = defineEmits(['image-clicked'])
 const review = computed(() => reviewStore.reviewsById[props?.reviewId])
 const isGood = computed(() => goodStore.myGoodReviews.includes(props.reviewId) ? true : false)
 const season = computed(() => {
-  const r = review.value?.review?.season
+    const r = review.value?.review?.season
 
-  if (!r) return ''
+    if (!r) return ''
 
-  if (r === 'spring') return '春'
-  if (r === 'summer') return '夏'
-  if (r === 'autumn') return '秋'
-  return '冬'
+    if (r === 'spring') return '春'
+    if (r === 'summer') return '夏'
+    if (r === 'autumn') return '秋'
+    return '冬'
 })
 
 const isOpenUpdateReviewDialog = ref(false)

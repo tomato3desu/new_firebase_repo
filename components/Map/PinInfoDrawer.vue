@@ -178,7 +178,7 @@ watch(
                     class="w-8 h-8 object-cover rounded-sm mr-4"
                     @click="openUserProfile"
                 />
-                <p class=" mr-4 font-medium">
+                <p class="text-sm mr-4 font-medium">
                     {{ userStore.usersById[pin.createdUserId].nickname }}
                 </p>
                 <font-awesome-icon 
@@ -216,7 +216,7 @@ watch(
                         icon="fa-solid fa-star"
                         class="text-yellow-300 h-4 w-4 mr-2"
                     />
-                    <p>{{ pin.avgDarkness?.toFixed(1) }}</p>
+                    <p>{{ pin.avgDarkness?.toFixed(1) || 0 }}</p>
                 </div>
                 <div class="flex items-center">
                     <font-awesome-icon 
@@ -230,7 +230,7 @@ watch(
                         icon="fa-solid fa-star"
                         class="text-yellow-300 h-4 w-4 mr-2"
                     />
-                    <p>{{ pin.avgAccess?.toFixed(1) }}</p>
+                    <p>{{ pin.avgAccess?.toFixed(1) || 0 }}</p>
                 </div>
                 <div class="flex items-center">
                     <font-awesome-icon 
@@ -259,7 +259,14 @@ watch(
                         {{ pin.address }}
                     </p>
                 </div>
-                <p>{{ pin.description }}</p>
+                <div class="flex items-center">
+                    <font-awesome-icon
+                        icon="fa-solid fa-file-lines"
+                        class="h-4 w-4 mr-2"
+                    />
+                    <p>詳細</p>
+                </div>
+                <p class="break-words">{{ pin.description }}</p>
             </div>
             <!-- Tabs -->
             <div class="flex border-b border-slate-600 text-slate-50">

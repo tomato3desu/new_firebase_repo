@@ -20,31 +20,31 @@ const weatherData = ref(null)
 const isLoading = ref(false)
 
 const fetchWeather = async () => {
-    if(!lat.value || !lng.value) return
+    if (!lat.value || !lng.value) return
 
     try {
         isLoading.value = true
         const res = await $fetch(`${config.public.weatherApiBase}/forecast.json?key=${config.public.weatherApiKey}&q=${lat.value},${lng.value}&days=${7}&aqi=no&alerts=no`)
 
-        console.log(res)
-
         weatherData.value = res
-    } catch (error) {
+    }
+    catch (error) {
         console.error('weather api fetch error', error)
-    } finally {
+    }
+    finally {
         isLoading.value = false
     }
 }
 
 const formatDate = (dateStr) => {
-  const [, month, day] = dateStr.split('-')
-  return `${month}/${day}`
+    const date = new Date(dateStr)
+    return date.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })
 }
 
 const formatTime = (timeStr) => {
-  return timeStr.split(' ')[1]
+    const date = new Date(timeStr)
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
-
 
 onMounted(async () => {
     await fetchWeather()
@@ -66,22 +66,46 @@ watch(
         class="text-slate-50 p-2"
     >
         <!-- loading -->
-        <div v-if="isLoading">
-            <p class="text-slate-50 text-center my-2">now loading ...</p>
+        <div v-if="isLoading" class="text-center">
+            <p class="text-slate-50 text-sm text-center my-2 animate-pulse">
+                now loading ...
+            </p>
         </div>
         <!-- weather -->
-        <div v-if="weatherData">
-            <div v-for="day in weatherData.forecast.forecastday" :key="day.date">
-                <p class="text-2xl text-center">{{ formatDate(day.date) }}</p>
-                <p>日の出:{{ day.astro.sunrise }}</p>
-                <p>日の入り:{{ day.astro.sunset }}</p>
-                <p>月相：{{ day.astro.moon_phase }}</p>
-                <p>輝面率:{{ day.astro.moon_illumination }}</p>
+        <div v-if="weatherData" class="space-y-6">
+            <div
+                v-for="day in weatherData.forecast.forecastday"
+                :key="day.date"
+                class="bg-slate-800/60 rounded-xl shadow-md p-4 space-y-3"
+            >
+                <p class="text-lg font-semibold text-center border-b border-slate-600 pb-2">
+                    {{ formatDate(day.date) }}
+                </p>
+                <div class="text-sm text-slate-300 space-y-1">
+                    <p>日の出：{{ day.astro.sunrise }}</p>
+                    <p>日の入り：{{ day.astro.sunset }}</p>
+                    <p>月相：{{ day.astro.moon_phase }}</p>
+                    <p>輝面率：{{ day.astro.moon_illumination }}</p>
+                </div>
                 <!-- hour -->
-                <div v-for="hour in day.hour" :key="hour.time_epoch">
-                    <p>{{ formatTime(hour.time) }}</p>
-                    <NuxtImg :src="`https:${hour.condition.icon}`" alt="icon" class="h-8 w-8"/>
-                    <p>{{ hour.temp_c }}℃</p>
+                <div class="divide-y divide-slate-700">
+                    <div
+                        v-for="hour in day.hour"
+                        :key="hour.time_epoch"
+                        class="flex items-center justify-between py-2"
+                    >
+                        <p class="w-16 text-sm text-slate-200">
+                            {{ formatTime(hour.time) }}
+                        </p>
+                        <NuxtImg
+                            :src="`https:${hour.condition.icon}`"
+                            alt="icon"
+                            class="h-8 w-8"
+                        />
+                        <p class="text-sm font-medium">
+                            {{ hour.temp_c }}℃
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

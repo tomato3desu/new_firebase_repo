@@ -48,7 +48,8 @@ const fetchPlanets = async () => {
     }
     catch (error) {
         console.error('livlog api fetch error', error)
-    } finally {
+    }
+    finally {
         isLoading.value = false
     }
 }
@@ -128,7 +129,9 @@ watch(
             </div>
         </div>
         <div v-if="isLoading">
-            <p class="text-slate-50 text-center my-2">now loading ...</p>
+            <p class="text-slate-50 text-center my-2 animate-pulse">
+                now loading ...
+            </p>
         </div>
         <div v-if="stars">
             <div 

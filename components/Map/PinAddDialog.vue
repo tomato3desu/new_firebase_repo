@@ -155,7 +155,7 @@ watch(isOpen, async (value) => {
                 <input
                     v-model="title"
                     type="text"
-                    class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                    class="text-slate-800 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                     placeholder="タイトルを入力"
                     required
                 >
@@ -169,7 +169,7 @@ watch(isOpen, async (value) => {
                 <textarea
                     v-model="description"
                     type="text"
-                    class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                    class="text-slate-800 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                     placeholder="説明を入力"
                     required
                 />
