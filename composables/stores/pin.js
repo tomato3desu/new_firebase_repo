@@ -29,15 +29,17 @@ export const usePinStore = defineStore('pinStore', () => {
             const res = await $fetch(`${config.public.apiBase}/api/pin/getAllPins`, {
                 method: 'GET'
             })
-            
+
             pinsById.value = {}
             fetchedAt.value = {}
-            displayPinsId.value = res.map(pin => pin.id)
-
+            // displayPinsId.value = [] // 削除: displayPinsIdの初期化を行わない
             for (const pin of res) {
                 pinsById.value[pin.id] = pin
                 fetchedAt.value[pin.id] = Date.now()
+                // displayPinsId.value.push(pin.id) // 削除
             }
+
+            console.log("getAllPins success")
         }
         catch (error) {
             const msg = error || '不明なエラー'
@@ -205,7 +207,7 @@ export const usePinStore = defineStore('pinStore', () => {
     }
 
     const clearDisplayPinsId = () => {
-        displayPinsId.value = Object.keys(pinsById.value).map(id => Number(id))
+        displayPinsId.value = [...Object.keys(pinsById.value).map(id => Number(id))]
     }
 
     const fetchRankingAll = async () => {
@@ -268,19 +270,19 @@ export const usePinStore = defineStore('pinStore', () => {
         }
     }
 
-    return { 
+    return {
         pinsById,
-        displayPinsId, 
+        displayPinsId,
         bookmarkRanking,
         darknessRanking,
         accessRanking,
-        getAllPins, 
-        fetchPinById, 
-        refreshPin, 
-        addPin, 
-        deletePin, 
-        updatePin, 
-        searchPins, 
+        getAllPins,
+        fetchPinById,
+        refreshPin,
+        addPin,
+        deletePin,
+        updatePin,
+        searchPins,
         clearDisplayPinsId,
         fetchRankingAll,
         fetchRankingByPrefId

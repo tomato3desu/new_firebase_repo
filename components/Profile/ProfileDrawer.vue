@@ -3,15 +3,16 @@ import { useRoute } from 'vue-router'
 import { useAuthStore } from '~/composables/stores/auth'
 import { useUserStore } from '~/composables/stores/user'
 import { useBookmarkStore } from '~/composables/stores/bookmark'
+import { usePinStore } from '~/composables/stores/pin'
 
 const route = useRoute()
 const authStore = useAuthStore()
 const userStore = useUserStore()
 const bookmarkStore = useBookmarkStore()
+const pinStore = usePinStore()
 
 const user = computed(() => userStore.usersById[targetUserId.value])
-const bookmarks = computed(() => bookmarkStore.bookmarkedPinsByUserId[targetUserId.value] || [])
-
+const bookmarks = computed(() => bookmarkStore.bookmarkedPinsByUserId[targetUserId.value])
 const isOpen = ref(true)
 
 const mode = computed(() => {
@@ -25,6 +26,12 @@ const targetUserId = computed(() => {
         ? authStore.loginUser?.id
         : route.params.id
 })
+
+watch(() => bookmarks.value,
+    (newBookmarks) => {
+        pinStore.displayPinsId = [...newBookmarks] // displayPinsIdを変更してユーザーのお気に入りピンを表示
+    }
+)
 </script>
 
 <template>

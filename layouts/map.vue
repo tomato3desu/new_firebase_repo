@@ -23,12 +23,6 @@ const onPinClicked = async (pinId) => {
     router.push({ query: { pinId } })
 }
 
-// const onMoveClicked = (latLng) => {
-//     if (mapRef.value && latLng) {
-//         mapRef.value.onResultClicked(latLng)
-//     }
-// }
-
 const moveToQueryPin = () => {
     if (!selectedPinId.value) return
     const pin = pinStore.pinsById[selectedPinId.value]

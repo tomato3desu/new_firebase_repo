@@ -35,7 +35,7 @@ const mapElement = ref(null)
 let map
 let mapClickListener = null
 let markers = []
-const isInitialized = ref(false)
+// const isInitialized = ref(false)
 let ColorScheme
 
 onMounted(async () => {
@@ -71,12 +71,30 @@ onMounted(async () => {
     // ピン描画
     markers = []
     await pinStore.getAllPins()
-    for (const pinId in pinStore.pinsById) {
-        renderMarker(pinStore.pinsById[pinId])
-    }
 
-    // 初期化完了 → 次から watch が動く
-    isInitialized.value = true
+    if (pinStore.displayPinsId.length === 0) {
+        // displayPinsIdが空の場合は全ピンを表示
+        pinStore.displayPinsId = [...Object.keys(pinStore.pinsById).map(id => Number(id))]
+    } else {
+        // displayPinsIdが既に設定されている場合(Profileページなどで先行して設定された場合)
+        // ピンデータ取得後にマーカーを描画する
+        for (const pinId of pinStore.displayPinsId) {
+            const exists = markers.some(m => m.pinId === pinId)
+            if (exists) continue
+
+            const pin = pinStore.pinsById[pinId]
+            if (pin) {
+                await renderMarker(pin)
+            }
+        }
+    }
+    
+    // for (const pinId in pinStore.pinsById) {
+    //     renderMarker(pinStore.pinsById[pinId])
+    // }
+
+    // // 初期化完了 → 次から watch が動く
+    // isInitialized.value = true
     // 初期化完了をlayouts/mapに送信
     emit('map-ready')
 })
@@ -183,18 +201,27 @@ const renderMarker = async (pin) => {
     })
 }
 
-// pinStore.pinsByIdを監視し、変更があれば再描画
+// pinStore.displayPinsByIdを監視し、変更があれば再描画
 watch(
     () => pinStore.displayPinsId,
     async (newList, oldList) => {
         // 初回は無視（onMountedで描画するため）
-        if (!isInitialized.value) return
+        // if (!isInitialized.value) return
+        if(!map) return
 
         const newIds = newList || []
         const oldIds = oldList || []
 
+        const isSame =
+            newIds.length === oldIds.length &&
+            newIds.every(id => oldIds.includes(id))
+
+        if (isSame) return
+
         const addedIds = newIds.filter(id => !oldIds.includes(id))
         const deletedIds = oldIds.filter(id => !newIds.includes(id))
+
+        if (!addedIds.length && !deletedIds.length) return
 
         // 追加されたピン → マーカーを描画
         for (const addedId of addedIds) {
@@ -215,8 +242,6 @@ watch(
                 markers.splice(markerIndex, 1)
             }
         }
-    }, {
-        deep: true
     }
 )
 

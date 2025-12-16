@@ -26,7 +26,7 @@ const pinStore = usePinStore()
 
 const user = computed(() => userStore.usersById[route.params.id])
 await bookmarkStore.fetchBookmarksByUserId(user.value.id) // userのbookmarkをfetch
-pinStore.displayPinsId = bookmarkStore.bookmarkedPinsByUserId[user.value.id] // displayPinsIdを変更してユーザーのお気に入りピンを表示
+pinStore.displayPinsId = [...bookmarkStore.bookmarkedPinsByUserId[user.value.id]] // displayPinsIdを変更してユーザーのお気に入りピンを表示
 </script>
 
 <template>

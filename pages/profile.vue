@@ -17,7 +17,7 @@ const userStore = useUserStore()
 const user = computed(() => authStore.loginUser)
 await userStore.fetchUserIfNeeded(user.value.id)
 await bookmarkStore.fetchBookmarksByUserId(user.value.id) // userのbookmarkをfetch
-pinStore.displayPinsId = bookmarkStore.bookmarkedPinsByUserId[user.value.id] // displayPinsIdを変更してユーザーのお気に入りピンを表示
+pinStore.displayPinsId = [...bookmarkStore.bookmarkedPinsByUserId[user.value.id]] // displayPinsIdを変更してユーザーのお気に入りピンを表示
 </script>
 
 <template>
