@@ -2,8 +2,6 @@
 import { usePrefStore } from '~/composables/stores/prefecture'
 import { usePinStore } from '~/composables/stores/pin'
 
-const emits = defineEmits(['result-clicked'])
-
 const prefStore = usePrefStore()
 const pinStore = usePinStore()
 
@@ -34,16 +32,16 @@ const clearResult = () => {
     searchResultPinIds.value = []
 }
 
-/**
- * 検索結果のクリックされた座標をdefaultmapにemit
- * @param param0 
- */
-const onResultClicked = ({ latitude, longitude }) => {
-    emits('result-clicked', {
-        latitude: latitude,
-        longitude: longitude
-    })
-}
+// /**
+//  * 検索結果のクリックされた座標をdefaultmapにemit
+//  * @param param0 
+//  */
+// const onResultClicked = ({ latitude, longitude }) => {
+//     emits('result-clicked', {
+//         latitude: latitude,
+//         longitude: longitude
+//     })
+// }
 
 const close = () => {
     isOpen.value = false
@@ -222,7 +220,6 @@ onMounted(async () => {
                 >
                     <MapSearchResultCard
                         :pin-id="pinId"
-                        @result-clicked="onResultClicked"
                     />
                 </div>
             </div>

@@ -1,5 +1,6 @@
 <script setup>
 import { usePinStore } from '~/composables/stores/pin'
+import { useMapStore } from '~/composables/stores/map'
 
 const props = defineProps({
     pinId: {
@@ -8,9 +9,8 @@ const props = defineProps({
     }
 })
 
-const emits = defineEmits(['result-clicked'])
-
 const pinStore = usePinStore()
+const mapStore = useMapStore()
 
 const pin = computed(() => pinStore.pinsById[props.pinId])
 const title = computed(() => pin.value?.title)
@@ -22,10 +22,7 @@ const thumbnailImagePath = computed(() => pin.value?.thumbnailImagePath)
  * 検索結果のクリックされた座標をsearchResultDrawerにemit
  */
 const onclickSearchResult = () => {
-    emits('result-clicked', {
-        latitude: latitude.value,
-        longitude: longitude.value
-    })
+    mapStore.move(latitude.value, longitude.value)
 }
 </script>
 

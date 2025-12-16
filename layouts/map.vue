@@ -3,12 +3,14 @@ import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '~/composables/stores/user'
 import { usePinStore } from '~/composables/stores/pin'
 import { useReviewStore } from '~/composables/stores/review'
+import { useMapStore } from '~/composables/stores/map'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const pinStore = usePinStore()
 const reviewStore = useReviewStore()
+const mapStore = useMapStore()
 
 const isOpenDrawer = computed(() => Boolean(route.query.pinId))
 const selectedPinId = computed(() => Number(route.query.pinId))
@@ -21,21 +23,18 @@ const onPinClicked = async (pinId) => {
     router.push({ query: { pinId } })
 }
 
-const onMoveClicked = (latLng) => {
-    if (mapRef.value && latLng) {
-        mapRef.value.onResultClicked(latLng)
-    }
-}
+// const onMoveClicked = (latLng) => {
+//     if (mapRef.value && latLng) {
+//         mapRef.value.onResultClicked(latLng)
+//     }
+// }
 
 const moveToQueryPin = () => {
     if (!selectedPinId.value) return
     const pin = pinStore.pinsById[selectedPinId.value]
     if (!pin) return
 
-    mapRef.value.onResultClicked({
-        latitude: pin.latitude,
-        longitude: pin.longitude,
-    })
+    mapStore.move(pin.latitude, pin.longitude)
 }
 
 const closeDrawer = () => router.push({ query: {} })
@@ -74,11 +73,7 @@ watch(
                 :pin-id="selectedPinId"
                 @close="closeDrawer"
             />
-
-            <ProfileDrawer 
-                @move-clicked="onMoveClicked"
-            />
-            <slot />
+            <NuxtPage />
         </div>
     </div>
 </template>

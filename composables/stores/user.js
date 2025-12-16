@@ -32,6 +32,7 @@ export const useUserStore = defineStore('userStore', () => {
         }
         catch (e) {
             console.error('ユーザー取得エラー:', e)
+            throw e
         }
     }
 

@@ -3,18 +3,14 @@ import { useRoute } from 'vue-router'
 import { useAuthStore } from '~/composables/stores/auth'
 import { useUserStore } from '~/composables/stores/user'
 import { useBookmarkStore } from '~/composables/stores/bookmark'
-import { usePinStore } from '~/composables/stores/pin'
-
-const emits = defineEmits(['move-clicked'])
 
 const route = useRoute()
 const authStore = useAuthStore()
 const userStore = useUserStore()
 const bookmarkStore = useBookmarkStore()
-const pinStore = usePinStore()
 
 const user = computed(() => userStore.usersById[targetUserId.value])
-const bookmarks = computed(() => bookmarkStore.bookmarkedPinsByUserId[user.value?.id])
+const bookmarks = computed(() => bookmarkStore.bookmarkedPinsByUserId[targetUserId.value] || [])
 
 const isOpen = ref(true)
 
@@ -29,26 +25,6 @@ const targetUserId = computed(() => {
         ? authStore.loginUser?.id
         : route.params.id
 })
-
-const onMoveClicked = ({ latitude, longitude }) => {
-    emits('move-clicked', {
-        latitude: latitude,
-        longitude: longitude
-    })
-}
-
-watch(
-    () => targetUserId.value,
-    async (id) => {
-        if (id) {
-            await userStore.fetchUserIfNeeded(id) // userをfetch
-            await bookmarkStore.fetchBookmarksByUserId(id) // userのbookmarkをfetch
-            pinStore.displayPinsId = bookmarkStore.bookmarkedPinsByUserId[id] // displayPinsIdを変更してユーザーのお気に入りピンを表示
-            isOpen.value = true
-        }
-    },
-    { immediate: true }
-)
 </script>
 
 <template>
@@ -78,7 +54,6 @@ watch(
                 >
                     <MapSearchResultCard
                         :pin-id="pinId"
-                        @result-clicked="onMoveClicked"
                     />
                 </div>
             </div>

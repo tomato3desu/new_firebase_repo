@@ -3,6 +3,7 @@ import { usePinStore } from "~/composables/stores/pin"
 import { useAuthStore } from "~/composables/stores/auth"
 import { usePrefStore } from "~/composables/stores/prefecture"
 import { useBookmarkStore } from "~/composables/stores/bookmark"
+import { useMapStore } from "~/composables/stores/map"
 
 const { $googleMaps } = useNuxtApp()
 
@@ -11,6 +12,7 @@ const authStore = useAuthStore()
 const pinStore = usePinStore()
 const prefStore = usePrefStore()
 const bookmarkStore = useBookmarkStore()
+const mapStore = useMapStore()
 
 const config = useRuntimeConfig()
 
@@ -119,17 +121,17 @@ const onClickSearch = async () => {
     isOpenSearchDrawer.value = true
 }
 
-/**
- * 検索結果のmoveボタンがクリックされたときにそのピンの座標へマップを移動する
- * @param param0 
- */
-const onResultClicked = ({ latitude, longitude }) => {
-    map.panTo(new google.maps.LatLng(latitude, longitude))
-}
+// /**
+//  * 検索結果のmoveボタンがクリックされたときにそのピンの座標へマップを移動する
+//  * @param param0 
+//  */
+// const onResultClicked = ({ latitude, longitude }) => {
+//     map.panTo(new google.maps.LatLng(latitude, longitude))
+// }
 
-defineExpose({
-    onResultClicked
-})
+// defineExpose({
+//     onResultClicked
+// })
 
 /**
  * マーカーを描画する関数
@@ -269,6 +271,15 @@ watch(
     { deep: true }
 )
 
+// mapStoreを監視し、moveToに変更があればその座標へ移動
+watch(
+    () => mapStore.moveTo,
+    (pos) => {
+        if (!pos) return
+        map.panTo(pos)
+    }
+)
+
 // ログイン/非ログインで切り替え
 watch(
     () => authStore.isLoggedIn,
@@ -312,6 +323,5 @@ watch(
     />
     <MapSearchDrawer
         v-model="isOpenSearchDrawer"
-        @result-clicked="onResultClicked"
     />
 </template>
