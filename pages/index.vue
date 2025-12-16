@@ -7,7 +7,6 @@ definePageMeta({
 
 const pinStore = usePinStore()
 
-console.log("Clearing displayPinsId")
 pinStore.clearDisplayPinsId()
 </script>
 

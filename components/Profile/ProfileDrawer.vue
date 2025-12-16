@@ -29,6 +29,7 @@ const targetUserId = computed(() => {
 
 watch(() => bookmarks.value,
     (newBookmarks) => {
+        if (!newBookmarks) return
         pinStore.displayPinsId = [...newBookmarks] // displayPinsIdを変更してユーザーのお気に入りピンを表示
     }
 )
