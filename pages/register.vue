@@ -1,10 +1,6 @@
 <script setup>
 import { useAuthStore } from '~/composables/stores/auth'
 
-definePageMeta({
-    layout: 'map'
-})
-
 const authStore = useAuthStore()
 const email = ref('')
 const password = ref('')
