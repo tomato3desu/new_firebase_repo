@@ -4,7 +4,7 @@ import { useBookmarkStore } from '~/composables/stores/bookmark'
 import { usePinStore } from '~/composables/stores/pin'
 
 definePageMeta({
-    layout: 'map',
+
     middleware: async (to) => {
         const userStore = useUserStore()
 

@@ -5,7 +5,6 @@ import { usePinStore } from '~/composables/stores/pin'
 import { useUserStore } from '~/composables/stores/user'
 
 definePageMeta({
-    layout: 'map',
     middleware: 'auth'
 })
 
