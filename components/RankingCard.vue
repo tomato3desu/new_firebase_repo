@@ -51,7 +51,7 @@ const onCardClicked = () => {
         <NuxtImg
             :src="pin.thumbnailImagePath"
             alt="thumbnail"
-            class="w-20 h-20 object-cover rounded-lg shadow-sm border border-gray-200"
+            class="w-20 h-20 object-cover rounded-lg shadow-sm border border-gray-200 shrink-0"
         />
 
         <!-- Info -->

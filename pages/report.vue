@@ -202,6 +202,9 @@ onMounted(async () => {
                             <th class="py-3 px-4 text-left">
                                 userId
                             </th>
+                            <th class="py-3 px-4 text-left" >
+                                show
+                            </th>
                             <th class="py-3 px-4 text-left">
                                 status
                             </th>
@@ -214,7 +217,6 @@ onMounted(async () => {
                             <th class="py-3 px-4 text-left break-words">
                                 comment
                             </th>
-                            <th class="py-3 px-4 text-left" />
                         </tr>
                     </thead>
                     <tbody>
@@ -230,6 +232,11 @@ onMounted(async () => {
                             </td>
                             <td class="py-2 px-4">
                                 {{ reportStore.userReportsById[reportId].userId }}
+                            </td>
+                            <td class="py-2 px-4 text-sky-500">
+                                <button @click="showUser(reportId)">
+                                    showUser
+                                </button>
                             </td>
                             <td class="py-2 px-4">
                                 <button
@@ -247,11 +254,6 @@ onMounted(async () => {
                             </td>
                             <td class="py-2 px-4">
                                 {{ reportStore.userReportsById[reportId].comment }}
-                            </td>
-                            <td class="py-2 px-4 text-sky-500">
-                                <button @click="showUser(reportId)">
-                                    showUser
-                                </button>
                             </td>
                         </tr>
                     </tbody>
@@ -300,6 +302,9 @@ onMounted(async () => {
                             <th class="py-3 px-4 text-left">
                                 pinId
                             </th>
+                            <th class="py-3 px-4 text-left" >
+                                show
+                            </th>
                             <th class="py-3 px-4 text-left">
                                 status
                             </th>
@@ -312,7 +317,6 @@ onMounted(async () => {
                             <th class="py-3 px-4 text-left break-words">
                                 comment
                             </th>
-                            <th class="py-3 px-4 text-left" />
                         </tr>
                     </thead>
                     <tbody>
@@ -328,6 +332,11 @@ onMounted(async () => {
                             </td>
                             <td class="py-2 px-4">
                                 {{ reportStore.pinReportsById[reportId].pinId }}
+                            </td>
+                            <td class="py-2 px-4 text-sky-500">
+                                <button @click="showPin(reportStore.pinReportsById[reportId].pinId)">
+                                    showPin
+                                </button>
                             </td>
                             <td class="py-2 px-4">
                                 <button
@@ -345,11 +354,6 @@ onMounted(async () => {
                             </td>
                             <td class="py-2 px-4">
                                 {{ reportStore.pinReportsById[reportId].comment }}
-                            </td>
-                            <td class="py-2 px-4 text-sky-500">
-                                <button @click="showPin(reportStore.pinReportsById[reportId].pinId)">
-                                    showPin
-                                </button>
                             </td>
                         </tr>
                     </tbody>
@@ -374,6 +378,9 @@ onMounted(async () => {
                             <th class="py-3 px-4 text-left">
                                 reviewId
                             </th>
+                            <th class="py-3 px-4 text-left" >
+                                show
+                            </th>
                             <th class="py-3 px-4 text-left">
                                 status
                             </th>
@@ -386,7 +393,6 @@ onMounted(async () => {
                             <th class="py-3 px-4 text-left break-words">
                                 comment
                             </th>
-                            <th class="py-3 px-4 text-left" />
                         </tr>
                     </thead>
                     <tbody>
@@ -402,6 +408,11 @@ onMounted(async () => {
                             </td>
                             <td class="py-2 px-4">
                                 {{ reportStore.reviewReportsById[reportId].reviewId }}
+                            </td>
+                            <td class="py-2 px-4 text-sky-500">
+                                <button @click="showReview(reviewStore.reviewsById[reportStore.reviewReportsById[reportId].reviewId].review.reviewedPinId, reportStore.reviewReportsById[reportId].reviewId)">
+                                    showReview
+                                </button>
                             </td>
                             <td class="py-2 px-4">
                                 <button
@@ -419,11 +430,6 @@ onMounted(async () => {
                             </td>
                             <td class="py-2 px-4">
                                 {{ reportStore.reviewReportsById[reportId].comment }}
-                            </td>
-                            <td class="py-2 px-4 text-sky-500">
-                                <button @click="showReview(reviewStore.reviewsById[reportStore.reviewReportsById[reportId].reviewId].review.reviewedPinId, reportStore.reviewReportsById[reportId].reviewId)">
-                                    showReview
-                                </button>
                             </td>
                         </tr>
                     </tbody>
