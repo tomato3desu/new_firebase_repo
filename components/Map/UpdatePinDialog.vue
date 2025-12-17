@@ -233,7 +233,7 @@ watch(description, (value) => {
             </div>
 
             <div class="mb-4">
-                <p>
+                <p class="break-words">
                     {{ pin.description }}
                 </p>
                 <label class="block text-sm font-medium mb-1">詳細</label>

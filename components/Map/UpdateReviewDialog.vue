@@ -349,7 +349,7 @@ watch(description, (value) => {
                 </div>
 
                 <div class="mb-4">
-                    <p>{{ review.review.description }}</p>
+                    <p class="break-words">{{ review.review.description }}</p>
                     <label class="block text-sm font-medium mb-1">詳細</label>
                     <textarea
                         v-model="description"
