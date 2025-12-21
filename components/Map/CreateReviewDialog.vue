@@ -6,6 +6,7 @@ import { useReviewStore } from '~/composables/stores/review'
 const authStore = useAuthStore()
 const reviewStore = useReviewStore()
 const { $storage } = useNuxtApp()
+const toast = useToast()
 
 const isOpen = defineModel()
 const props = defineProps({
@@ -38,6 +39,7 @@ const isActiveReviewBtn = computed(() =>
     && visitedTime.value 
     && authStore.isLoggedIn
 )
+const isAdding = ref(false)
 
 const MAX_IMAGES = 10
 
@@ -65,7 +67,7 @@ const handleFileChange = (event) => {
 const createNewReview = async () => {
     if (errorFile.value || errorTitle.value || errorDesc.value) return
     if (!title.value || !description.value || !season.value || !visitedDate.value || !visitedTime.value) return // バリデーションエラーがあれば即レス
-
+    isAdding.value = true
     try {
         await addToStorage() // storageに追加
     }
@@ -74,6 +76,7 @@ const createNewReview = async () => {
             title: '画像の保存に失敗しました。時間をおいて再度お試しください',
             message: err.message
         })
+        isAdding.value = false
         return
     }
 
@@ -93,15 +96,19 @@ const createNewReview = async () => {
     try {
         const token = await authStore.getIdToken()
         await reviewStore.addReview(addReviewInfo, token)
+        toast.success({
+            title: 'レビューの作成に成功しました'
+        })
     }   
     catch (err) {
         toast.error({
             title: 'レビューの作成に失敗しました。時間をおいて再度お試しください',
             message: err.message
         })
+        isAdding.value = false
         return
     }
-    
+    isAdding.value = false
     close()
 }
 
@@ -336,7 +343,7 @@ watch(description, (value) => {
                         :disabled="!isActiveReviewBtn"
                         @click="createNewReview"
                     >
-                        追加
+                        {{ isAdding ? '追加中...' : '追加' }}
                     </button>
                 </div>
             </div>

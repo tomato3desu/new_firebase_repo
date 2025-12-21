@@ -16,8 +16,16 @@ const onReportClicked = () => {
 }
 
 onMounted(async () => {
-    await prefStore.setAllPrefs()
-    await bookmarkStore.fetchBookmarksByUserId(user?.id)
+    try {
+        await prefStore.setAllPrefs()
+        await bookmarkStore.fetchBookmarksByUserId(user?.id)
+    }
+    catch (error) {
+        toast.error({
+            title: 'ユーザー情報の取得に失敗しました。時間をおいて再度お試しください',
+            message: error.message
+        })
+    }
 })
 </script>
 

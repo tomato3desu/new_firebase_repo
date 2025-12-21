@@ -14,6 +14,7 @@ const props = defineProps({
 const authStore = useAuthStore()
 const reviewStore = useReviewStore()
 const { $storage } = useNuxtApp()
+const toast = useToast()
 
 const review = computed(() => reviewStore.reviewsById[props.reviewId])
 
@@ -34,6 +35,7 @@ const description = ref(null)
 const errorTitle = ref(null)
 const errorDesc = ref(null)
 const isActiveReviewBtn = computed(() => !errorTitle.value && !errorDesc.value && authStore.isLoggedIn)
+const isUpdating = ref(false)
 
 /**
  * inputのファイル変更時にpreviewUrlsを変更
@@ -52,9 +54,27 @@ const handleFileChange = (event) => {
  * レビューを更新
  */
 const updateReview = async () => {
-    if (errorTitle.value || errorDesc.value) return // バリデーションエラーがあれば即レス
+    if (errorTitle.value || errorDesc.value) {
+        toast.error({
+            title: 'レビューの更新に失敗しました。',
+            message: 'タイトル、詳細を入力してください'
+        })
+        return
+    } // バリデーションエラーがあれば即レス
 
-    await addToStorage()
+    isUpdating.value = true
+
+    try {
+        await addToStorage()
+    }
+    catch (error) {
+        toast.error({
+            title: 'レビューの更新に失敗しました。時間をおいて再度お試しください',
+            message: error.message
+        })
+        isUpdating.value = false
+        return
+    }
 
     // バックエンドに送信するreview情報
     const reviewInfo = {
@@ -70,21 +90,40 @@ const updateReview = async () => {
         deleteReviewImages: deletingReviewImageIds.value
     }
 
-    const token = await authStore.getIdToken()
+    try { 
+        const token = await authStore.getIdToken()
+        const newReview = await reviewStore.updateReview(reviewInfo, token)
 
-    const newReview = await reviewStore.updateReview(reviewInfo, token)
-    console.log(newReview)
+        toast.success({
+            title: 'レビューの更新に成功しました'
+        })
+    }
+    catch (error) {
+        toast.error({
+            title: 'レビューの更新に失敗しました。時間をおいて再度お試しください',
+            message: error.message
+        })
+        isUpdating.value = false
+        return
+    }
 
     // 削除画像があれば削除
     if (deletingReviewImages.value && deletingReviewImageIds.value) {
-        for (const deleteImage of deletingReviewImages.value) {
-            const imagePath = deleteImage.imagePath
-            const path = extractPathFromUrl(imagePath)
-            await deleteFromStorage(path)
+        try {
+            for (const deleteImage of deletingReviewImages.value) {
+                const imagePath = deleteImage.imagePath
+                const path = extractPathFromUrl(imagePath)
+                await deleteFromStorage(path)
+            }
+        }
+        catch (error) {
+            console.warn("古い画像の削除に失敗", error)
         }
 
         reviewStore.reviewsById[props.reviewId].review.reviewImages = reviewStore.reviewsById[props.reviewId].review.reviewImages.filter((reviewImage) => !deletingReviewImageIds.value.includes(reviewImage.id))
     }
+
+    isUpdating.value = false
     close()
 }
 
@@ -94,17 +133,30 @@ const updateReview = async () => {
 const deleteReview = async () => {
     const isConfirm = window.confirm("本当に削除しますか？")
     if (isConfirm) {
-        const reviewId = review.value.review.id
-        const token = await authStore.getIdToken()
-        const deletedReview = await reviewStore.deleteReview(reviewId, token)
-
-        console.log(deletedReview)
+        try {
+            const reviewId = review.value.review.id
+            const token = await authStore.getIdToken()
+            const deletedReview = await reviewStore.deleteReview(reviewId, token)
+        }   
+        catch (error) {
+            toast.error({
+                title: 'レビューの削除に失敗しました。時間をおいて再度お試しください',
+                message: error.message
+            })
+            return
+        }
 
         // 画像を削除
-        for (const reviewImage of deletedReview.review.reviewImages) {
-            const reviewImagePath = extractPathFromUrl(reviewImage.imagePath)
-            deleteFromStorage(reviewImagePath)
+        try {
+            for (const reviewImage of deletedReview.review.reviewImages) {
+                const reviewImagePath = extractPathFromUrl(reviewImage.imagePath)
+                deleteFromStorage(reviewImagePath)
+            }
         }
+        catch (error) {
+            console.warn("古い画像の削除に失敗", error)
+        }
+
         close()
     }
 }
@@ -115,19 +167,13 @@ const deleteReview = async () => {
 const addToStorage = async () => {
     if (!files.value || files.value.length === 0) return
 
-    try {
-        for (const file of files.value) {
-            const uuid = crypto.randomUUID()
-            const fileRef = storageRef($storage, `reviewImage/${uuid}.jpg`)
+    for (const file of files.value) {
+        const uuid = crypto.randomUUID()
+        const fileRef = storageRef($storage, `reviewImage/${uuid}.jpg`)
 
-            await uploadBytes(fileRef, file)
-            const url = await getDownloadURL(fileRef)
-            uploadedUrls.value.push(url)
-        }
-    }
-    catch (err) {
-        console.error("画像の保存に失敗しました", err.message)
-        error.value = err.message
+        await uploadBytes(fileRef, file)
+        const url = await getDownloadURL(fileRef)
+        uploadedUrls.value.push(url)
     }
 }
 
@@ -136,14 +182,8 @@ const addToStorage = async () => {
  * @param path ストレージから削除
  */
 const deleteFromStorage = async (path) => {
-    try {
-        const oldRef = storageRef($storage, path)
-        await deleteObject(oldRef)
-        console.log("古い画像の削除に成功", oldRef)
-    }
-    catch (error) {
-        console.log("古い画像の削除に失敗", error)
-    }
+    const oldRef = storageRef($storage, path)
+    await deleteObject(oldRef)
 }
 
 /**
@@ -419,7 +459,7 @@ watch(description, (value) => {
                         :disabled="!isActiveReviewBtn"
                         @click="updateReview"
                     >
-                        更新
+                        {{ isUpdating ? '更新中...' : '更新' }}
                     </button>
                 </div>
             </div>

@@ -14,6 +14,7 @@ const authStore = useAuthStore()
 const prefStore = usePrefStore()
 const bookmarkStore = useBookmarkStore()
 const { $storage } = useNuxtApp()
+const toast = useToast()
 
 const currentProfile = ref({
     nickname: user?.nickname ?? null,
@@ -53,9 +54,16 @@ const handleFileChange = (event) => {
  * @param profileData 
  */
 const sendToBackend = async (profileData) => {
-    const token = await authStore.getIdToken()
-    
-    await authStore.updateProfile(profileData, token)
+    try {
+        const token = await authStore.getIdToken()
+        await authStore.updateProfile(profileData, token)
+    }
+    catch (error) {
+        toast.error({
+            title: 'プロフィールの更新に失敗しました。時間をおいて再度お試しください',
+            message: error.message
+        })
+    }
 }
 
 /**
@@ -91,13 +99,6 @@ const updateProfile = async () => {
                 await uploadBytes(fileRef, blob)
                 const url = await getDownloadURL(fileRef)
                 uploadedUrl.value = url
-
-                console.log({
-                    nickname: nickname.value,
-                    comment: comment.value,
-                    iconImagePath: uploadedUrl.value,
-                    prefId: prefId.value
-                })
 
                 await sendToBackend({
                     nickname: nickname.value,
@@ -168,8 +169,16 @@ const extractPathFromUrl = (url) => {
 }
 
 onMounted(() => {
-    prefStore.setAllPrefs()
-    bookmarkStore.fetchBookmarksByUserId(user?.id)
+    try {
+        prefStore.setAllPrefs()
+        bookmarkStore.fetchBookmarksByUserId(user?.id)
+    }   
+    catch (error) {
+        toast.error({
+            title: 'プロフィールの取得に失敗しました。時間をおいて再度お試しください',
+            message: error.message
+        })
+    }
 })
 
 // nicknameのバリデーションチェック

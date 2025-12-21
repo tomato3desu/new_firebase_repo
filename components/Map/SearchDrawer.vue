@@ -5,6 +5,8 @@ import { usePinStore } from '~/composables/stores/pin'
 const prefStore = usePrefStore()
 const pinStore = usePinStore()
 
+const toast = useToast()
+
 const isOpen = defineModel()
 const titleKeyword = ref('')
 const minAvgDarkness = ref(null)
@@ -18,10 +20,16 @@ const searchResultPinIds = ref([])
  */
 const searchPins = async () => {
     if (!titleKeyword.value && !minAvgDarkness.value && !minAvgAccess.value && !prefId.value) return
-    console.log("検索前", pinStore.displayPinsId)
-    const res = await pinStore.searchPins(titleKeyword.value, minAvgDarkness.value, minAvgAccess.value, prefId.value)
-    console.log("検索後", pinStore.displayPinsId)
-    searchResultPinIds.value = res
+    try {
+        const res = await pinStore.searchPins(titleKeyword.value, minAvgDarkness.value, minAvgAccess.value, prefId.value)
+        searchResultPinIds.value = res
+    }
+    catch (error) {
+        toast.error({
+            title: '検索に失敗しました。時間を置いて再度お試しください',
+            message: error.message
+        })
+    }
 }
 
 /**
@@ -32,23 +40,20 @@ const clearResult = () => {
     searchResultPinIds.value = []
 }
 
-// /**
-//  * 検索結果のクリックされた座標をdefaultmapにemit
-//  * @param param0 
-//  */
-// const onResultClicked = ({ latitude, longitude }) => {
-//     emits('result-clicked', {
-//         latitude: latitude,
-//         longitude: longitude
-//     })
-// }
-
 const close = () => {
     isOpen.value = false
 }
 
 onMounted(async () => {
-    await prefStore.setAllPrefs()
+    try {
+        await prefStore.setAllPrefs()
+    }
+    catch (error) {
+        toast.error({
+            title: '都道府県情報の取得に失敗しました。時間を置いて再度お試しください',
+            message: error.message
+        })
+    }
 })
 </script>
 

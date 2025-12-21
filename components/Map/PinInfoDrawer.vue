@@ -119,10 +119,9 @@ onMounted(async () => {
         await goodStore.fetchMyGoodReviews()
     }
     catch (e) {
-        throw createError({
-            statusCode: 500,
-            statusMessage: 'ピン情報取得エラー',
-            cause: e
+        toast.error({
+            title: 'ピン情報取得に失敗しました。時間をおいて再度お試しください',
+            message: e.message
         })
     }
 })

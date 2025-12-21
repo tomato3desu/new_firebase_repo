@@ -19,6 +19,8 @@ const router = useRouter()
 
 const { $storage } = useNuxtApp()
 
+const toast = useToast()
+
 const user = computed(() => authStore.loginUser)
 const isDisplayPermitted = computed(() => user.value.role === 'admin')
 
@@ -50,10 +52,18 @@ const selectedReviewId = ref(null)
 const selectedReviewReportId = ref(null)
 
 const showUser = async (reportId) => {
-    const userId = reportStore.userReportsById[reportId].userId
-    selectedUserId.value = userId
-    await userStore.fetchUserIfNeeded(userId)
-    selectedUser.value = userStore.usersById[userId]
+    try {
+        const userId = reportStore.userReportsById[reportId].userId
+        selectedUserId.value = userId
+        await userStore.fetchUserIfNeeded(userId)
+        selectedUser.value = userStore.usersById[userId]
+    }
+    catch (error) {
+        toast.error({
+            title: 'ユーザー情報の取得に失敗しました。時間をおいて再度お試しください',
+            message: error.message
+        })
+    }
 }
 
 const closeUser = () => {
@@ -76,9 +86,15 @@ const changeUserStatusResolved = async (reportId) => {
     try {
         const token = await authStore.getIdToken()
         await reportStore.sendUserReportResolved(reportId, token)
+        toast.success({
+            title: 'ユーザー通報の解決に成功しました'
+        })
     }
     catch (error) {
-        console.error(error)
+        toast.error({
+            title: 'ユーザー通報の解決に失敗しました。時間をおいて再度お試しください',
+            message: error.message
+        })
     }
 }
 
@@ -89,9 +105,15 @@ const changePinStatusResolved = async (reportId) => {
     try {
         const token = await authStore.getIdToken()
         await reportStore.sendPinReportResolved(reportId, token)
+        toast.success({
+            title: 'ピン通報の解決に成功しました'
+        })
     }
     catch (error) {
-        console.error(error)
+        toast.error({
+            title: 'ピン通報の解決に失敗しました。時間をおいて再度お試しください',
+            message: error.message
+        })
     }
 }
 
@@ -102,9 +124,15 @@ const changeReviewStatusResolved = async (reportId) => {
     try {
         const token = await authStore.getIdToken()
         await reportStore.sendReviewReportResolved(reportId, token)
+        toast.success({
+            title: 'レビュー通報の解決に成功しました'
+        })
     }
     catch (error) {
-        console.error(error)
+        toast.error({
+            title: 'レビュー通報の解決に失敗しました。時間をおいて再度お試しください',
+            message: error.message
+        })  
     }
 }
 
@@ -112,9 +140,20 @@ const changeReviewStatusResolved = async (reportId) => {
 const banUser = async () => {
     const isConfirm = window.confirm("本当にBANしますか？")
     if (isConfirm) {
-        const token = await authStore.getIdToken()
-        const bannedUser = selectedUser.value
-        await reportStore.banUser(bannedUser.id, token)
+        try {
+            const token = await authStore.getIdToken()
+            const bannedUser = selectedUser.value
+            await reportStore.banUser(bannedUser.id, token)
+            toast.success({
+                title: 'ユーザーのBANに成功しました'
+            })
+        }
+        catch (error) {
+            toast.error({
+                title: 'ユーザーのBANに失敗しました。時間をおいて再度お試しください',
+                message: error.message
+            })
+        }
         closeUser()
     }
 }

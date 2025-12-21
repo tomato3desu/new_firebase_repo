@@ -11,6 +11,8 @@ const prefStore = usePrefStore()
 
 const { $storage } = useNuxtApp()
 
+const toast = useToast()
+
 const isOpen = defineModel() // mapのv-model(isOpenPinAddDialog)とバインド
 
 const props = defineProps({ // mapの:latlng(clickedLatLng)を受け取る
@@ -42,11 +44,24 @@ const file = ref(null)
 const previewUrl = ref(null)
 const uploadedUrl = ref(null)
 const error = ref(null)
+const isAdding = ref(false)
 
 const addPin = async () => {
-    if (!props.latlng) return
-    if (errorTitle.value || errorDesc.value || !title.value || !description.value || !address.value || !prefectureId.value) return
-
+    if (!props.latlng) {
+        toast.error({
+            title: '位置情報の取得に失敗しました。お時間をおいて再度お試しください'
+        })
+        return 
+    }
+    if (errorTitle.value || errorDesc.value || !title.value || !description.value || !address.value || !prefectureId.value){
+        toast.error({
+            title: 'ピンの追加に失敗しました。',
+            message: 'タイトル、詳細、住所、都道府県を入力してください'
+        })
+        return
+    }
+    
+    isAdding.value = true
     try {
         await addToStorage()
     }
@@ -55,6 +70,7 @@ const addPin = async () => {
             title: '画像の保存に失敗しました。時間をおいて再度お試しください',
             message: err.message
         })
+        isAdding.value = false
         return
     }
 
@@ -71,15 +87,19 @@ const addPin = async () => {
     try {
         const token = await authStore.getIdToken()
         await pinStore.addPin(addPinInfo, token)
+        toast.success({
+            title: 'ピンの追加に成功しました'
+        })
     }
     catch (err) {
         toast.error({
             title: 'ピンの追加に失敗しました。時間をおいて再度お試しください',
             message: err.message
         })
+        isAdding.value = false
         return
     }
-    
+    isAdding.value = false
     close()
 }
 
@@ -147,7 +167,7 @@ watch(isOpen, async (value) => {
         }
         catch (err) {
             toast.error({
-                title: '都道府県の取得に失敗しました。時間をおいて再度お試しください',
+                title: '都道府県情報の取得に失敗しました。時間をおいて再度お試しください',
                 message: err.message
             })
             return
@@ -247,7 +267,7 @@ watch(isOpen, async (value) => {
                     :disabled="!isActiveAddBtn"
                     @click="addPin"
                 >
-                    追加
+                    {{ isAdding ? '追加中...' : '追加' }}
                 </button>
             </div>
         </div>

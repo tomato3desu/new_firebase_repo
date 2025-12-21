@@ -8,6 +8,8 @@ const { pinId } = defineProps({
     }
 })
 
+const toast = useToast()
+
 const pinStore = usePinStore()
 
 const pin = computed(() => pinStore.pinsById[pinId])
@@ -47,7 +49,10 @@ const fetchPlanets = async () => {
         }
     }
     catch (error) {
-        console.error('livlog api fetch error', error)
+        toast.error({
+            title: '星座情報の取得に失敗しました。時間を置いて再度お試しください',
+            message: error.message
+        })
     }
     finally {
         isLoading.value = false

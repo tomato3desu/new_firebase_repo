@@ -7,6 +7,8 @@ const authStore = useAuthStore()
 const reviewStore = useReviewStore()
 const reportStore = useReportStore()
 
+const toast = useToast()
+
 const isOpen = defineModel()
 
 const props = defineProps({
@@ -34,11 +36,17 @@ const sendToBackend = async () => {
     try {
         const token = await authStore.getIdToken()
         await reportStore.sendReviewReport(reportRequest, token)
-        window.alert('通報成功')
+        toast.success({
+            title: '通報に成功しました。'
+        })
         close()
     }
     catch (error) {
-        window.alert('通報失敗', error)
+        toast.error({
+            title: '通報に失敗しました。時間を置いて再度お試しください',
+            message: error.message
+        })
+
         close()
     }
 }

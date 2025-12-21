@@ -5,6 +5,8 @@ import { usePrefStore } from '~/composables/stores/prefecture'
 const pinStore = usePinStore()
 const prefStore = usePrefStore()
 
+const toast = useToast()
+
 const bookmarkRanking = computed(() => pinStore.bookmarkRanking)
 const darknessRanking = computed(() => pinStore.darknessRanking)
 const accessRanking = computed(() => pinStore.accessRanking)
@@ -14,17 +16,40 @@ const selectedPrefId = ref(0)
 const getRanking = async (prefId) => {
     selectedPrefId.value = Number(prefId)
     if (selectedPrefId.value === 0) {
-        await pinStore.fetchRankingAll()
+        try {
+            await pinStore.fetchRankingAll()
+        }
+        catch (error) {
+            toast.error({
+                title: 'ランキング情報の取得に失敗しました。時間をおいて再度お試しください',
+                message: error.message
+            })
+        }
         return
     }
 
-    await pinStore.fetchRankingByPrefId(selectedPrefId.value)
-    console.log(pinStore.bookmarkRanking)
+    try {
+        await pinStore.fetchRankingByPrefId(selectedPrefId.value)
+    }
+    catch (error) {
+        toast.error({
+            title: 'ランキング情報の取得に失敗しました。時間をおいて再度お試しください',
+            message: error.message
+        })
+    }
 }
 
 onMounted(async () => {
-    await pinStore.fetchRankingAll()
-    await prefStore.setAllPrefs()
+    try {
+        await pinStore.fetchRankingAll()
+        await prefStore.setAllPrefs()
+    }
+    catch (error) {
+        toast.error({
+            title: 'ランキング情報の取得に失敗しました。時間をおいて再度お試しください',
+            message: error.message
+        })
+    }
 })
 </script>
 

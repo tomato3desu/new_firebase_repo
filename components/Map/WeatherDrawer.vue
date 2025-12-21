@@ -10,6 +10,8 @@ const { pinId } = defineProps({
 
 const pinStore = usePinStore()
 
+const toast = useToast()
+
 const pin = computed(() => pinStore.pinsById[pinId])
 const lat = computed(() => pin.value.latitude)
 const lng = computed(() => pin.value.longitude)
@@ -32,7 +34,10 @@ const fetchWeather = async () => {
         weatherData.value = res
     }
     catch (error) {
-        console.error('weather api fetch error', error)
+        toast.error({
+            title: '天気情報の取得に失敗しました。時間をおいて再度お試しください',
+            message: error.message
+        })
     }
     finally {
         isLoading.value = false

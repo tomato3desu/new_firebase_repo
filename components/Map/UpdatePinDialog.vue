@@ -8,6 +8,7 @@ const pinStore = usePinStore()
 const authStore = useAuthStore()
 const reviewStore = useReviewStore()
 const { $storage } = useNuxtApp()
+const toast = useToast()
 
 const isOpen = defineModel()
 const props = defineProps({
@@ -29,14 +30,36 @@ const previewUrl = ref(null)
 const uploadedUrl = ref(null)
 const error = ref(null)
 
+const isUpdating = ref(false)
+
 /**
  * update時に行う処理
  */
 const updatePin = async () => {
-    if (errorTitle.value || errorDesc.value) return // バリデーションエラーがあれば即レス
+    if (errorTitle.value || errorDesc.value) {
+        toast.error({
+            title: 'ピンの更新に失敗しました。',
+            message: 'タイトル、詳細を入力してください'
+        })
+        return
+    } // バリデーションエラーがあれば即レス
+
+    isUpdating.value = true
 
     const oldImagePath = pin.value?.thumbnailImagePath // 古い画像を退避
-    if (file.value) await addToStorage()
+    if (file.value) {
+        try {
+            await addToStorage()
+        }
+        catch (error) {
+            toast.error({
+                title: '画像のアップロードに失敗しました。時間をおいて再度お試しください',
+                message: error.message
+            })
+            isUpdating.value = false
+            return
+        }
+    }
     // update情報
     const updatePinInfo = {
         id: pin.value.id,
@@ -48,14 +71,23 @@ const updatePin = async () => {
     try {
         const token = await authStore.getIdToken()
         const updatedPin = await pinStore.updatePin(updatePinInfo, token)
-        console.log('更新完了', updatedPin)
+        toast.success({
+            title: 'ピンの更新に成功しました。'
+        })
         // 元の画像を削除
         if (uploadedUrl.value && oldImagePath) await deleteThumbnailImage(oldImagePath) 
         close()
     }
     catch (error) {
-        console.error('更新失敗', error)
+        toast.error({
+            title: 'ピンの更新に失敗しました。時間をおいて再度お試しください',
+            message: error.message
+        })
+        isUpdating.value = false
+        return
     }
+
+    isUpdating.value = false
 }
 
 /**
@@ -64,10 +96,23 @@ const updatePin = async () => {
 const deletePin = async () => {
     const isConfirm = window.confirm("本当に削除しますか？")
     if (isConfirm) {
-        const token = await authStore.getIdToken()
-        const deletedPin = await pinStore.deletePin(pin.value.id, token) // pinStoreのdeletePinを実行（pinstoreから削除)
+        let deletedPin
+        try {
+            const token = await authStore.getIdToken()
+            deletedPin = await pinStore.deletePin(pin.value.id, token) // pinStoreのdeletePinを実行（pinstoreから削除)
 
-        console.log(deletedPin)
+            toast.success({
+                title: 'ピンの削除に成功しました。'
+            })
+        }   
+        catch (error) {
+            toast.error({
+                title: 'ピンの削除に失敗しました。時間をおいて再度お試しください',
+                message: error.message
+            })
+            return
+        }
+        
         // firebase storageから画像削除
         // thubnailImage 削除
         if (deletedPin?.thumbnailImagePath) {
@@ -99,18 +144,12 @@ const handleFileChange = (event) => {
 const addToStorage = async () => {
     if (!file.value) return
         
-    try {
-        const fileName = `${Date.now()}-pinStore.jpg`
-        const fileRef = storageRef($storage, `pinImage/${fileName}`)
+    const fileName = `${Date.now()}-pinStore.jpg`
+    const fileRef = storageRef($storage, `pinImage/${fileName}`)
 
-        await uploadBytes(fileRef, file.value)
-        const url = await getDownloadURL(fileRef)
-        uploadedUrl.value = url
-    }
-    catch (err) {
-        uploadedUrl.value = null
-        error.value = err.message
-    }
+    await uploadBytes(fileRef, file.value)
+    const url = await getDownloadURL(fileRef)
+    uploadedUrl.value = url
 }
 
 /**
@@ -122,10 +161,9 @@ const deleteThumbnailImage = async (thumbnailImagePath) => {
         const path = extractPathFromUrl(thumbnailImagePath)
         const oldRef = storageRef($storage, path)
         await deleteObject(oldRef)
-        console.log('古い画像の削除に成功しました', oldRef)
     }
     catch (error) {
-        console.log('古い画像の削除に失敗しました', error)
+        console.warn('古い画像の削除に失敗しました', error)
     }
 }
 
@@ -145,10 +183,9 @@ const deleteReviewImages = async (deletedPin) => {
                         const path = extractPathFromUrl(reviewImage.imagePath)
                         const oldRef = storageRef($storage, path)
                         await deleteObject(oldRef)
-                        console.log('古い画像の削除に成功しました', oldRef)
                     }
                     catch (error) {
-                        console.log('古い画像の削除に失敗しました', error)
+                        console.warn('古い画像の削除に失敗しました', error)
                     }
                 }
             }
@@ -289,7 +326,7 @@ watch(description, (value) => {
                     :disabled="!isActiveAddBtn"
                     @click="updatePin"
                 >
-                    更新
+                    {{ isUpdating ? '更新中...' : '更新' }}
                 </button>
             </div>
         </div>

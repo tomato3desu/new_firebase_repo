@@ -4,6 +4,7 @@ import { useReportStore } from '~/composables/stores/report'
 
 const authStore = useAuthStore()
 const reportStore = useReportStore()
+const toast = useToast()
 
 const isOpen = defineModel()
 
@@ -27,16 +28,20 @@ const sendToBackend = async () => {
         comment: comment.value
     }
 
-    console.log(reportRequest)
-
     try {
         const token = await authStore.getIdToken()
         await reportStore.sendUserReport(reportRequest, token)
-        window.alert('通報成功')
+        toast.success({
+            title: '通報成功'
+        })
         close()
     }
     catch (error) {
-        window.alert('通報失敗', error)
+        toast.error({
+            title: '通報失敗',
+            message: error.message
+        })
+        
         close()
     }
 }
