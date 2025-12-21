@@ -15,23 +15,18 @@ export const useReportStore = defineStore('reportStore', () => {
      * @param {*} token 
      */
     const fetchPendingUserReports = async (token) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/report/user/pending/all`, {
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-
-            displayUserReportsId.value = []
-
-            for (const report of res) {
-                userReportsById.value[report.id] = report
-                displayUserReportsId.value.push(report.id)
+        const res = await $fetch(`${config.public.apiBase}/api/report/user/pending/all`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`
             }
-        }
-        catch (error) {
-            console.error("failed to fetch reports", error)
+        })
+
+        displayUserReportsId.value = []
+
+        for (const report of res) {
+            userReportsById.value[report.id] = report
+            displayUserReportsId.value.push(report.id)
         }
     }
 
@@ -40,23 +35,18 @@ export const useReportStore = defineStore('reportStore', () => {
      * @param {*} token 
      */
     const fetchPendingPinReports = async (token) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/report/pin/pending/all`, {
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-
-            displayPinReportsId.value = []
-
-            for (const report of res) {
-                pinReportsById.value[report.id] = report
-                displayPinReportsId.value.push(report.id)
+        const res = await $fetch(`${config.public.apiBase}/api/report/pin/pending/all`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`
             }
-        }
-        catch (error) {
-            console.error("failed to fetch reports", error)
+        })
+
+        displayPinReportsId.value = []
+
+        for (const report of res) {
+            pinReportsById.value[report.id] = report
+            displayPinReportsId.value.push(report.id)
         }
     }
 
@@ -65,23 +55,18 @@ export const useReportStore = defineStore('reportStore', () => {
      * @param {*} token 
      */
     const fetchPendingReviewReports = async (token) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/report/review/pending/all`, {
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-
-            displayReviewReportsId.value = []
-
-            for (const report of res) {
-                reviewReportsById.value[report.id] = report
-                displayReviewReportsId.value.push(report.id)
+        const res = await $fetch(`${config.public.apiBase}/api/report/review/pending/all`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`
             }
-        }
-        catch (error) {
-            console.error("failed to fetch reports", error)
+        })
+
+        displayReviewReportsId.value = []
+
+        for (const report of res) {
+            reviewReportsById.value[report.id] = report
+            displayReviewReportsId.value.push(report.id)
         }
     }
 
@@ -91,22 +76,16 @@ export const useReportStore = defineStore('reportStore', () => {
      * @param {*} token 
      */
     const sendUserReport = async (reportRequest, token) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/report/user`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-                body: reportRequest
-            })
+        const res = await $fetch(`${config.public.apiBase}/api/report/user`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            body: reportRequest
+        })
 
-            if (res !== undefined) {
-                throw new Error('バックエンドエラー')
-            }
-        }
-        catch (error) {
-            console.error('通報失敗', error)
-            throw error
+        if (res !== undefined) {
+            throw new Error('バックエンドエラー')
         }
     }
 
@@ -116,22 +95,16 @@ export const useReportStore = defineStore('reportStore', () => {
      * @param {*} token 
      */
     const sendPinReport = async (reportRequest, token) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/report/pin`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-                body: reportRequest
-            })
+        const res = await $fetch(`${config.public.apiBase}/api/report/pin`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            body: reportRequest
+        })
 
-            if (res !== undefined) { 
-                throw new Error('バックエンドエラー')
-            } 
-        }
-        catch (error) {
-            console.error("通報失敗", error)
-            throw error
+        if (res !== undefined) {
+            throw new Error('バックエンドエラー')
         }
     }
 
@@ -141,22 +114,16 @@ export const useReportStore = defineStore('reportStore', () => {
      * @param {*} token 
      */
     const sendReviewReport = async (reportRequest, token) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/report/review`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-                body: reportRequest
-            })
+        const res = await $fetch(`${config.public.apiBase}/api/report/review`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            body: reportRequest
+        })
 
-            if (res !== undefined) { 
-                throw new Error('バックエンドエラー')
-            }
-        }
-        catch (error) {
-            console.error('通報失敗', error)
-            throw error
+        if (res !== undefined) {
+            throw new Error('バックエンドエラー')
         }
     }
 
@@ -166,25 +133,19 @@ export const useReportStore = defineStore('reportStore', () => {
      * @param {*} token 
      */
     const sendUserReportResolved = async (reportId, token) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/report/user/resolved/${reportId}`, {
-                method: 'PUT',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-
-            if (res !== undefined) {
-                throw new Error("バックエンドエラー")
+        const res = await $fetch(`${config.public.apiBase}/api/report/user/resolved/${reportId}`, {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${token}`
             }
+        })
 
-            displayUserReportsId.value = displayUserReportsId.value.filter(id => id !== reportId)
-            delete userReportsById.value[reportId]
+        if (res !== undefined) {
+            throw new Error("バックエンドエラー")
         }
-        catch (error) {
-            console.error("sendUserReportResolved failed", error)
-            throw error
-        }
+
+        displayUserReportsId.value = displayUserReportsId.value.filter(id => id !== reportId)
+        delete userReportsById.value[reportId]
     }
 
     /**
@@ -193,25 +154,19 @@ export const useReportStore = defineStore('reportStore', () => {
      * @param {*} token 
      */
     const sendPinReportResolved = async (reportId, token) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/report/pin/resolved/${reportId}`, {
-                method: 'PUT',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-
-            if (res !== undefined) {
-                throw new Error("バックエンドエラー")
+        const res = await $fetch(`${config.public.apiBase}/api/report/pin/resolved/${reportId}`, {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${token}`
             }
+        })
 
-            displayPinReportsId.value = displayPinReportsId.value.filter(id => id !== reportId)
-            delete pinReportsById.value[reportId]
+        if (res !== undefined) {
+            throw new Error("バックエンドエラー")
         }
-        catch (error) {
-            console.error("sendPinReportResolved failed", error)
-            throw error
-        }
+
+        displayPinReportsId.value = displayPinReportsId.value.filter(id => id !== reportId)
+        delete pinReportsById.value[reportId]
     }
 
     /**
@@ -220,61 +175,50 @@ export const useReportStore = defineStore('reportStore', () => {
      * @param {*} token 
      */
     const sendReviewReportResolved = async (reportId, token) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/report/review/resolved/${reportId}`, {
-                method: 'PUT',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-
-            if (res !== undefined) {
-                throw new Error("バックエンドエラー")
+        const res = await $fetch(`${config.public.apiBase}/api/report/review/resolved/${reportId}`, {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${token}`
             }
+        })
 
-            displayReviewReportsId.value = displayReviewReportsId.value.filter(id => id !== reportId)
-            delete reviewReportsById.value[reportId]
+        if (res !== undefined) {
+            throw new Error("バックエンドエラー")
         }
-        catch (error) {
-            console.error("sendReviewReportResolved failed", error)
-            throw error
-        }
+
+        displayReviewReportsId.value = displayReviewReportsId.value.filter(id => id !== reportId)
+        delete reviewReportsById.value[reportId]
     }
 
     const banUser = async (userId, token) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/report/user/ban/${userId}`, {
-                method: 'PUT',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-
-            if (res !== undefined) {
-                throw new Error("バックエンドエラー")
+        const res = await $fetch(`${config.public.apiBase}/api/report/user/ban/${userId}`, {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${token}`
             }
-        }
-        catch (error) {
-            console.error(error)
+        })
+
+        if (res !== undefined) {
+            throw new Error("バックエンドエラー")
         }
     }
 
-    return { 
+    return {
         userReportsById,
         pinReportsById,
-        reviewReportsById, 
-        displayUserReportsId, 
+        reviewReportsById,
+        displayUserReportsId,
         displayPinReportsId,
-        displayReviewReportsId, 
-        sendUserReport, 
+        displayReviewReportsId,
+        sendUserReport,
         sendPinReport,
-        sendReviewReport, 
-        fetchPendingUserReports, 
+        sendReviewReport,
+        fetchPendingUserReports,
         fetchPendingPinReports,
-        fetchPendingReviewReports, 
+        fetchPendingReviewReports,
         sendUserReportResolved,
         sendPinReportResolved,
         sendReviewReportResolved,
-        banUser 
+        banUser
     }
 })

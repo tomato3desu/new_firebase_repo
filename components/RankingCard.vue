@@ -49,7 +49,7 @@ const onCardClicked = () => {
 
         <!-- Thumbnail -->
         <NuxtImg
-            :src="pin.thumbnailImagePath"
+            :src="pin.thumbnailImagePath || 'images/saturn.png'"
             alt="thumbnail"
             class="w-20 h-20 object-cover rounded-lg shadow-sm border border-gray-200 shrink-0"
         />

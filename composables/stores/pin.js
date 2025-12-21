@@ -25,25 +25,17 @@ export const usePinStore = defineStore('pinStore', () => {
      * 全ピンを取得しpinsByIdに格納する
      */
     const getAllPins = async () => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/pin/getAllPins`, {
-                method: 'GET'
-            })
+        const res = await $fetch(`${config.public.apiBase}/api/pin/getAllPins`, {
+            method: 'GET'
+        })
 
-            pinsById.value = {}
-            fetchedAt.value = {}
-            // displayPinsId.value = [] // 削除: displayPinsIdの初期化を行わない
-            for (const pin of res) {
-                pinsById.value[pin.id] = pin
-                fetchedAt.value[pin.id] = Date.now()
-                // displayPinsId.value.push(pin.id) // 削除
-            }
-
-            console.log("getAllPins success")
-        }
-        catch (error) {
-            const msg = error || '不明なエラー'
-            console.error("getAllPins falied", msg)
+        pinsById.value = {}
+        fetchedAt.value = {}
+        // displayPinsId.value = [] // 削除: displayPinsIdの初期化を行わない
+        for (const pin of res) {
+            pinsById.value[pin.id] = pin
+            fetchedAt.value[pin.id] = Date.now()
+            // displayPinsId.value.push(pin.id) // 削除
         }
     }
 
@@ -56,18 +48,12 @@ export const usePinStore = defineStore('pinStore', () => {
         const isExpired = judgeExpired(pinId)
         if (pinsById.value[pinId] && !isExpired) return
 
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/pin/get/${pinId}`, {
-                method: 'GET',
-            })
+        const res = await $fetch(`${config.public.apiBase}/api/pin/get/${pinId}`, {
+            method: 'GET',
+        })
 
-            pinsById.value[pinId] = res
-            fetchedAt.value[pinId] = Date.now()
-        }
-        catch (error) {
-            const msg = error || '不明なエラー'
-            console.error("fetchPinById falied", msg)
-        }
+        pinsById.value[pinId] = res
+        fetchedAt.value[pinId] = Date.now()
     }
 
     /**
@@ -75,16 +61,11 @@ export const usePinStore = defineStore('pinStore', () => {
      * @param {number} pinId 
      */
     const refreshPin = async (pinId) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/pin/get/${pinId}`, {
-                method: 'GET'
-            })
-            pinsById.value[pinId] = res
-            fetchedAt.value[pinId] = Date.now()
-        }
-        catch (error) {
-            console.error('ピンの再取得に失敗:', error)
-        }
+        const res = await $fetch(`${config.public.apiBase}/api/pin/get/${pinId}`, {
+            method: 'GET'
+        })
+        pinsById.value[pinId] = res
+        fetchedAt.value[pinId] = Date.now()
     }
 
     /**
@@ -94,26 +75,20 @@ export const usePinStore = defineStore('pinStore', () => {
      * @returns 追加したピン
      */
     const addPin = async (addPinInfo, token) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/pin/addPin`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-                body: addPinInfo
-            })
+        const res = await $fetch(`${config.public.apiBase}/api/pin/addPin`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            body: addPinInfo
+        })
 
-            pinsById.value[res.id] = res // pinsByIdに格納
-            if (!displayPinsId.value.includes(res.id)) {
-                displayPinsId.value = [...displayPinsId.value, res.id] // displayPinsIdに格納
-            }
+        pinsById.value[res.id] = res // pinsByIdに格納
+        if (!displayPinsId.value.includes(res.id)) {
+            displayPinsId.value = [...displayPinsId.value, res.id] // displayPinsIdに格納
+        }
 
-            return res
-        }
-        catch (error) {
-            const msg = error || '不明なエラー'
-            console.error("addPin failed", msg)
-        }
+        return res
     }
 
     /**
@@ -123,22 +98,16 @@ export const usePinStore = defineStore('pinStore', () => {
      * @returns 更新後ピン
      */
     const updatePin = async (updatePinInfo, token) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/pin/updatePin`, {
-                method: 'PUT',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-                body: updatePinInfo
-            })
+        const res = await $fetch(`${config.public.apiBase}/api/pin/updatePin`, {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            body: updatePinInfo
+        })
 
-            pinsById.value[res.id] = res // pinsByIdに格納
-            return res
-        }
-        catch (error) {
-            const msg = error || '不明なエラー'
-            console.error("updatePin failed", msg)
-        }
+        pinsById.value[res.id] = res // pinsByIdに格納
+        return res
     }
 
     /**
@@ -148,27 +117,21 @@ export const usePinStore = defineStore('pinStore', () => {
      * @returns 削除したピン
      */
     const deletePin = async (pinId, token) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/pin/deletePin/${pinId}`, {
-                method: 'DELETE',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-
-            if (res !== undefined) { // 204 No Content は自動的に res が undefined になる
-                throw new Error('削除失敗')
+        const res = await $fetch(`${config.public.apiBase}/api/pin/deletePin/${pinId}`, {
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${token}`
             }
+        })
 
-            const deletedPin = pinsById.value[pinId]
-            delete pinsById.value[pinId]
-            displayPinsId.value = displayPinsId.value.filter(id => id !== pinId) // displayPinsIdから削除
-            return deletedPin
+        if (res !== undefined) { // 204 No Content は自動的に res が undefined になる
+            throw new Error('削除失敗')
         }
-        catch (error) {
-            const msg = error || '不明なエラー'
-            console.error("deletePin failed", msg)
-        }
+
+        const deletedPin = pinsById.value[pinId]
+        delete pinsById.value[pinId]
+        displayPinsId.value = displayPinsId.value.filter(id => id !== pinId) // displayPinsIdから削除
+        return deletedPin
     }
 
     /**
@@ -179,31 +142,24 @@ export const usePinStore = defineStore('pinStore', () => {
      * @param {number} prefId 
      */
     const searchPins = async (title, minAvgDarkness, minAvgAccess, prefId) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/pin/search`, {
-                method: 'POST',
-                body: {
-                    title: title,
-                    minAvgDarkness: minAvgDarkness,
-                    minAvgAccess: minAvgAccess,
-                    prefId: prefId
-                }
-            })
-
-            displayPinsId.value = res.map(pin => pin.id)
-
-            for (const pin of res) {
-                pinsById.value[pin.id] = pin
-                fetchedAt.value[pin.id] = Date.now()
+        const res = await $fetch(`${config.public.apiBase}/api/pin/search`, {
+            method: 'POST',
+            body: {
+                title: title,
+                minAvgDarkness: minAvgDarkness,
+                minAvgAccess: minAvgAccess,
+                prefId: prefId
             }
+        })
 
-            console.log('検索成功!!')
+        displayPinsId.value = res.map(pin => pin.id)
 
-            return displayPinsId.value
+        for (const pin of res) {
+            pinsById.value[pin.id] = pin
+            fetchedAt.value[pin.id] = Date.now()
         }
-        catch (error) {
-            console.error("failed to search pins", error)
-        }
+
+        return displayPinsId.value
     }
 
     const clearDisplayPinsId = () => {
@@ -211,62 +167,52 @@ export const usePinStore = defineStore('pinStore', () => {
     }
 
     const fetchRankingAll = async () => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/pin/ranking/all`, {
-                method: 'GET'
-            })
+        const res = await $fetch(`${config.public.apiBase}/api/pin/ranking/all`, {
+            method: 'GET'
+        })
 
-            bookmarkRanking.value = []
-            darknessRanking.value = []
-            accessRanking.value = []
+        bookmarkRanking.value = []
+        darknessRanking.value = []
+        accessRanking.value = []
 
-            for (const pin of res.bookmarkRanking) {
-                pinsById.value[pin.id] = pin
-                bookmarkRanking.value.push(pin.id)
-            }
-
-            for (const pin of res.darknessRanking) {
-                pinsById.value[pin.id] = pin
-                darknessRanking.value.push(pin.id)
-            }
-
-            for (const pin of res.accessRanking) {
-                pinsById.value[pin.id] = pin
-                accessRanking.value.push(pin.id)
-            }
+        for (const pin of res.bookmarkRanking) {
+            pinsById.value[pin.id] = pin
+            bookmarkRanking.value.push(pin.id)
         }
-        catch (error) {
-            console.error("fetchRanking error", error)
+
+        for (const pin of res.darknessRanking) {
+            pinsById.value[pin.id] = pin
+            darknessRanking.value.push(pin.id)
+        }
+
+        for (const pin of res.accessRanking) {
+            pinsById.value[pin.id] = pin
+            accessRanking.value.push(pin.id)
         }
     }
 
     const fetchRankingByPrefId = async (prefId) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/pin/ranking/${prefId}`, {
-                method: 'GET'
-            })
+        const res = await $fetch(`${config.public.apiBase}/api/pin/ranking/${prefId}`, {
+            method: 'GET'
+        })
 
-            bookmarkRanking.value = []
-            darknessRanking.value = []
-            accessRanking.value = []
+        bookmarkRanking.value = []
+        darknessRanking.value = []
+        accessRanking.value = []
 
-            for (const pin of res.bookmarkRanking) {
-                pinsById.value[pin.id] = pin
-                bookmarkRanking.value.push(pin.id)
-            }
-
-            for (const pin of res.darknessRanking) {
-                pinsById.value[pin.id] = pin
-                darknessRanking.value.push(pin.id)
-            }
-
-            for (const pin of res.accessRanking) {
-                pinsById.value[pin.id] = pin
-                accessRanking.value.push(pin.id)
-            }
+        for (const pin of res.bookmarkRanking) {
+            pinsById.value[pin.id] = pin
+            bookmarkRanking.value.push(pin.id)
         }
-        catch (error) {
-            console.error("fetchRanking error", error)
+
+        for (const pin of res.darknessRanking) {
+            pinsById.value[pin.id] = pin
+            darknessRanking.value.push(pin.id)
+        }
+
+        for (const pin of res.accessRanking) {
+            pinsById.value[pin.id] = pin
+            accessRanking.value.push(pin.id)
         }
     }
 

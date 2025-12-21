@@ -50,10 +50,10 @@ watch(
 
 const isMapPage = computed(() => {
     return route.path === '/' 
-    || route.path === '/profile' 
-    || route.path.startsWith('/user/') 
-    || route.path.startsWith('/login') 
-    || route.path.startsWith('/register')
+        || route.path === '/profile' 
+        || route.path.startsWith('/user/') 
+        || route.path.startsWith('/login') 
+        || route.path.startsWith('/register')
 })
 </script>
 

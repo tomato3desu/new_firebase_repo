@@ -25,15 +25,9 @@ export const useUserStore = defineStore('userStore', () => {
         const isExpired = judgeExpired(userId)
         if (usersById.value[userId] && !isExpired) return // キャッシュされいる＆期限切れでなければ即レス
 
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/user/${userId}`)
-            usersById.value[userId] = res
-            fetchedAt.value[userId] = Date.now()
-        }
-        catch (e) {
-            console.error('ユーザー取得エラー:', e)
-            throw e
-        }
+        const res = await $fetch(`${config.public.apiBase}/api/user/${userId}`)
+        usersById.value[userId] = res
+        fetchedAt.value[userId] = Date.now()
     }
 
     /**
@@ -45,21 +39,16 @@ export const useUserStore = defineStore('userStore', () => {
         let missingIds = userIds.filter((id) => id && !usersById.value[id]) // usersByIdにないIDのみをフィルター
         missingIds = missingIds.filter((id) => judgeExpired(id)) // 期限切れのIDのみ残す
         if (missingIds.length === 0) return // IDが残ってないなら即レス
-        
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/user/users`, {
-                method: 'POST',
-                body: { userIds: missingIds },
-            })
 
-            res.forEach((u) => {
-                usersById.value[u.id] = u // usersByIdにセット
-                fetchedAt.value[u.id] = Date.now() // fetchedAtにセット
-            }) 
-        }
-        catch (e) {
-            console.error('複数ユーザー取得エラー:', e)
-        }
+        const res = await $fetch(`${config.public.apiBase}/api/user/users`, {
+            method: 'POST',
+            body: { userIds: missingIds },
+        })
+
+        res.forEach((u) => {
+            usersById.value[u.id] = u // usersByIdにセット
+            fetchedAt.value[u.id] = Date.now() // fetchedAtにセット
+        })
     }
 
     return {

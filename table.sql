@@ -8,8 +8,13 @@ create table if not exists users(
     comment text,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     prefecture_id int,
-    role varchar(255) default 'user',
-    is_active boolean default true
+    role varchar(25) default 'user',
+    is_active boolean default true,
+    CONSTRAINT fk_user_prefecture FOREIGN KEY (prefecture_id)
+        REFERENCES prefectures(id)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL,
+    CONSTRAINT check_role CHECK (role IN ('user', 'admin', ''))
 );
 
 ALTER TABLE users

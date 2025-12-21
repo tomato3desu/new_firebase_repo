@@ -31,8 +31,6 @@ const props = defineProps({ // mapの:latlng(clickedLatLng)を受け取る
     }
 })
 
-// TODO address/prefectureを入力、選択できるようにして、バックエンドはpinEntityにadress/prefectureを持たせる
-
 const title = ref('')
 const errorTitle = ref('')
 const description = ref('')
@@ -49,7 +47,16 @@ const addPin = async () => {
     if (!props.latlng) return
     if (errorTitle.value || errorDesc.value || !title.value || !description.value || !address.value || !prefectureId.value) return
 
-    await addToStorage()
+    try {
+        await addToStorage()
+    }
+    catch (err) {
+        toast.error({
+            title: '画像の保存に失敗しました。時間をおいて再度お試しください',
+            message: err.message
+        })
+        return
+    }
 
     const addPinInfo = {
         latitude: props.latlng.lat,
@@ -61,9 +68,18 @@ const addPin = async () => {
         thumbnailImagePath: uploadedUrl.value
     }
 
-    const token = await authStore.getIdToken()
-    const addedPin = await pinStore.addPin(addPinInfo, token)
-    console.log(addedPin)
+    try {
+        const token = await authStore.getIdToken()
+        await pinStore.addPin(addPinInfo, token)
+    }
+    catch (err) {
+        toast.error({
+            title: 'ピンの追加に失敗しました。時間をおいて再度お試しください',
+            message: err.message
+        })
+        return
+    }
+    
     close()
 }
 
@@ -77,19 +93,13 @@ const handleFileChange = (event) => {
 
 const addToStorage = async () => {
     if (!file.value) return
-    console.log(file.value)
-    try {
-        const fileName = `${Date.now()}-pinStore.jpg`
-        const fileRef = storageRef($storage, `pinImage/${fileName}`)
 
-        await uploadBytes(fileRef, file.value)
-        const url = await getDownloadURL(fileRef)
-        uploadedUrl.value = url
-    }
-    catch (err) {
-        uploadedUrl.value = null
-        error.value = err.message
-    }
+    const fileName = `${Date.now()}-pinStore.jpg`
+    const fileRef = storageRef($storage, `pinImage/${fileName}`)
+
+    await uploadBytes(fileRef, file.value)
+    const url = await getDownloadURL(fileRef)
+    uploadedUrl.value = url
 }
 
 const close = () => {
@@ -129,10 +139,19 @@ watch(description, (value) => {
 
 watch(isOpen, async (value) => {
     if (value) {
-        await prefStore.setAllPrefs()
-        address.value = props.address
-        const tmpPrefId = prefStore.findPrefIdByName(props.prefecture) // props.prefectureからID検索
-        prefectureId.value = tmpPrefId
+        try {
+            await prefStore.setAllPrefs()
+            address.value = props.address
+            const tmpPrefId = prefStore.findPrefIdByName(props.prefecture) // props.prefectureからID検索
+            prefectureId.value = tmpPrefId
+        }
+        catch (err) {
+            toast.error({
+                title: '都道府県の取得に失敗しました。時間をおいて再度お試しください',
+                message: err.message
+            })
+            return
+        }
     }
 })
 </script>

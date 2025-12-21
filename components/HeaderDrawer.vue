@@ -2,6 +2,7 @@
 import { useAuthStore } from '~/composables/stores/auth'
 
 const authStore = useAuthStore()
+const toast = useToast()
 
 const isOpen = defineModel()
 
@@ -14,7 +15,17 @@ const close = () => {
 }
 
 const logout = async () => {
-    await authStore.logout()
+    try {
+        await authStore.logout()
+    }
+    catch (error) {
+        toast.error({
+            title: 'ログアウトに失敗しました。時間をおいて再度お試しください',
+            message: error.message
+        })
+        return
+    }
+    
     navigateTo('/')
     close()
 }

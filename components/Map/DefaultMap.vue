@@ -15,6 +15,7 @@ const bookmarkStore = useBookmarkStore()
 const mapStore = useMapStore()
 
 const config = useRuntimeConfig()
+const toast = useToast()
 
 const emit = defineEmits(['pin-clicked', 'map-ready'])
 
@@ -39,8 +40,16 @@ let markers = []
 let ColorScheme
 
 onMounted(async () => {
-    await prefStore.setAllPrefs()
-
+    try {
+        await prefStore.setAllPrefs()
+    }
+    catch (error) {
+        toast.error({ 
+            title: '都道府県情報の取得に失敗しました。時間をおいて再度お試しください', 
+            message: error.message
+        })
+    }
+    
     let lat = 34.700428654912486
     let lng = 135.4928556060951
 
@@ -70,12 +79,21 @@ onMounted(async () => {
     
     // ピン描画
     markers = []
-    await pinStore.getAllPins()
+    try {
+        await pinStore.getAllPins()
+    }
+    catch (error) {
+        toast.error({ 
+            title: 'ピン情報の取得に失敗しました。時間をおいて再度お試しください', 
+            message: error.message
+        })
+    }
 
     if (pinStore.displayPinsId.length === 0) {
         // displayPinsIdが空の場合は全ピンを表示
         pinStore.displayPinsId = [...Object.keys(pinStore.pinsById).map(id => Number(id))]
-    } else {
+    }
+    else {
         // displayPinsIdが既に設定されている場合(Profileページなどで先行して設定された場合)
         // ピンデータ取得後にマーカーを描画する
         for (const pinId of pinStore.displayPinsId) {
@@ -88,14 +106,7 @@ onMounted(async () => {
             }
         }
     }
-    
-    // for (const pinId in pinStore.pinsById) {
-    //     renderMarker(pinStore.pinsById[pinId])
-    // }
 
-    // // 初期化完了 → 次から watch が動く
-    // isInitialized.value = true
-    // 初期化完了をlayouts/mapに送信
     emit('map-ready')
 })
 
@@ -104,19 +115,21 @@ onMounted(async () => {
  * @param {google.maps.LatLng} latlng
  */
 const getAddressFromLatLng = async (lat, lng) => {
-    const results = await geocoder.geocode({ location: { lat, lng } })
+    try {
+        const results = await geocoder.geocode({ location: { lat, lng } })
 
-    if (results && results.results?.length > 0) {
-        address.value = results.results[0].formatted_address
-        const components = results.results[0].address_components
-        // 都道府県を抽出
-        const prefectureComponent = components.find(c =>
-            c.types.includes("administrative_area_level_1")
-        )
-        prefecture.value = prefectureComponent ? prefectureComponent.long_name : null
+        if (results && results.results?.length > 0) {
+            address.value = results.results[0].formatted_address
+            const components = results.results[0].address_components
+            // 都道府県を抽出
+            const prefectureComponent = components.find(c =>
+                c.types.includes("administrative_area_level_1")
+            )
+            prefecture.value = prefectureComponent ? prefectureComponent.long_name : null
+        }
     }
-    else {
-        console.log('Geocoding error')
+    catch (error) {
+        console.warn('住所取得に失敗しました', error)
     }
 }
 
@@ -135,70 +148,63 @@ const onMapClick = async (e) => {
 /**
  * 検索ボタンをクリックしたときにsearchDrawerを開く
  */
-const onClickSearch = async () => {
+const onClickSearch = () => {
     isOpenSearchDrawer.value = true
 }
-
-// /**
-//  * 検索結果のmoveボタンがクリックされたときにそのピンの座標へマップを移動する
-//  * @param param0 
-//  */
-// const onResultClicked = ({ latitude, longitude }) => {
-//     map.panTo(new google.maps.LatLng(latitude, longitude))
-// }
-
-// defineExpose({
-//     onResultClicked
-// })
 
 /**
  * マーカーを描画する関数
  * @param pin 
  */
 const renderMarker = async (pin) => {
-    const { AdvancedMarkerElement, PinElement } = await $googleMaps.loadMarkerLib()
-    let pinElement
+    try {
+        const { AdvancedMarkerElement, PinElement } = await $googleMaps.loadMarkerLib()
+        let pinElement
 
-    const bookmarks = bookmarkStore.bookmarkedPinsByUserId[authStore.loginUser?.id] || []
-    const isBookmarked = bookmarks.includes(pin.id)
+        const bookmarks = bookmarkStore.bookmarkedPinsByUserId[authStore.loginUser?.id] || []
+        const isBookmarked = bookmarks.includes(pin.id)
 
-    if (isBookmarked) {
-        pinElement = new PinElement({
-            background: "#fde047",
-            borderColor: "#ffffff",
-            scale: 1.5,
-            glyphColor: "#ffffff",
-            glyphText: String(pin.reviewCount),
+        if (isBookmarked) {
+            pinElement = new PinElement({
+                background: "#fde047",
+                borderColor: "#ffffff",
+                scale: 1.5,
+                glyphColor: "#ffffff",
+                glyphText: String(pin.reviewCount),
         
-        })
-    }
-    else {
+            })
+        }
+        else {
         // マーカーの情報
-        pinElement = new PinElement({
-            background: "#00ffff",
-            borderColor: "#ffffff",
-            scale: 1.5,
-            glyphColor: "#ffffff",
-            glyphText: String(pin.reviewCount),
+            pinElement = new PinElement({
+                background: "#00ffff",
+                borderColor: "#ffffff",
+                scale: 1.5,
+                glyphColor: "#ffffff",
+                glyphText: String(pin.reviewCount),
+            })
+        }
+    
+        const marker = new AdvancedMarkerElement({
+            map,
+            position: { lat: pin.latitude, lng: pin.longitude },
+            content: pinElement.element,
+        })
+
+        marker.pinId = pin.id // pinIdを保持（削除時に利用）
+
+        marker.addListener('click', async () => {
+            emit('pin-clicked', pin.id)
+        })
+
+        markers.push({
+            pinId: pin.id,
+            marker: marker
         })
     }
-    
-    const marker = new AdvancedMarkerElement({
-        map,
-        position: { lat: pin.latitude, lng: pin.longitude },
-        content: pinElement.element,
-    })
-
-    marker.pinId = pin.id // pinIdを保持（削除時に利用）
-
-    marker.addListener('click', async () => {
-        emit('pin-clicked', pin.id)
-    })
-
-    markers.push({
-        pinId: pin.id,
-        marker: marker
-    })
+    catch (error) {
+        console.warn(`ピンID: ${pin.id} のマーカーの描画に失敗しました`, error)
+    }
 }
 
 // pinStore.displayPinsByIdを監視し、変更があれば再描画
@@ -207,14 +213,14 @@ watch(
     async (newList, oldList) => {
         // 初回は無視（onMountedで描画するため）
         // if (!isInitialized.value) return
-        if(!map) return
+        if (!map) return
 
         const newIds = newList || []
         const oldIds = oldList || []
 
-        const isSame =
-            newIds.length === oldIds.length &&
-            newIds.every(id => oldIds.includes(id))
+        const isSame
+            = newIds.length === oldIds.length
+                && newIds.every(id => oldIds.includes(id))
 
         if (isSame) return
 
@@ -280,16 +286,21 @@ watch(
             const marker = markers.find(m => m.pinId === pinId)
             const pin = pinStore.pinsById[pinId]
             if (marker) {
-                const { PinElement } = await $googleMaps.loadMarkerLib()
-                const pinElement = new PinElement({
-                    background: "#00ffff",
-                    borderColor: "#ffffff",
-                    scale: 1.5,
-                    glyphColor: "#ffffff",
-                    glyphText: String(pin.reviewCount),
-                })
+                try {
+                    const { PinElement } = await $googleMaps.loadMarkerLib()
+                    const pinElement = new PinElement({
+                        background: "#00ffff",
+                        borderColor: "#ffffff",
+                        scale: 1.5,
+                        glyphColor: "#ffffff",
+                        glyphText: String(pin.reviewCount),
+                    })
 
-                marker.marker.content = pinElement.element
+                    marker.marker.content = pinElement.element
+                }
+                catch (error) {
+                    console.warn(`ピンID: ${pinId} のマーカーの色変更に失敗しました`, error)
+                }
             }
         }
     },

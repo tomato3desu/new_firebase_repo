@@ -8,7 +8,7 @@ export const useGoodStore = defineStore('goodStore', () => {
     const reviewStore = useReviewStore()
 
     const myGoodReviews = ref([]) // ログインユーザーがいいねしたレビューID
-    
+
     /**
      * ログインユーザーがgoodしたレビューのidを取得してmyGoodReviewsに格納
      * @returns 
@@ -17,7 +17,7 @@ export const useGoodStore = defineStore('goodStore', () => {
         if (!authStore.isLoggedIn) return
 
         const token = await authStore.getIdToken()
-        
+
         const res = await $fetch(`${config.public.apiBase}/api/good/reviews`, {
             method: 'GET',
             headers: {
@@ -59,7 +59,6 @@ export const useGoodStore = defineStore('goodStore', () => {
             await reviewStore.refreshReview(reviewId)
         }
         catch (error) {
-            console.log("toggle good failed:", error)
             // ロールバック
             if (isAlreadyGood) {
                 myGoodReviews.value.push(reviewId)
@@ -67,6 +66,8 @@ export const useGoodStore = defineStore('goodStore', () => {
             else {
                 myGoodReviews.value = myGoodReviews.value.filter((id) => id !== reviewId)
             }
+
+            throw error
         }
     }
 

@@ -5,6 +5,8 @@ const authStore = useAuthStore()
 const email = ref('')
 const password = ref('')
 
+const isLoading = ref(false)
+
 const emailError = ref('')
 const passwordError = ref('')
 
@@ -40,15 +42,19 @@ const register = async () => {
         return
     }
 
+    isLoading.value = true
+
     try {
         await authStore.register(email.value, password.value)
         alert("確認メールを送信しました。メール内のリンクをクリックし、登録を完了させてください")
         await navigateTo('/login')
     }
     catch (error) {
-        console.log(error)
-        alert('登録中にエラーが発生しました', error.message)
-    } 
+        alert('登録中にエラーが発生しました。メールアドレス、パスワードを確認してください')
+    }
+    finally {
+        isLoading.value = false
+    }
 }
 const cancel = () => {
     email.value = ''
@@ -119,6 +125,12 @@ const cancel = () => {
                     >
                         登録
                     </button>
+                </div>
+                <div
+                    v-if="isLoading"
+                    class="text-center text-slate-50 p-2 animate-pulse"
+                >
+                    Loading...
                 </div>
             </form>
         </div>

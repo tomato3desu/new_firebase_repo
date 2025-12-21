@@ -111,11 +111,20 @@ const close = () => {
 
 // マウント時にpinに関連するユーザー、レビューをfetchする
 onMounted(async () => {
-    await userStore.fetchUserIfNeeded(pin.value.createdUserId)
-    const fetchedReviews = await reviewStore.getReviewsByPin(pin.value.id)
-    const userIds = fetchedReviews.map(r => r.review.createdUserId).filter(Boolean)
-    await userStore.fetchUsersIfNeeded(userIds)
-    await goodStore.fetchMyGoodReviews()
+    try {
+        await userStore.fetchUserIfNeeded(pin.value.createdUserId)
+        const fetchedReviews = await reviewStore.getReviewsByPin(pin.value.id)
+        const userIds = fetchedReviews.map(r => r.review.createdUserId).filter(Boolean)
+        await userStore.fetchUsersIfNeeded(userIds)
+        await goodStore.fetchMyGoodReviews()
+    }
+    catch (e) {
+        throw createError({
+            statusCode: 500,
+            statusMessage: 'ピン情報取得エラー',
+            cause: e
+        })
+    }
 })
 
 watch(

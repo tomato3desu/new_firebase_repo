@@ -1,10 +1,14 @@
 <script setup>
 import { useAuthStore } from '~/composables/stores/auth'
+import { useBookmarkStore } from '~/composables/stores/bookmark'
 
 const authStore = useAuthStore()
+const bookmarkStore = useBookmarkStore()
 
 const email = ref('')
 const password = ref('')
+
+const isLoading = ref(false)
 
 const emailError = ref('')
 const passwordError = ref('')
@@ -40,15 +44,19 @@ const login = async () => {
         alert('入力内容を確認してください')
         return
     }
+    isLoading.value = true
 
     try {
         await authStore.login(email.value, password.value)
         console.log('ログイン成功', authStore.loginUser)
+        await bookmarkStore.fetchBookmarksByUserId(authStore.loginUser.id) // ブックマークを取得
         await navigateTo('/')
     }
     catch (error) {
-        console.log(error)
-        alert(error)
+        alert('メールアドレスまたはパスワードが正しくありません')
+    }
+    finally {
+        isLoading.value = false
     }
 }
 
@@ -121,6 +129,12 @@ const cancel = () => {
                     >
                         ログイン
                     </button>
+                </div>
+                <div
+                    v-if="isLoading"
+                    class="text-center text-slate-50 p-2 animate-pulse"
+                >
+                    Loading...
                 </div>
             </form>
         </div>

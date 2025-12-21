@@ -202,7 +202,7 @@ onMounted(async () => {
                             <th class="py-3 px-4 text-left">
                                 userId
                             </th>
-                            <th class="py-3 px-4 text-left" >
+                            <th class="py-3 px-4 text-left">
                                 show
                             </th>
                             <th class="py-3 px-4 text-left">
@@ -302,7 +302,7 @@ onMounted(async () => {
                             <th class="py-3 px-4 text-left">
                                 pinId
                             </th>
-                            <th class="py-3 px-4 text-left" >
+                            <th class="py-3 px-4 text-left">
                                 show
                             </th>
                             <th class="py-3 px-4 text-left">
@@ -378,7 +378,7 @@ onMounted(async () => {
                             <th class="py-3 px-4 text-left">
                                 reviewId
                             </th>
-                            <th class="py-3 px-4 text-left" >
+                            <th class="py-3 px-4 text-left">
                                 show
                             </th>
                             <th class="py-3 px-4 text-left">

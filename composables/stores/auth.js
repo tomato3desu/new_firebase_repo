@@ -1,14 +1,16 @@
 import { defineStore } from 'pinia'
-import { createUserWithEmailAndPassword, 
-    sendEmailVerification, 
-    signInWithEmailAndPassword, 
-    getAuth, 
-    onAuthStateChanged, 
+import {
+    createUserWithEmailAndPassword,
+    sendEmailVerification,
+    signInWithEmailAndPassword,
+    getAuth,
+    onAuthStateChanged,
     sendPasswordResetEmail,
     verifyBeforeUpdateEmail,
     EmailAuthProvider,
     reauthenticateWithCredential,
-    deleteUser } from 'firebase/auth'
+    deleteUser
+} from 'firebase/auth'
 import { useUserStore } from './user'
 
 export const useAuthStore = defineStore('authStore', () => {
@@ -18,7 +20,7 @@ export const useAuthStore = defineStore('authStore', () => {
     const loginUser = ref(null)
     const loginUserEmail = ref(null)
     const isLoggedIn = ref(false)
-    
+
     /**
      * ログイン処理
      * @param {string} email 
@@ -27,13 +29,7 @@ export const useAuthStore = defineStore('authStore', () => {
      */
     const login = async (email, password) => {
         let userCred
-        try {
-            userCred = await signInWithEmailAndPassword($auth, email, password)
-        }
-        catch (error) {
-            console.log(error)
-            throw new Error('メールアドレスまたはパスワードが違います')
-        }
+        userCred = await signInWithEmailAndPassword($auth, email, password)
         const user = userCred.user
 
         // メール認証が済んでいない場合
@@ -44,27 +40,19 @@ export const useAuthStore = defineStore('authStore', () => {
 
         const token = await user.getIdToken()
 
-        const res = await fetch(`${config.public.apiBase}/api/auth/login`, {
+        const res = await $fetch(`${config.public.apiBase}/api/auth/login`, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json"
+                Authorization: `Bearer ${token}`
             }
         })
 
-        if (!res.ok) {
-            console.error('ログイン失敗', await res.text())
-            return
-        }
-
-        const data = await res.json()
-
-        loginUser.value = data
+        loginUser.value = res
         loginUserEmail.value = email
         // userStoreにuser情報を保存
         const userStore = useUserStore()
-        userStore.usersById[data.id] = data
-        
+        userStore.usersById[res.id] = res
+
         isLoggedIn.value = true
     }
 
@@ -90,14 +78,8 @@ export const useAuthStore = defineStore('authStore', () => {
             throw new Error("メールアドレスを取得できませんでした")
         }
 
-        try {
-            await sendPasswordResetEmail($auth, email)
-            return true
-        }
-        catch (error) {
-            console.error("パスワードリセットエラー", error)
-            throw new Error("パスワードリセットメールの送信に失敗しました")
-        }
+        await sendPasswordResetEmail($auth, email)
+        return true
     }
 
     /**
@@ -107,7 +89,7 @@ export const useAuthStore = defineStore('authStore', () => {
      */
     const updateEmailAddress = async (currentPassword, newEmail) => {
         if (!loginUser.value) throw new Error("ログインしていません")
-        
+
         const email = loginUserEmail.value
         // 再認証
         const credential = EmailAuthProvider.credential(email, currentPassword)
@@ -128,33 +110,24 @@ export const useAuthStore = defineStore('authStore', () => {
         const email = loginUserEmail.value
         if (!email) throw new Error("メールアドレスが取得できません")
 
-        try {
-            // 再認証
-            const credential = EmailAuthProvider.credential(email, currentPassword)
-            await reauthenticateWithCredential(user, credential)
+        // 再認証
+        const credential = EmailAuthProvider.credential(email, currentPassword)
+        await reauthenticateWithCredential(user, credential)
 
-            const token = await getIdToken()
+        const token = await getIdToken()
 
-            // バックエンドに送信
-            const res = await $fetch(`${config.public.apiBase}/api/auth/delete/user`, {
-                method: 'DELETE',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-
-            // Firebase authから削除
-            await deleteUser(user)
-
-            if (res !== undefined) { 
-                throw new Error('削除失敗')
+        // バックエンドに送信
+        const res = await $fetch(`${config.public.apiBase}/api/auth/delete/user`, {
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${token}`
             }
+        })
 
-            logout()
-        }
-        catch (error) {
-            console.error("アカウント削除エラー", error)
-        }
+        // Firebase authから削除
+        await deleteUser(user)
+
+        logout()
     }
 
     /**
@@ -163,20 +136,15 @@ export const useAuthStore = defineStore('authStore', () => {
      * @param {string} token 
      */
     const updateProfile = async (updateInfo, token) => {
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/auth/updateProfile`, {
-                method: 'PUT',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-                body: updateInfo
-            })
+        const res = await $fetch(`${config.public.apiBase}/api/auth/updateProfile`, {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            body: updateInfo
+        })
 
-            loginUser.value = res
-        }
-        catch (e) {
-            console.error("ユーザー情報の更新に失敗しました", e)
-        }
+        loginUser.value = res
     }
 
     const logout = () => {
@@ -190,7 +158,7 @@ export const useAuthStore = defineStore('authStore', () => {
         const auth = getAuth()
         let user = auth.currentUser
         if (!user) {
-        // Firebase がユーザー情報を復元するのを待つ
+            // Firebase がユーザー情報を復元するのを待つ
             user = await new Promise((resolve) => {
                 const unsubscribe = onAuthStateChanged(auth, (u) => {
                     unsubscribe()

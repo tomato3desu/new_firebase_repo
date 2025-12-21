@@ -8,6 +8,7 @@ export const useBookmarkStore = defineStore('bookmarkStore', () => {
     const pinStore = usePinStore()
 
     const bookmarkedPinsByUserId = ref({}) // key: userId, value: [pinId1, pinId2]
+    const fetchedAt = ref({}) // key: userId, value: Date
     const mybookmarkedPinIds = computed(() => { // ログインユーザーのブックマーク
         const user = authStore.loginUser
         if (!user || !user.id) return []
@@ -21,16 +22,16 @@ export const useBookmarkStore = defineStore('bookmarkStore', () => {
      */
     const fetchBookmarksByUserId = async (userId) => {
         if (!userId) return
-        try {
-            const res = await $fetch(`${config.public.apiBase}/api/bookmark/pins/${userId}`, {
-                method: 'GET'
-            })
-            // res: [ { pinId: 1 }, { pinId: 2 } ... ]
-            bookmarkedPinsByUserId.value[userId] = res
-        }
-        catch (e) {
-            console.error('Failed to fetch bookmarks:', e)
-        }
+
+        // 5分以内ならキャッシュを使う
+        if (fetchedAt.value[userId] && new Date() - fetchedAt.value[userId] > 5 * 60 * 1000) return
+
+        const res = await $fetch(`${config.public.apiBase}/api/bookmark/pins/${userId}`, {
+            method: 'GET'
+        })
+        // res: [ { pinId: 1 }, { pinId: 2 } ... ]
+        bookmarkedPinsByUserId.value[userId] = res
+        fetchedAt.value[userId] = new Date()
     }
 
     const toggleBookmark = async (pinId) => {
@@ -63,7 +64,6 @@ export const useBookmarkStore = defineStore('bookmarkStore', () => {
             await pinStore.refreshPin(pinId) // pin情報を更新
         }
         catch (e) {
-            console.error('Toggle bookmark failed:', e)
             // エラー時ロールバック
             if (isBookmarked) {
                 bookmarkedPinsByUserId.value[userId] = [...currentList, pinId]
@@ -71,6 +71,8 @@ export const useBookmarkStore = defineStore('bookmarkStore', () => {
             else {
                 bookmarkedPinsByUserId.value[userId] = currentList.filter(id => id !== pinId)
             }
+
+            throw e
         }
     }
 

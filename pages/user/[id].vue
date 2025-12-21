@@ -10,7 +10,8 @@ definePageMeta({
 
         try {
             await userStore.fetchUserIfNeeded(to.params.id)
-        } catch {
+        }
+        catch {
             throw createError({
                 statusCode: 404,
                 message: 'ユーザーが存在しません'

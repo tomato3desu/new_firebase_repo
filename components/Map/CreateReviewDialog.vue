@@ -66,7 +66,16 @@ const createNewReview = async () => {
     if (errorFile.value || errorTitle.value || errorDesc.value) return
     if (!title.value || !description.value || !season.value || !visitedDate.value || !visitedTime.value) return // バリデーションエラーがあれば即レス
 
-    await addToStorage() // storageに追加
+    try {
+        await addToStorage() // storageに追加
+    }
+    catch (err) {
+        toast.error({
+            title: '画像の保存に失敗しました。時間をおいて再度お試しください',
+            message: err.message
+        })
+        return
+    }
 
     // 作成するレビューの情報
     const addReviewInfo = {
@@ -81,27 +90,31 @@ const createNewReview = async () => {
         visitedTime: visitedTime.value
     }
 
-    const token = await authStore.getIdToken()
-    const addedReview = await reviewStore.addReview(addReviewInfo, token)
-    console.log(addedReview)
+    try {
+        const token = await authStore.getIdToken()
+        await reviewStore.addReview(addReviewInfo, token)
+    }   
+    catch (err) {
+        toast.error({
+            title: 'レビューの作成に失敗しました。時間をおいて再度お試しください',
+            message: err.message
+        })
+        return
+    }
+    
     close()
 }
 
 const addToStorage = async () => {
     if (!files.value || files.value.length === 0) return
 
-    try {
-        for (const file of files.value) {
-            const uuid = crypto.randomUUID()
-            const fileRef = storageRef($storage, `reviewImage/${uuid}.jpg`)
+    for (const file of files.value) {
+        const uuid = crypto.randomUUID()
+        const fileRef = storageRef($storage, `reviewImage/${uuid}.jpg`)
 
-            await uploadBytes(fileRef, file)
-            const url = await getDownloadURL(fileRef)
-            uploadedUrls.value.push(url)
-        }
-    }
-    catch (err) {
-        error.value = err.message
+        await uploadBytes(fileRef, file)
+        const url = await getDownloadURL(fileRef)
+        uploadedUrls.value.push(url)
     }
 }
 

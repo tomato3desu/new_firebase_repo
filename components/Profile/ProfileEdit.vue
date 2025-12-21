@@ -144,7 +144,6 @@ const updateProfile = async () => {
     }
     catch (err) {
         error.value = err.message
-        console.error("updateエラー", err)
     }
     finally {
         isUploading.value = false
