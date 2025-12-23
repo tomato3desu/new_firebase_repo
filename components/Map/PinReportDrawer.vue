@@ -44,7 +44,7 @@ const sendToBackend = async () => {
     catch (error) {
         toast.error({
             title: '通報に失敗しました。時間を置いて再度お試しください',
-            message: error.message
+            message: error?.response?._data?.message
         })
         close()
     }

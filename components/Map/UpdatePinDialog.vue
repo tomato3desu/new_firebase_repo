@@ -56,7 +56,7 @@ const updatePin = async () => {
                 title: '画像のアップロードに失敗しました。時間をおいて再度お試しください',
                 message: error.message
             })
-            isUpdating.value = false
+            close()
             return
         }
     }
@@ -70,24 +70,22 @@ const updatePin = async () => {
 
     try {
         const token = await authStore.getIdToken()
-        const updatedPin = await pinStore.updatePin(updatePinInfo, token)
+        await pinStore.updatePin(updatePinInfo, token)
         toast.success({
             title: 'ピンの更新に成功しました。'
         })
         // 元の画像を削除
         if (uploadedUrl.value && oldImagePath) await deleteThumbnailImage(oldImagePath) 
-        close()
     }
     catch (error) {
         toast.error({
             title: 'ピンの更新に失敗しました。時間をおいて再度お試しください',
-            message: error.message
+            message: error?.response?._data?.message
         })
-        isUpdating.value = false
-        return
     }
-
-    isUpdating.value = false
+    finally {
+        close()
+    }
 }
 
 /**
@@ -108,7 +106,7 @@ const deletePin = async () => {
         catch (error) {
             toast.error({
                 title: 'ピンの削除に失敗しました。時間をおいて再度お試しください',
-                message: error.message
+                message: error?.response?._data?.message
             })
             return
         }
@@ -217,6 +215,7 @@ const close = () => {
     previewUrl.value = null
     uploadedUrl.value = null
     error.value = null
+    isUpdating.value = false
 }
 
 // titleのバリデーションチェック

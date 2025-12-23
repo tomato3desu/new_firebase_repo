@@ -43,17 +43,17 @@ const isActiveAddBtn = computed(() => !errorTitle.value && !errorDesc.value && a
 const file = ref(null)
 const previewUrl = ref(null)
 const uploadedUrl = ref(null)
-const error = ref(null)
+// const error = ref(null)
 const isAdding = ref(false)
 
 const addPin = async () => {
     if (!props.latlng) {
         toast.error({
-            title: '位置情報の取得に失敗しました。お時間をおいて再度お試しください'
+            title: '位置情報の取得に失敗しました。時間をおいて再度お試しください'
         })
         return 
     }
-    if (errorTitle.value || errorDesc.value || !title.value || !description.value || !address.value || !prefectureId.value){
+    if (errorTitle.value || errorDesc.value || !title.value || !description.value || !address.value || !prefectureId.value) {
         toast.error({
             title: 'ピンの追加に失敗しました。',
             message: 'タイトル、詳細、住所、都道府県を入力してください'
@@ -70,7 +70,7 @@ const addPin = async () => {
             title: '画像の保存に失敗しました。時間をおいて再度お試しください',
             message: err.message
         })
-        isAdding.value = false
+        close()
         return
     }
 
@@ -94,13 +94,12 @@ const addPin = async () => {
     catch (err) {
         toast.error({
             title: 'ピンの追加に失敗しました。時間をおいて再度お試しください',
-            message: err.message
+            message: err?.response?._data?.message
         })
-        isAdding.value = false
-        return
     }
-    isAdding.value = false
-    close()
+    finally {
+        close()
+    }
 }
 
 const handleFileChange = (event) => {
@@ -130,6 +129,7 @@ const close = () => {
     isOpen.value = false
     previewUrl.value = null
     uploadedUrl.value = null
+    isAdding.value = false
 }
 
 // バリデーションチェック
@@ -168,7 +168,7 @@ watch(isOpen, async (value) => {
         catch (err) {
             toast.error({
                 title: '都道府県情報の取得に失敗しました。時間をおいて再度お試しください',
-                message: err.message
+                message: err?.response?._data?.message
             })
             return
         }
@@ -220,7 +220,7 @@ watch(isOpen, async (value) => {
             >
                 <select 
                     v-model="prefectureId" 
-                    class="border rounded text-slate-800 focus:outline-none focus:ring focus:ring-blue-300"
+                    class="border rounded text-slate-800 focus:outline-none focus:ring focus:ring-blue-300 mb-2"
                 >
                     <option
                         v-for="pref in prefStore.prefsById"

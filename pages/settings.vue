@@ -68,7 +68,7 @@ const deleteAccount = async () => {
     try {
         await authStore.deleteAccount(currentPassword.value)
     }
-    catch {
+    catch (error) {
         console.error("アカウント削除に失敗", error)
     }
 }

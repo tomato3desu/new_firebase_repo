@@ -121,7 +121,7 @@ onMounted(async () => {
     catch (e) {
         toast.error({
             title: 'ピン情報取得に失敗しました。時間をおいて再度お試しください',
-            message: e.message
+            message: e?.response?._data?.message
         })
     }
 })

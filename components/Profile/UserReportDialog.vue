@@ -39,7 +39,7 @@ const sendToBackend = async () => {
     catch (error) {
         toast.error({
             title: '通報失敗',
-            message: error.message
+            message: error?.response?._data?.message
         })
         
         close()

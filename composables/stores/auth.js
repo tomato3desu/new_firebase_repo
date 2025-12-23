@@ -117,7 +117,7 @@ export const useAuthStore = defineStore('authStore', () => {
         const token = await getIdToken()
 
         // バックエンドに送信
-        const res = await $fetch(`${config.public.apiBase}/api/auth/delete/user`, {
+        await $fetch(`${config.public.apiBase}/api/auth/delete/user`, {
             method: 'DELETE',
             headers: {
                 Authorization: `Bearer ${token}`
@@ -126,7 +126,7 @@ export const useAuthStore = defineStore('authStore', () => {
 
         // Firebase authから削除
         await deleteUser(user)
-
+        
         logout()
     }
 

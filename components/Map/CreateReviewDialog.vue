@@ -76,7 +76,7 @@ const createNewReview = async () => {
             title: '画像の保存に失敗しました。時間をおいて再度お試しください',
             message: err.message
         })
-        isAdding.value = false
+        close()
         return
     }
 
@@ -102,14 +102,13 @@ const createNewReview = async () => {
     }   
     catch (err) {
         toast.error({
-            title: 'レビューの作成に失敗しました。時間をおいて再度お試しください',
-            message: err.message
+            title: 'レビューの作成に失敗しました。',
+            message: err?.response?._data?.message
         })
-        isAdding.value = false
-        return
     }
-    isAdding.value = false
-    close()
+    finally {
+        close()
+    }
 }
 
 const addToStorage = async () => {
@@ -141,6 +140,7 @@ const close = () => {
     visitedDate.value = null
     visitedTime.value = null
     isOpen.value = false
+    isAdding.value = false
 }
 
 watch(title, (value) => {

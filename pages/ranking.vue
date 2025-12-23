@@ -22,7 +22,7 @@ const getRanking = async (prefId) => {
         catch (error) {
             toast.error({
                 title: 'ランキング情報の取得に失敗しました。時間をおいて再度お試しください',
-                message: error.message
+                message: error?.response?._data?.message
             })
         }
         return
@@ -34,7 +34,7 @@ const getRanking = async (prefId) => {
     catch (error) {
         toast.error({
             title: 'ランキング情報の取得に失敗しました。時間をおいて再度お試しください',
-            message: error.message
+            message: error?.response?._data?.message
         })
     }
 }
@@ -47,7 +47,7 @@ onMounted(async () => {
     catch (error) {
         toast.error({
             title: 'ランキング情報の取得に失敗しました。時間をおいて再度お試しください',
-            message: error.message
+            message: error?.response?._data?.message
         })
     }
 })

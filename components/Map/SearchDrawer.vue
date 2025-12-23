@@ -27,7 +27,7 @@ const searchPins = async () => {
     catch (error) {
         toast.error({
             title: '検索に失敗しました。時間を置いて再度お試しください',
-            message: error.message
+            message: error?.response?._data?.message
         })
     }
 }
@@ -51,7 +51,7 @@ onMounted(async () => {
     catch (error) {
         toast.error({
             title: '都道府県情報の取得に失敗しました。時間を置いて再度お試しください',
-            message: error.message
+            message: error?.response?._data?.message
         })
     }
 })

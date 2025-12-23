@@ -22,7 +22,7 @@ try {
 catch (error) {
     toast.error({
         title: 'ユーザー情報の取得に失敗しました。時間をおいて再度お試しください',
-        message: error.message
+        message: error?.response?._data?.message
     })
 }
 </script>

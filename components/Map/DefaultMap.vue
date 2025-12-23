@@ -46,7 +46,7 @@ onMounted(async () => {
     catch (error) {
         toast.error({ 
             title: '都道府県情報の取得に失敗しました。時間をおいて再度お試しください', 
-            message: error.message
+            message: error?.response?._data?.message
         })
     }
     
@@ -85,7 +85,7 @@ onMounted(async () => {
     catch (error) {
         toast.error({ 
             title: 'ピン情報の取得に失敗しました。時間をおいて再度お試しください', 
-            message: error.message
+            message: error?.response?._data?.message
         })
     }
 
@@ -170,7 +170,7 @@ const renderMarker = async (pin) => {
                 borderColor: "#ffffff",
                 scale: 1.5,
                 glyphColor: "#ffffff",
-                glyphText: String(pin.reviewCount),
+                glyphText: String(pin.reviewCount) || '0',
         
             })
         }
@@ -181,7 +181,7 @@ const renderMarker = async (pin) => {
                 borderColor: "#ffffff",
                 scale: 1.5,
                 glyphColor: "#ffffff",
-                glyphText: String(pin.reviewCount),
+                glyphText: String(pin.reviewCount) || '0',
             })
         }
     
@@ -274,7 +274,7 @@ watch(
                     borderColor: "#ffffff",
                     scale: 1.5,
                     glyphColor: "#ffffff",
-                    glyphText: String(pin.reviewCount),
+                    glyphText: String(pin.reviewCount) || '0',
                 })
 
                 marker.marker.content = pinElement.element
@@ -293,7 +293,7 @@ watch(
                         borderColor: "#ffffff",
                         scale: 1.5,
                         glyphColor: "#ffffff",
-                        glyphText: String(pin.reviewCount),
+                        glyphText: String(pin.reviewCount) || '0',
                     })
 
                     marker.marker.content = pinElement.element

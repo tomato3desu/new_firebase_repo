@@ -32,7 +32,7 @@ const prefId = ref(currentProfile.value.prefectureId)
 const file = ref(null)
 const previewUrl = ref(null)
 const cropper = ref(null)
-const isUploading = ref(null)
+const isUploading = ref(false)
 const uploadedUrl = ref(null)
 const error = ref(null)
 const isActiveUpdateBtn = computed(() => !isUploading.value && !nicknameError.value && !commentError.value)
@@ -61,7 +61,7 @@ const sendToBackend = async (profileData) => {
     catch (error) {
         toast.error({
             title: 'プロフィールの更新に失敗しました。時間をおいて再度お試しください',
-            message: error.message
+            message: error?.response?._data?.message
         })
     }
 }
@@ -176,7 +176,7 @@ onMounted(() => {
     catch (error) {
         toast.error({
             title: 'プロフィールの取得に失敗しました。時間をおいて再度お試しください',
-            message: error.message
+            message: error?.response?._data?.message
         })
     }
 })

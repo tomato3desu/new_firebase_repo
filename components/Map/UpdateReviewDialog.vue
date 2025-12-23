@@ -72,7 +72,7 @@ const updateReview = async () => {
             title: 'レビューの更新に失敗しました。時間をおいて再度お試しください',
             message: error.message
         })
-        isUpdating.value = false
+        close()
         return
     }
 
@@ -92,7 +92,7 @@ const updateReview = async () => {
 
     try { 
         const token = await authStore.getIdToken()
-        const newReview = await reviewStore.updateReview(reviewInfo, token)
+        await reviewStore.updateReview(reviewInfo, token)
 
         toast.success({
             title: 'レビューの更新に成功しました'
@@ -101,10 +101,11 @@ const updateReview = async () => {
     catch (error) {
         toast.error({
             title: 'レビューの更新に失敗しました。時間をおいて再度お試しください',
-            message: error.message
+            message: error?.response?._data?.message
         })
-        isUpdating.value = false
-        return
+    }
+    finally {
+        close()
     }
 
     // 削除画像があれば削除
@@ -133,15 +134,16 @@ const updateReview = async () => {
 const deleteReview = async () => {
     const isConfirm = window.confirm("本当に削除しますか？")
     if (isConfirm) {
+        let deletedReview
         try {
             const reviewId = review.value.review.id
             const token = await authStore.getIdToken()
-            const deletedReview = await reviewStore.deleteReview(reviewId, token)
+            deletedReview = await reviewStore.deleteReview(reviewId, token)
         }   
         catch (error) {
             toast.error({
                 title: 'レビューの削除に失敗しました。時間をおいて再度お試しください',
-                message: error.message
+                message: error?.response?._data?.message
             })
             return
         }
@@ -234,6 +236,7 @@ const close = () => {
     deletingReviewImages.value = []
     deletingReviewImageIds.value = []
     isOpen.value = false
+    isUpdating.value = false
 }
 
 // titleのバリデーションチェック

@@ -61,7 +61,7 @@ const showUser = async (reportId) => {
     catch (error) {
         toast.error({
             title: 'ユーザー情報の取得に失敗しました。時間をおいて再度お試しください',
-            message: error.message
+            message: error?.response?._data?.message
         })
     }
 }
@@ -93,7 +93,7 @@ const changeUserStatusResolved = async (reportId) => {
     catch (error) {
         toast.error({
             title: 'ユーザー通報の解決に失敗しました。時間をおいて再度お試しください',
-            message: error.message
+            message: error?.response?._data?.message
         })
     }
 }
@@ -112,7 +112,7 @@ const changePinStatusResolved = async (reportId) => {
     catch (error) {
         toast.error({
             title: 'ピン通報の解決に失敗しました。時間をおいて再度お試しください',
-            message: error.message
+            message: error?.response?._data?.message
         })
     }
 }
@@ -131,7 +131,7 @@ const changeReviewStatusResolved = async (reportId) => {
     catch (error) {
         toast.error({
             title: 'レビュー通報の解決に失敗しました。時間をおいて再度お試しください',
-            message: error.message
+            message: error?.response?._data?.message
         })  
     }
 }
@@ -151,7 +151,7 @@ const banUser = async () => {
         catch (error) {
             toast.error({
                 title: 'ユーザーのBANに失敗しました。時間をおいて再度お試しください',
-                message: error.message
+                message: error?.response?._data?.message
             })
         }
         closeUser()
