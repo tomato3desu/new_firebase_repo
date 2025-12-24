@@ -126,7 +126,7 @@ export const useAuthStore = defineStore('authStore', () => {
 
         // Firebase authから削除
         await deleteUser(user)
-        
+
         logout()
     }
 
@@ -136,12 +136,18 @@ export const useAuthStore = defineStore('authStore', () => {
      * @param {string} token 
      */
     const updateProfile = async (updateInfo, token) => {
+        const formData = new FormData()
+        if (updateInfo.nickname) formData.append('nickname', updateInfo.nickname)
+        if (updateInfo.comment) formData.append('comment', updateInfo.comment)
+        if (updateInfo.prefId) formData.append('prefId', updateInfo.prefId)
+        if (updateInfo.iconImage) formData.append('iconImage', updateInfo.iconImage)
+
         const res = await $fetch(`${config.public.apiBase}/api/auth/updateProfile`, {
             method: 'PUT',
             headers: {
                 Authorization: `Bearer ${token}`
             },
-            body: updateInfo
+            body: formData
         })
 
         loginUser.value = res

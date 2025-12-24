@@ -9,6 +9,8 @@ const props = defineProps({
     }
 })
 
+const config = useRuntimeConfig()
+
 const pinStore = usePinStore()
 const mapStore = useMapStore()
 
@@ -30,7 +32,7 @@ const onclickSearchResult = () => {
     <div 
         v-if="pin"
         class="h-20 border text-slate-50 border-slate-500 rounded-md bg-cover bg-center"
-        :style="{ backgroundImage: `url(${thumbnailImagePath})` }"
+        :style="{ backgroundImage: `url(${config.public.r2PublicUrl}/${thumbnailImagePath})` }"
     >
         <p class="ml-2">
             {{ title }}

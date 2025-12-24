@@ -33,7 +33,7 @@ const close = () => {
             <p class="text-sm py-0.5">
                 {{ star?.enName }}
             </p>
-            <NuxtImg 
+            <NuxtImg
                 :src="star?.starImage"
                 alt="image"
                 class="my-1"

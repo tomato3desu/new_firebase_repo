@@ -2,6 +2,8 @@
 import { usePrefStore } from '~/composables/stores/prefecture'
 import { useBookmarkStore } from '~/composables/stores/bookmark'
 
+const config = useRuntimeConfig()
+
 const { user } = defineProps({
     user: Object
 })
@@ -32,7 +34,7 @@ onMounted(async () => {
 <template>
     <div class="max-w-[calc(100vw-20px)] mx-auto mt-10 p-6 text-slate-50 border border-slate-500 rounded-2xl shadow overflow-y-auto bg-gradient-to-br from-slate-900 from- via-slate-700 via- to-slate-400 to-">
         <NuxtImg
-            :src="user?.iconImagePath || '/images/default_user.jpeg'"
+            :src="user?.iconImagePath ? `${config.public.r2PublicUrl}/${user.iconImagePath}` : '/images/default_user.jpeg'"
             class="w-32 h-32 object-cover rounded-sm mb-4 mx-auto"
         />
         <div class="flex items-center">

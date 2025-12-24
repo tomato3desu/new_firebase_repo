@@ -1,15 +1,12 @@
 <script setup>
 import { usePinStore } from '~/composables/stores/pin'
 import { useAuthStore } from '~/composables/stores/auth'
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { usePrefStore } from '~/composables/stores/prefecture'
 
 // ストア
 const pinStore = usePinStore()
 const authStore = useAuthStore()
 const prefStore = usePrefStore()
-
-const { $storage } = useNuxtApp()
 
 const toast = useToast()
 
@@ -42,8 +39,7 @@ const prefectureId = ref(null)
 const isActiveAddBtn = computed(() => !errorTitle.value && !errorDesc.value && authStore.isLoggedIn)
 const file = ref(null)
 const previewUrl = ref(null)
-const uploadedUrl = ref(null)
-// const error = ref(null)
+
 const isAdding = ref(false)
 
 const addPin = async () => {
@@ -62,17 +58,6 @@ const addPin = async () => {
     }
     
     isAdding.value = true
-    try {
-        await addToStorage()
-    }
-    catch (err) {
-        toast.error({
-            title: '画像の保存に失敗しました。時間をおいて再度お試しください',
-            message: err.message
-        })
-        close()
-        return
-    }
 
     const addPinInfo = {
         latitude: props.latlng.lat,
@@ -81,7 +66,7 @@ const addPin = async () => {
         address: address.value,
         prefectureId: prefectureId.value,
         description: description.value,
-        thumbnailImagePath: uploadedUrl.value
+        thumbnailImage: file.value
     }
 
     try {
@@ -110,17 +95,6 @@ const handleFileChange = (event) => {
     }
 }
 
-const addToStorage = async () => {
-    if (!file.value) return
-
-    const fileName = `${Date.now()}-pinStore.jpg`
-    const fileRef = storageRef($storage, `pinImage/${fileName}`)
-
-    await uploadBytes(fileRef, file.value)
-    const url = await getDownloadURL(fileRef)
-    uploadedUrl.value = url
-}
-
 const close = () => {
     title.value = ''
     errorTitle.value = ''
@@ -128,7 +102,7 @@ const close = () => {
     errorDesc.value = ''
     isOpen.value = false
     previewUrl.value = null
-    uploadedUrl.value = null
+    // uploadedUrl.value = null
     isAdding.value = false
 }
 

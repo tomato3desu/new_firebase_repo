@@ -6,6 +6,7 @@ import { useUserStore } from '~/composables/stores/user'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const config = useRuntimeConfig()
 
 const authStore = useAuthStore()
 const userStore = useUserStore()
@@ -117,8 +118,9 @@ const formatTime = (timeString) => {
             class="flex items-center mt-2"
         >
             <NuxtImg
-                :src=" userStore.usersById[review.review.createdUserId].iconImagePath || '/images/default_user.jpeg'"
-                alt="icon"
+                :src="userStore.usersById[review.review.createdUserId].iconImagePath 
+                    ? `${config.public.r2PublicUrl}/${userStore.usersById[review.review.createdUserId].iconImagePath}` 
+                    : '/images/default_user.jpeg'"
                 class="w-8 h-8 object-cover rounded-sm mr-4"
                 @click="openUserProfile"
             />
@@ -212,8 +214,7 @@ const formatTime = (timeString) => {
             <NuxtImg
                 v-for="reviewImage in review.review.reviewImages"
                 :key="reviewImage.id"
-                :src="reviewImage.imagePath"
-                alt="review image"
+                :src="`${config.public.r2PublicUrl}/${reviewImage.imagePath}`"
                 class="w-full h-24 object-cover rounded-none mb-2"
                 @click="onImageClick(reviewImage)"
             />

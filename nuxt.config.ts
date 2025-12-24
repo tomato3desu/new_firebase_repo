@@ -21,10 +21,11 @@ export default defineNuxtConfig({
         livlogApiBase: process.env.LIVLOG_API_BASE_URL,
         public: {
             firebaseAuthApiKey: process.env.FIREBASE_AUTH_API_KEY,
-            firebaseStorageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+            // firebaseStorageBucket: process.env.FIREBASE_STORAGE_BUCKET,
             googleMapApiKey: process.env.GOOGLE_MAP_API_KEY,
             googleMapId: process.env.GOOGLE_MAP_ID,
             apiBase: process.env.API_BASE_URL,
+            r2PublicUrl: process.env.R2_PUBLIC_URL,
         }
     }
 })

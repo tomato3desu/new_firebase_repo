@@ -1,11 +1,9 @@
 <script setup>
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { useAuthStore } from '~/composables/stores/auth'
 import { useReviewStore } from '~/composables/stores/review'
 
 const authStore = useAuthStore()
 const reviewStore = useReviewStore()
-const { $storage } = useNuxtApp()
 const toast = useToast()
 
 const isOpen = defineModel()
@@ -68,17 +66,6 @@ const createNewReview = async () => {
     if (errorFile.value || errorTitle.value || errorDesc.value) return
     if (!title.value || !description.value || !season.value || !visitedDate.value || !visitedTime.value) return // バリデーションエラーがあれば即レス
     isAdding.value = true
-    try {
-        await addToStorage() // storageに追加
-    }
-    catch (err) {
-        toast.error({
-            title: '画像の保存に失敗しました。時間をおいて再度お試しください',
-            message: err.message
-        })
-        close()
-        return
-    }
 
     // 作成するレビューの情報
     const addReviewInfo = {
@@ -87,7 +74,7 @@ const createNewReview = async () => {
         description: description.value,
         darknessLevel: darknessLevel.value,
         accessLevel: accessLevel.value,
-        reviewImagePaths: uploadedUrls.value,
+        reviewImages: files.value,
         season: season.value,
         visitedDate: visitedDate.value,
         visitedTime: visitedTime.value
@@ -108,19 +95,6 @@ const createNewReview = async () => {
     }
     finally {
         close()
-    }
-}
-
-const addToStorage = async () => {
-    if (!files.value || files.value.length === 0) return
-
-    for (const file of files.value) {
-        const uuid = crypto.randomUUID()
-        const fileRef = storageRef($storage, `reviewImage/${uuid}.jpg`)
-
-        await uploadBytes(fileRef, file)
-        const url = await getDownloadURL(fileRef)
-        uploadedUrls.value.push(url)
     }
 }
 

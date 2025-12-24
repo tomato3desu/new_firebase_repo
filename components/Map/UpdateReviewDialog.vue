@@ -1,7 +1,6 @@
 <script setup>
 import { useAuthStore } from '~/composables/stores/auth'
 import { useReviewStore } from '~/composables/stores/review'
-import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 
 const isOpen = defineModel()
 const props = defineProps({
@@ -13,8 +12,9 @@ const props = defineProps({
 
 const authStore = useAuthStore()
 const reviewStore = useReviewStore()
-const { $storage } = useNuxtApp()
 const toast = useToast()
+
+const config = useRuntimeConfig()
 
 const review = computed(() => reviewStore.reviewsById[props.reviewId])
 
@@ -86,7 +86,7 @@ const updateReview = async () => {
         season: season.value,
         visitedDate: visitedDate.value,
         visitedTime: visitedTime.value,
-        reviewImagePaths: uploadedUrls.value,
+        reviewImages: files.value,
         deleteReviewImages: deletingReviewImageIds.value
     }
 
@@ -107,25 +107,6 @@ const updateReview = async () => {
     finally {
         close()
     }
-
-    // 削除画像があれば削除
-    if (deletingReviewImages.value && deletingReviewImageIds.value) {
-        try {
-            for (const deleteImage of deletingReviewImages.value) {
-                const imagePath = deleteImage.imagePath
-                const path = extractPathFromUrl(imagePath)
-                await deleteFromStorage(path)
-            }
-        }
-        catch (error) {
-            console.warn("古い画像の削除に失敗", error)
-        }
-
-        reviewStore.reviewsById[props.reviewId].review.reviewImages = reviewStore.reviewsById[props.reviewId].review.reviewImages.filter((reviewImage) => !deletingReviewImageIds.value.includes(reviewImage.id))
-    }
-
-    isUpdating.value = false
-    close()
 }
 
 /**
@@ -134,11 +115,10 @@ const updateReview = async () => {
 const deleteReview = async () => {
     const isConfirm = window.confirm("本当に削除しますか？")
     if (isConfirm) {
-        let deletedReview
         try {
             const reviewId = review.value.review.id
             const token = await authStore.getIdToken()
-            deletedReview = await reviewStore.deleteReview(reviewId, token)
+            await reviewStore.deleteReview(reviewId, token)
         }   
         catch (error) {
             toast.error({
@@ -148,44 +128,8 @@ const deleteReview = async () => {
             return
         }
 
-        // 画像を削除
-        try {
-            for (const reviewImage of deletedReview.review.reviewImages) {
-                const reviewImagePath = extractPathFromUrl(reviewImage.imagePath)
-                deleteFromStorage(reviewImagePath)
-            }
-        }
-        catch (error) {
-            console.warn("古い画像の削除に失敗", error)
-        }
-
         close()
     }
-}
-
-/**
- * storageに追加
- */
-const addToStorage = async () => {
-    if (!files.value || files.value.length === 0) return
-
-    for (const file of files.value) {
-        const uuid = crypto.randomUUID()
-        const fileRef = storageRef($storage, `reviewImage/${uuid}.jpg`)
-
-        await uploadBytes(fileRef, file)
-        const url = await getDownloadURL(fileRef)
-        uploadedUrls.value.push(url)
-    }
-}
-
-/**
- * 
- * @param path ストレージから削除
- */
-const deleteFromStorage = async (path) => {
-    const oldRef = storageRef($storage, path)
-    await deleteObject(oldRef)
 }
 
 /**
@@ -196,23 +140,6 @@ const deleteReviewImage = (selectedReviewImage) => {
     existReviewImages.value = existReviewImages.value.filter(reviewImage => reviewImage !== selectedReviewImage)
     deletingReviewImages.value.push(selectedReviewImage)
     deletingReviewImageIds.value.push(selectedReviewImage.id)
-}
-
-/**
- * url解析
- * @param url 
- */
-const extractPathFromUrl = (url) => {
-    try {
-        const decoded = decodeURIComponent(url)
-        const start = decoded.indexOf('/o/') + 3
-        const end = decoded.indexOf('?')
-        return decoded.substring(start, end)
-    }
-    catch (e) {
-        console.warn('URL解析失敗:', e)
-        return null
-    }
 }
 
 /**
@@ -416,7 +343,7 @@ watch(description, (value) => {
                     class="mb-4 flex items-center justify-between"
                 >
                     <NuxtImg
-                        :src="existReveiewImage.imagePath"
+                        :src="`${config.public.r2PublicUrl}/${existReveiewImage.imagePath}`"
                         class="mb-4"
                     />
                     <button 

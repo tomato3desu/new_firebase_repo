@@ -178,6 +178,16 @@ ON reviews(created_user_id);
 CREATE INDEX idx_reviews_reviewed_pin_id
 ON reviews(reviewed_pin_id);
 
+# view INDEX
+CREATE INDEX idx_reviews_pin_darkness
+ON reviews (reviewed_pin_id, darkness_level);
+
+CREATE INDEX idx_reviews_pin_access
+ON reviews (reviewed_pin_id, access_level);
+
+CREATE INDEX idx_reviews_pin_id
+ON reviews (reviewed_pin_id);
+
 CREATE TABLE IF NOT EXISTS review_images (
     id INT AUTO_INCREMENT PRIMARY KEY,
     review_id int not null,
@@ -418,22 +428,6 @@ LEFT JOIN reviews r ON p.id = r.reviewed_pin_id
 LEFT JOIN pin_bookmarks pb ON p.id = pb.bookmarked_pin_id
 GROUP BY p.id;
 
-# INDEXES
-CREATE UNIQUE INDEX idx_pin_review_average_pin_id
-ON pin_review_average(pin_id);
-
-CREATE INDEX idx_pin_review_avg_darkness
-ON pin_review_average(avg_darkness);
-
-CREATE INDEX idx_pin_review_avg_access
-ON pin_review_average(avg_access);
-
-CREATE INDEX idx_pin_review_count
-ON pin_review_average(review_count);
-
-CREATE INDEX idx_pin_review_bookmark_count
-ON pin_review_average(pin_bookmark_count);
-
 
 create or REPLACE VIEW review_good_status as 
 SELECT
@@ -442,7 +436,6 @@ SELECT
 from reviews r
 LEFT JOIN review_good rg on r.id = rg.good_review_id
 group by r.id;
-
 
 select p.id, p.created_user_id, p.latitude, p.longitude, p.title, p.description, p.pref_id, p.address, p.thumbnail_image_path,
        pa.avg_darkness, pa.avg_access, pa.review_count, pa.pin_bookmark_count
@@ -465,4 +458,6 @@ where created_user_id = 5;
 explain
 select *
 from review_good_status
-where review_id in (1, 2, 3, 4, 5);
+where review_id = 10;
+
+update users set role = 'admin' where id = 1;

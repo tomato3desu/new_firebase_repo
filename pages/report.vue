@@ -3,7 +3,6 @@ import { useAuthStore } from '~/composables/stores/auth'
 import { useReportStore } from '~/composables/stores/report'
 import { useReviewStore } from '~/composables/stores/review'
 import { useUserStore } from '~/composables/stores/user'
-import { ref as storageRef, deleteObject } from 'firebase/storage'
 import { useRouter } from 'vue-router'
 
 definePageMeta({
@@ -17,8 +16,6 @@ const userStore = useUserStore()
 
 const router = useRouter()
 
-const { $storage } = useNuxtApp()
-
 const toast = useToast()
 
 const user = computed(() => authStore.loginUser)
@@ -27,18 +24,6 @@ const isDisplayPermitted = computed(() => user.value.role === 'admin')
 const userReportIds = computed(() => reportStore.displayUserReportsId || [])
 const pinReportIds = computed(() => reportStore.displayPinReportsId || [])
 const reviewReportIds = computed(() => reportStore.displayReviewReportsId || [])
-
-// reportIdからuserIdを特定
-const userIds = computed(() => {
-    const ids = userReportIds.value.map(id => reportStore.userReportsById[id].userId)
-    return [...new Set(ids)]
-})
-
-// reportIdからpinIdを特定
-const pinIds = computed(() => {
-    const ids = pinReportIds.value.map(id => reportStore.pinReportsById[id].pinId)
-    return [...new Set(ids)]
-})
 
 // reportIdからreviewIdを特定
 const reviewIds = computed(() => {
@@ -165,47 +150,9 @@ const deleteReview = async () => {
     const isConfirm = window.confirm("本当に削除しますか？")
     if (isConfirm) {
         const token = await authStore.getIdToken()
-        const deletedReview = await reviewStore.deleteReview(selectedReviewId.value, token)
+        await reviewStore.deleteReview(selectedReviewId.value, token)
         reportStore.displayReviewReportsId = reportStore.displayReviewReportsId.filter((id) => id !== selectedReviewReportId.value)
         closeReview()
-
-        // 画像を削除
-        for (const reviewImage of deletedReview.review.reviewImages) {
-            const reviewImagePath = extractPathFromUrl(reviewImage.imagePath)
-            deleteFromStorage(reviewImagePath)
-        }
-    }
-}
-
-/**
- * 
- * @param path ストレージから削除
- */
-const deleteFromStorage = async (path) => {
-    try {
-        const oldRef = storageRef($storage, path)
-        await deleteObject(oldRef)
-        console.log("古い画像の削除に成功", oldRef)
-    }
-    catch (error) {
-        console.log("古い画像の削除に失敗", error)
-    }
-}
-
-/**
- * url解析
- * @param url 
- */
-const extractPathFromUrl = (url) => {
-    try {
-        const decoded = decodeURIComponent(url)
-        const start = decoded.indexOf('/o/') + 3
-        const end = decoded.indexOf('?')
-        return decoded.substring(start, end)
-    }
-    catch (e) {
-        console.warn('URL解析失敗:', e)
-        return null
     }
 }
 

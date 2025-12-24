@@ -6,6 +6,8 @@ const toast = useToast()
 
 const isOpen = defineModel()
 
+const config = useRuntimeConfig()
+
 const user = computed(() => authStore.loginUser)
 
 const isAdmin = computed(() => user.value?.role === 'admin')
@@ -48,7 +50,7 @@ const logout = async () => {
         <!-- ユーザー情報 -->
         <div class="flex flex-col items-center text-center mb-8">
             <NuxtImg
-                :src="user?.iconImagePath || '/images/default_user.jpeg'"
+                :src="user?.iconImagePath ? `${config.public.r2PublicUrl}/${user.iconImagePath}` : 'images/default_user.jpeg'"
                 class="w-20 h-20 object-cover rounded-sm mb-2"
             />
             <p class="text-xl font-bold text-slate-50">

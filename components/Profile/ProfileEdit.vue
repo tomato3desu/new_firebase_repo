@@ -2,7 +2,6 @@
 import { useAuthStore } from '~/composables/stores/auth'
 import { usePrefStore } from '~/composables/stores/prefecture'
 import { useBookmarkStore } from '~/composables/stores/bookmark'
-import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { Cropper } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
 
@@ -13,8 +12,8 @@ const { user } = defineProps({
 const authStore = useAuthStore()
 const prefStore = usePrefStore()
 const bookmarkStore = useBookmarkStore()
-const { $storage } = useNuxtApp()
 const toast = useToast()
+const config = useRuntimeConfig()
 
 const currentProfile = ref({
     nickname: user?.nickname ?? null,
@@ -33,7 +32,6 @@ const file = ref(null)
 const previewUrl = ref(null)
 const cropper = ref(null)
 const isUploading = ref(false)
-const uploadedUrl = ref(null)
 const error = ref(null)
 const isActiveUpdateBtn = computed(() => !isUploading.value && !nicknameError.value && !commentError.value)
 
@@ -78,8 +76,6 @@ const updateProfile = async () => {
     try {
         // 画像があればfirebase storageに保存
         if (cropper.value) {
-            const oldImageUrl = authStore.loginUser.iconImagePath
-
             // Cropperからcanvasを取得
             const { canvas } = cropper.value.getResult()
             if (!canvas) {
@@ -92,18 +88,10 @@ const updateProfile = async () => {
                     throw new Error('blobの作成に失敗しました')
                 }
 
-                const fileName = `${Date.now()}-cropped.jpg`
-                const fileRef = storageRef($storage, `profileImage/${fileName}`)
-
-                // firebase storageに保存＆uploadedUrlにupload後のurlをセット
-                await uploadBytes(fileRef, blob)
-                const url = await getDownloadURL(fileRef)
-                uploadedUrl.value = url
-
                 await sendToBackend({
                     nickname: nickname.value,
                     comment: comment.value,
-                    iconImagePath: uploadedUrl.value,
+                    iconImage: blob,
                     prefId: prefId.value
                 })
 
@@ -111,22 +99,8 @@ const updateProfile = async () => {
 
                 nickname.value = ''
                 comment.value = ''
-                uploadedUrl.value = null
                 previewUrl.value = null
             }, 'image/jpg')
-
-            // 古い画像があれば削除
-            if (currentProfile.value.iconImagePath !== '' && oldImageUrl) {
-                try {
-                    const path = extractPathFromUrl(oldImageUrl)
-                    const oldRef = storageRef($storage, path)
-                    await deleteObject(oldRef)
-                    console.log('古い画像を削除しました')
-                }
-                catch (deleteError) {
-                    console.warn('古い画像の削除に失敗:', deleteError)
-                }
-            }
         }
         // なければ現在の画像パスをそのまま送信
         else {
@@ -148,23 +122,6 @@ const updateProfile = async () => {
     }
     finally {
         isUploading.value = false
-    }
-}
-
-/**
- * urlを解析するメソッド
- * @param url 
- */
-const extractPathFromUrl = (url) => {
-    try {
-        const decoded = decodeURIComponent(url)
-        const start = decoded.indexOf('/o/') + 3
-        const end = decoded.indexOf('?')
-        return decoded.substring(start, end)
-    }
-    catch (e) {
-        console.warn('URL解析失敗:', e)
-        return null
     }
 }
 
@@ -207,11 +164,9 @@ watch(comment, () => {
         <h2 class="text-2xl font-bold mb-4 text-center">
             プロフィール
         </h2>
-        <client-only>
-            <p>
-                ニックネーム：{{ currentProfile.nickname }}
-            </p>
-        </client-only>
+        <p>
+            ニックネーム：{{ currentProfile.nickname }}
+        </p>
         <p
             v-if="nicknameError"
             class="text-red-500"
@@ -224,11 +179,9 @@ watch(comment, () => {
             placeholder="ニックネーム編集"
             class="text-slate-800 mb-4 w-full border p-2 rounded focus:outline-none focus:ring focus:ring-blue-300"
         >
-        <client-only>
-            <p>
-                コメント：{{ currentProfile.comment }}
-            </p>
-        </client-only>
+        <p>
+            コメント：{{ currentProfile.comment }}
+        </p>
         <p
             v-if="commentError"
             class="text-red-500"
@@ -240,37 +193,32 @@ watch(comment, () => {
             placeholder="コメント編集"
             class="text-slate-800 mb-4 w-full border p-2 rounded focus:outline-none focus:ring focus:ring-blue-300"
         />
-        <client-only>
-            <p
-                v-if="prefStore.prefsById[prefId]"
+        <p
+            v-if="prefStore.prefsById[prefId]"
+        >
+            {{ prefStore.prefsById[prefId].name }}
+        </p>
+        <div v-if="prefStore.prefsById">
+            <select
+                v-model="prefId"
+                class="text-slate-800 rounded-sm focus:outline-none focus:ring focus:ring-blue-300"
             >
-                {{ prefStore.prefsById[prefId].name }}
-            </p>
-        </client-only>
-        <client-only>
-            <div v-if="prefStore.prefsById">
-                <select
-                    v-model="prefId"
-                    class="text-slate-800 rounded-sm focus:outline-none focus:ring focus:ring-blue-300"
+                <option
+                    v-for="pref in prefStore.prefsById"
+                    :key="pref.id"
+                    :value="pref.id"
                 >
-                    <option
-                        v-for="pref in prefStore.prefsById"
-                        :key="pref.id"
-                        :value="pref.id"
-                    >
-                        {{ pref.name }}
-                    </option>
-                </select>
-            </div>
-        </client-only>
-        
-        <client-only>
-            <NuxtImg
-                :src="currentProfile.iconImagePath || '/images/default_user.jpeg'"
-                alt="プロフィール画像"
-                class="w-32 h-32 object-cover rounded-sm my-4"
-            />
-        </client-only>
+                    {{ pref.name }}
+                </option>
+            </select>
+        </div>
+        <NuxtImg
+            :src="currentProfile.iconImagePath 
+                ? `${config.public.r2PublicUrl}/${currentProfile.iconImagePath}` 
+                : '/images/default_user.jpeg'"
+            alt="プロフィール画像"
+            class="w-32 h-32 object-cover rounded-sm my-4"
+        />
         <input
             type="file"
             accept="image/*"

@@ -73,6 +73,8 @@ const selectedGaralleryIndex = ref(0) // 現在の選択index
 
 const isBookmarked = computed(() => bookmarkStore.isBookmarkedByMe(pin.value.id))
 
+const config = useRuntimeConfig()
+
 // updateダイアログをopen
 const updatePin = () => {
     isOpenUpdatePinDialog.value = true
@@ -154,7 +156,7 @@ watch(
             <div
                 class="bg-cover bg-center rounded-none h-32 flex flex-col justify-center"
                 :style="pin.thumbnailImagePath
-                    ? { backgroundImage: `url(${pin.thumbnailImagePath})` }
+                    ? { backgroundImage: `url(${config.public.r2PublicUrl}/${pin.thumbnailImagePath})` }
                     : { backgroundImage: `url('images/saturn.png')` }"
             >
                 <div class="text-slate-50 p-4 rounded-lg">
@@ -181,8 +183,9 @@ watch(
                 class="flex items-center px-2 mt-2 text-slate-50"
             >
                 <NuxtImg
-                    :src=" userStore.usersById[pin.createdUserId].iconImagePath || '/images/default_user.jpeg'"
-                    alt="icon"
+                    :src="userStore.usersById[pin.createdUserId].iconImagePath 
+                        ? `${config.public.r2PublicUrl}/${userStore.usersById[pin.createdUserId].iconImagePath}` 
+                        : '/images/default_user.jpeg'"
                     class="w-8 h-8 object-cover rounded-sm mr-4"
                     @click="openUserProfile"
                 />

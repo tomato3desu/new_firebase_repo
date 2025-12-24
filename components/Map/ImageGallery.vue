@@ -11,6 +11,8 @@ const props = defineProps({
     }
 })
 
+const config = useRuntimeConfig()
+
 const currentIndex = ref(props.startIndex)
 
 const close = () => isOpen.value = false
@@ -56,8 +58,7 @@ onMounted(() => {
 
         <!-- 画像 -->
         <NuxtImg
-            :src="reviewImages[currentIndex]?.imagePath"
-            alt="gallery"
+            :src="`${config.public.r2PublicUrl}/${reviewImages[currentIndex]?.imagePath}`"
             class="max-h-[80vh] max-w-[80vw] object-contain transition-all duration-300"
         />
         <!-- 矢印 -->

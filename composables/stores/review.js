@@ -105,10 +105,26 @@ export const useReviewStore = defineStore('reviewStore', () => {
      * @returns 追加したレビュー
      */
     const addReview = async (reviewInfo, token) => {
+        const formData = new FormData()
+        formData.append('reviewedPinId', reviewInfo.reviewedPinId)
+        formData.append('title', reviewInfo.title)
+        formData.append('description', reviewInfo.description)
+        formData.append('darknessLevel', reviewInfo.darknessLevel)
+        formData.append('accessLevel', reviewInfo.accessLevel)
+        formData.append('season', reviewInfo.season)
+        formData.append('visitedDate', reviewInfo.visitedDate)
+        formData.append('visitedTime', reviewInfo.visitedTime)
+
+        if (reviewInfo.reviewImages && Array.isArray(reviewInfo.reviewImages)) {
+            reviewInfo.reviewImages.forEach(file => {
+                formData.append('reviewImages', file)
+            })
+        }
+
         const res = await $fetch(`${config.public.apiBase}/api/review/add`, {
             method: 'POST',
             headers: { Authorization: `Bearer ${token}` },
-            body: reviewInfo
+            body: formData
         })
 
         const pinId = res.review.reviewedPinId
@@ -133,10 +149,32 @@ export const useReviewStore = defineStore('reviewStore', () => {
      * @returns 
      */
     const updateReview = async (reviewInfo, token) => {
+        const formData = new FormData()
+        formData.append('reviewId', reviewInfo.reviewId)
+        formData.append('title', reviewInfo.title)
+        formData.append('description', reviewInfo.description)
+        formData.append('darknessLevel', reviewInfo.darknessLevel)
+        formData.append('accessLevel', reviewInfo.accessLevel)
+        formData.append('season', reviewInfo.season)
+        formData.append('visitedDate', reviewInfo.visitedDate)
+        formData.append('visitedTime', reviewInfo.visitedTime)
+
+        if (reviewInfo.reviewImages && Array.isArray(reviewInfo.reviewImages)) {
+            reviewInfo.reviewImages.forEach(file => {
+                formData.append('reviewImages', file)
+            })
+        }
+
+        if (reviewInfo.deleteReviewImages && Array.isArray(reviewInfo.deleteReviewImages)) {
+            reviewInfo.deleteReviewImages.forEach(id => {
+                formData.append('deleteReviewImageIds', id)
+            })
+        }
+
         const res = await $fetch(`${config.public.apiBase}/api/review/update`, {
             method: 'PUT',
             headers: { Authorization: `Bearer ${token}` },
-            body: reviewInfo
+            body: formData
         })
 
         const reviewId = res.review.id

@@ -6,6 +6,8 @@ const authStore = useAuthStore()
 const isLoggedIn = computed(() => authStore.isLoggedIn)
 const user = computed(() => authStore.loginUser)
 
+const config = useRuntimeConfig()
+
 const isOpenHeaderDrawer = ref(false)
 const isOpenHeaderSignDialog = ref(false)
 
@@ -61,8 +63,7 @@ const openSignDrawer = () => {
                 @click="toggleDrawer"
             >
                 <NuxtImg
-                    :src="user?.iconImagePath || 'images/default_user.jpeg'"
-                    alt="icon"
+                    :src="user?.iconImagePath ? `${config.public.r2PublicUrl}/${user.iconImagePath}` : 'images/default_user.jpeg'"
                     class="w-12 h-12 object-cover rounded-sm mr-auto"
                 />
             </div>

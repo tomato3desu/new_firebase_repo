@@ -17,6 +17,7 @@ const { pinId, rank } = defineProps({
 const pinStore = usePinStore()
 const prefStore = usePrefStore()
 const router = useRouter()
+const config = useRuntimeConfig()
 
 const pin = computed(() => pinStore.pinsById[pinId])
 const pref = computed(() => prefStore.prefsById[pin.value.prefectureId])
@@ -49,7 +50,7 @@ const onCardClicked = () => {
 
         <!-- Thumbnail -->
         <NuxtImg
-            :src="pin.thumbnailImagePath || 'images/saturn.png'"
+            :src="pin.thumbnailImagePath ? `${config.public.r2PublicUrl}/${pin.thumbnailImagePath}` : 'images/saturn.png'"
             alt="thumbnail"
             class="w-20 h-20 object-cover rounded-lg shadow-sm border border-gray-200 shrink-0"
         />

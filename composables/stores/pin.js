@@ -75,12 +75,23 @@ export const usePinStore = defineStore('pinStore', () => {
      * @returns 追加したピン
      */
     const addPin = async (addPinInfo, token) => {
+        const formData = new FormData()
+        formData.append('latitude', addPinInfo.latitude)
+        formData.append('longitude', addPinInfo.longitude)
+        formData.append('title', addPinInfo.title)
+        formData.append('address', addPinInfo.address)
+        formData.append('prefectureId', addPinInfo.prefectureId)
+        formData.append('description', addPinInfo.description)
+        if (addPinInfo.thumbnailImage) {
+            formData.append('thumbnailImage', addPinInfo.thumbnailImage)
+        }
+
         const res = await $fetch(`${config.public.apiBase}/api/pin/addPin`, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${token}`
             },
-            body: addPinInfo
+            body: formData
         })
 
         pinsById.value[res.id] = res // pinsByIdに格納
@@ -98,12 +109,20 @@ export const usePinStore = defineStore('pinStore', () => {
      * @returns 更新後ピン
      */
     const updatePin = async (updatePinInfo, token) => {
+        const formData = new FormData()
+        formData.append('id', updatePinInfo.id)
+        formData.append('title', updatePinInfo.title)
+        formData.append('description', updatePinInfo.description)
+        if (updatePinInfo.thumbnailImage) {
+            formData.append('thumbnailImage', updatePinInfo.thumbnailImage)
+        }
+
         const res = await $fetch(`${config.public.apiBase}/api/pin/updatePin`, {
             method: 'PUT',
             headers: {
                 Authorization: `Bearer ${token}`
             },
-            body: updatePinInfo
+            body: formData
         })
 
         pinsById.value[res.id] = res // pinsByIdに格納
