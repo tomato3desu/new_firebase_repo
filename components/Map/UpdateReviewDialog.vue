@@ -24,29 +24,45 @@ const season = ref(review.value.review.season)
 const visitedDate = ref(review.value.review.visitedDate)
 const visitedTime = ref(review.value.review.visitedTime)
 const existReviewImages = ref(review.value.review.reviewImages)
-const deletingReviewImages = ref([])
-const deletingReviewImageIds = ref([])
+const deleteReviewImageIds = ref([])
 const files = ref([])
 const previewUrls = ref([])
 const uploadedUrls = ref([])
 const error = ref('')
-const title = ref(null)
-const description = ref(null)
+const title = ref('')
+const description = ref('')
 const errorTitle = ref(null)
 const errorDesc = ref(null)
 const isActiveReviewBtn = computed(() => !errorTitle.value && !errorDesc.value && authStore.isLoggedIn)
 const isUpdating = ref(false)
 
+const MAX_IMAGES = 10
+const errorFile = ref(null)
+
 /**
  * inputのファイル変更時にpreviewUrlsを変更
  * @param event 
  */
+// const handleFileChange = (event) => {
+//     const selectedFiles = event.target.files
+//     if (!selectedFiles || selectedFiles.length === 0) return
+
+//     files.value = Array.from(selectedFiles) // fileList => arrayに変換して格納
+
+//     previewUrls.value = files.value.map(file => URL.createObjectURL(file))
+// }
+
 const handleFileChange = (event) => {
     const selectedFiles = event.target.files
     if (!selectedFiles || selectedFiles.length === 0) return
 
-    files.value = Array.from(selectedFiles) // fileList => arrayに変換して格納
+    const newFiles = Array.from(selectedFiles)
 
+    if (files.value.length + newFiles.length + existReviewImages.value.length > MAX_IMAGES) {
+        errorFile.value = `画像は最大${MAX_IMAGES}枚までです`
+    }
+
+    files.value = [...files.value, ...newFiles]
     previewUrls.value = files.value.map(file => URL.createObjectURL(file))
 }
 
@@ -54,27 +70,15 @@ const handleFileChange = (event) => {
  * レビューを更新
  */
 const updateReview = async () => {
-    if (errorTitle.value || errorDesc.value) {
+    if (errorTitle.value || errorDesc.value || errorFile.value) {
         toast.error({
             title: 'レビューの更新に失敗しました。',
-            message: 'タイトル、詳細を入力してください'
+            message: 'タイトル、詳細、画像を入力してください'
         })
         return
     } // バリデーションエラーがあれば即レス
 
     isUpdating.value = true
-
-    try {
-        await addToStorage()
-    }
-    catch (error) {
-        toast.error({
-            title: 'レビューの更新に失敗しました。時間をおいて再度お試しください',
-            message: error.message
-        })
-        close()
-        return
-    }
 
     // バックエンドに送信するreview情報
     const reviewInfo = {
@@ -87,7 +91,7 @@ const updateReview = async () => {
         visitedDate: visitedDate.value,
         visitedTime: visitedTime.value,
         reviewImages: files.value,
-        deleteReviewImages: deletingReviewImageIds.value
+        deleteReviewImageIds: deleteReviewImageIds.value
     }
 
     try { 
@@ -110,6 +114,15 @@ const updateReview = async () => {
 }
 
 /**
+ * ×ボタンをクリックしたときにクリックされた画像をdeleteReviewImageIdsにpush
+ * @param selectedReviewImage 
+ */
+const deleteReviewImage = (selectedReviewImage) => {
+    existReviewImages.value = existReviewImages.value.filter(reviewImage => reviewImage !== selectedReviewImage)
+    deleteReviewImageIds.value.push(selectedReviewImage.id)
+}
+
+/**
  * レビューを削除
  */
 const deleteReview = async () => {
@@ -119,27 +132,19 @@ const deleteReview = async () => {
             const reviewId = review.value.review.id
             const token = await authStore.getIdToken()
             await reviewStore.deleteReview(reviewId, token)
+            toast.success({
+                title: 'レビューの削除に成功しました'
+            })
         }   
         catch (error) {
             toast.error({
                 title: 'レビューの削除に失敗しました。時間をおいて再度お試しください',
                 message: error?.response?._data?.message
             })
-            return
         }
 
         close()
     }
-}
-
-/**
- * 画面から画像を削除しdeletingReviewImages&deletingreviewImageIdsにpush
- * @param selectedReviewImage 
- */
-const deleteReviewImage = (selectedReviewImage) => {
-    existReviewImages.value = existReviewImages.value.filter(reviewImage => reviewImage !== selectedReviewImage)
-    deletingReviewImages.value.push(selectedReviewImage)
-    deletingReviewImageIds.value.push(selectedReviewImage.id)
 }
 
 /**
@@ -152,18 +157,18 @@ const close = () => {
     previewUrls.value = []
     uploadedUrls.value = []
     error.value = ''
-    title.value = null
-    description.value = null
+    title.value = ''
+    description.value = ''
     errorTitle.value = null
     errorDesc.value = null
     season.value = review.value?.review.season || ''
     visitedDate.value = review.value?.review.visitedDate || ''
     visitedTime.value = review.value?.review.visitedTime || ''
     existReviewImages.value = review.value?.review.reviewImages || []
-    deletingReviewImages.value = []
-    deletingReviewImageIds.value = []
+    deleteReviewImageIds.value = []
     isOpen.value = false
     isUpdating.value = false
+    errorFile.value = null
 }
 
 // titleのバリデーションチェック
@@ -185,10 +190,19 @@ watch(description, (value) => {
         errorDesc.value = '詳細を入力してください'
     }
     else if (value.length >= 3000) {
-        errorDesc.value = '1~3000文字で入力してください'
+        errorDesc.value = '3000文字以内で入力してください'
     }
     else {
         errorDesc.value = null
+    }
+})
+
+watch(() => files.value.length + existReviewImages.value.length, (value) => {
+    if (value > MAX_IMAGES) {
+        errorFile.value = `画像は最大${MAX_IMAGES}枚までです`
+    }
+    else {
+        errorFile.value = null
     }
 })
 </script>
@@ -337,6 +351,9 @@ watch(description, (value) => {
                     </p>
                 </div>
 
+                <p class="text-sm text-slate-50 my-2">
+                    既存画像
+                </p>
                 <div 
                     v-for="existReveiewImage in existReviewImages" 
                     :key="existReveiewImage.id"
@@ -363,12 +380,19 @@ watch(description, (value) => {
                         class="mb-4 w-full border p-2 rounded"
                         @change="handleFileChange"
                     >
+                    <p class="text-sm text-slate-50 my-2">
+                        新規画像
+                    </p>
                     <NuxtImg
                         v-for="previewUrl in previewUrls"
                         :key="previewUrl"
                         :src="previewUrl"
                         class="mb-4"
                     />
+                </div>
+
+                <div class="mb-4 text-red-500 text-lg">
+                    {{ errorFile }}
                 </div>
 
                 <div class="flex justify-end space-x-3">

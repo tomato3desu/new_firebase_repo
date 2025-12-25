@@ -165,9 +165,9 @@ export const useReviewStore = defineStore('reviewStore', () => {
             })
         }
 
-        if (reviewInfo.deleteReviewImages && Array.isArray(reviewInfo.deleteReviewImages)) {
-            reviewInfo.deleteReviewImages.forEach(id => {
-                formData.append('deleteReviewImageIds', id)
+        if (reviewInfo.deleteReviewImageIds && Array.isArray(reviewInfo.deleteReviewImageIds)) {
+            reviewInfo.deleteReviewImageIds.forEach(id => {
+                formData.append('deleteReviewImages', id)
             })
         }
 

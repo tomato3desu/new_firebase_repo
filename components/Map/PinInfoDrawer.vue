@@ -104,6 +104,10 @@ const openUserProfile = () => {
 }
 
 const onReportClicked = () => {
+    if (!authStore.loginUser) {
+        alert('通報するにはログインしてください')
+        return
+    }
     isOpenPinReportDialog.value = true
 }
 

@@ -27,6 +27,7 @@ let geocoder
 const address = ref(null)
 const prefecture = ref(null)
 const clickedLatLng = ref(null)
+const selectedPin = ref(null)
 
 // 検索関連
 const isOpenSearchDrawer = ref(false)
@@ -194,6 +195,8 @@ const renderMarker = async (pin) => {
         marker.pinId = pin.id // pinIdを保持（削除時に利用）
 
         marker.addListener('click', async () => {
+            selectedPin.value = pin.id
+            console.log(selectedPin.value)
             emit('pin-clicked', pin.id)
         })
 
@@ -206,6 +209,54 @@ const renderMarker = async (pin) => {
         console.warn(`ピンID: ${pin.id} のマーカーの描画に失敗しました`, error)
     }
 }
+
+// 選択されたピンの色を変更
+watch(
+    () => selectedPin.value,
+    async (newPinId, oldPinId) => {
+        if (!newPinId) return
+
+        const newMarker = markers.find(m => m.pinId === newPinId)
+        if (!newMarker) return
+
+        const { PinElement } = await $googleMaps.loadMarkerLib()
+
+        const newPinElement = new PinElement({
+            background: "#ff0000",
+            borderColor: "#ffffff",
+            scale: 1.5,
+            glyphColor: "#ffffff",
+            glyphText: String(pinStore.pinsById[newPinId].reviewCount) || '0',
+        })
+        newMarker.marker.content = newPinElement.element
+
+        if (oldPinId) {
+            const oldMarker = markers.find(m => m.pinId === oldPinId)
+            if (!oldMarker) return
+
+            if (bookmarkStore.mybookmarkedPinIds.includes(oldPinId)) {
+                const oldPinElement = new PinElement({
+                    background: "#fde047",
+                    borderColor: "#ffffff",
+                    scale: 1.5,
+                    glyphColor: "#ffffff",
+                    glyphText: String(pinStore.pinsById[oldPinId].reviewCount) || '0',
+                })
+                oldMarker.marker.content = oldPinElement.element
+            }
+            else {
+                const oldPinElement = new PinElement({
+                    background: "#00ffff",
+                    borderColor: "#ffffff",
+                    scale: 1.5,
+                    glyphColor: "#ffffff",
+                    glyphText: String(pinStore.pinsById[oldPinId].reviewCount) || '0',
+                })
+                oldMarker.marker.content = oldPinElement.element
+            }
+        }
+    }
+)
 
 // pinStore.displayPinsByIdを監視し、変更があれば再描画
 watch(

@@ -78,6 +78,10 @@ const onGoodClicked = async () => {
 }
 
 const onReportClicked = () => {
+    if (!authStore.loginUser) {
+        alert('通報するにはログインしてください')
+        return
+    }
     isOpenReviewReportDialog.value = true
 }
 

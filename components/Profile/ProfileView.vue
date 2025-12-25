@@ -1,7 +1,9 @@
 <script setup>
 import { usePrefStore } from '~/composables/stores/prefecture'
 import { useBookmarkStore } from '~/composables/stores/bookmark'
+import { useAuthStore } from '~/composables/stores/auth'
 
+const authStore = useAuthStore()    
 const config = useRuntimeConfig()
 
 const { user } = defineProps({
@@ -14,6 +16,10 @@ const bookmarkStore = useBookmarkStore()
 const isOpenUserReportDialog = ref(false)
 
 const onReportClicked = () => {
+    if (!authStore.loginUser) {
+        alert('通報するにはログインしてください')
+        return
+    }
     isOpenUserReportDialog.value = true
 }
 
