@@ -5,6 +5,8 @@ definePageMeta({
     middleware: 'auth'
 })
 
+const toast = useToast()
+
 const authStore = useAuthStore()
 
 const isLoggedIn = computed(() => authStore.isLoggedIn)
@@ -12,24 +14,25 @@ const email = computed(() => authStore.loginUserEmail)
 const isOpenResetEmail = ref(false)
 
 // メール変更用
-const newEmail = ref(null)
-const emailError = ref(null)
-const password = ref(null)
-const passwordError = ref(null)
+const newEmail = ref('')
+const emailError = ref('')
+const password = ref('')
+const passwordError = ref('')
 
 // アカウント削除用
-const currentPassword = ref(null)
-const currentPasswordError = ref(null)
+const isOpenDeleteAccount = ref(false)
+const currentPassword = ref('')
+const currentPasswordError = ref('')
 
 const openResetEmail = () => {
     isOpenResetEmail.value = true
 }
 
 const closeResetEmail = () => {
-    newEmail.value = false
-    emailError.value = false
-    password.value = false
-    passwordError.value = false
+    newEmail.value = ''
+    emailError.value = ''
+    password.value = ''
+    passwordError.value = ''
     isOpenResetEmail.value = false
 }
 
@@ -38,12 +41,18 @@ const sendResetEmail = async () => {
 
     try {
         await authStore.updateEmailAddress(password.value, newEmail.value)
-        alert('新しいメールアドレスに変更用メールを送信しました。メール確認後再度ログインしてください')
+        toast.success({
+            title: "新しいメールアドレスに変更用メールを送信しました",
+            description: "メール確認後再度ログインしてください",
+        })
         closeResetEmail()
         authStore.logout()
     }
     catch (error) {
-        console.error("メールアドレス変更用メールの送信に失敗しました", error)
+        toast.error({
+            title: "メールアドレス変更用メールの送信に失敗しました",
+            description: error.message,
+        })
     }
 }
 
@@ -52,11 +61,27 @@ const sendResetPassword = async () => {
 
     try {
         await authStore.sendPasswordReset()
-        alert("パスワード再設定メールを送信しました")
+        toast.success({
+            title: "パスワード再設定メールを送信しました",
+            description: "パスワード変更後再度ログインしてください",
+        })
     }
     catch (error) {
-        console.error("パスワードの変更に失敗しました", error)
+        toast.error({
+            title: "パスワード再設定メールの送信に失敗しました",
+            description: error.message,
+        })
     }
+}
+
+const openDeleteAccount = () => {
+    isOpenDeleteAccount.value = true
+}
+
+const closeDeleteAccount = () => {
+    currentPassword.value = ''
+    currentPasswordError.value = ''
+    isOpenDeleteAccount.value = false
 }
 
 const deleteAccount = async () => {
@@ -69,7 +94,10 @@ const deleteAccount = async () => {
         await authStore.deleteAccount(currentPassword.value)
     }
     catch (error) {
-        console.error("アカウント削除に失敗", error)
+        toast.error({
+            title: "アカウント削除に失敗しました",
+            description: error.message,
+        })
     }
 }
 
@@ -90,6 +118,7 @@ const deleteAccount = async () => {
                 </p>
 
                 <button
+                    v-if="!isOpenResetEmail"
                     class="w-full bg-sky-500 text-white py-2 rounded-md hover:bg-sky-600 transition"
                     @click="openResetEmail"
                 >
@@ -144,6 +173,14 @@ const deleteAccount = async () => {
                     </div>
 
                     <button
+                        v-if="isOpenResetEmail"
+                        class="w-full mt-4 bg-gray-400 text-white py-2 rounded-md hover:bg-gray-500 transition"
+                        @click="closeResetEmail"
+                    >
+                        閉じる
+                    </button>
+
+                    <button
                         class="w-full bg-teal-500 text-white py-2 rounded-md hover:bg-teal-600 transition"
                         @click="sendResetEmail"
                     >
@@ -166,32 +203,46 @@ const deleteAccount = async () => {
                 <h2 class="text-xl font-bold mb-2 border-b pb-2 text-red-500">
                     アカウント削除
                 </h2>
-
-                <label
-                    for="currentPassword"
-                    class="block text-sm font-medium"
-                >現在のパスワード</label>
-                <input
-                    id="currentPassword"
-                    v-model="currentPassword"
-                    type="password"
-                    placeholder="currentPassword"
-                    required
-                    class="text-slate-800 mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
-                >
-                <p
-                    v-if="currentPasswordError"
-                    class="text-red-500 mt-1"
-                >
-                    {{ currentPasswordError }}
-                </p>
-
                 <button
+                    v-if="!isOpenDeleteAccount"
                     class="w-full mt-4 bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition"
-                    @click="deleteAccount"
+                    @click="openDeleteAccount"
                 >
                     アカウントを削除
                 </button>
+
+                <div v-if="isOpenDeleteAccount">
+                    <label
+                        for="currentPassword"
+                        class="block text-sm font-medium"
+                    >現在のパスワード</label>
+                    <input
+                        id="currentPassword"
+                        v-model="currentPassword"
+                        type="password"
+                        placeholder="currentPassword"
+                        required
+                        class="text-slate-800 mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+                    >
+                    <p
+                        v-if="currentPasswordError"
+                        class="text-red-500 mt-1"
+                    >
+                        {{ currentPasswordError }}
+                    </p>
+                    <button
+                        class="w-full mt-4 bg-gray-400 text-white py-2 rounded-md hover:bg-gray-500 transition"
+                        @click="closeDeleteAccount"
+                    >
+                        閉じる
+                    </button>
+                    <button
+                        class="w-full mt-4 bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition"
+                        @click="deleteAccount"
+                    >
+                        アカウントを削除
+                    </button>
+                </div>
             </section>
         </div>
     </div>

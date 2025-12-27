@@ -29,6 +29,14 @@ const prefecture = ref(null)
 const clickedLatLng = ref(null)
 const selectedPin = ref(null)
 
+// pinのscale
+const DEFAULT_PIN_SCALE = 1.3
+const OVER_TEN_PIN_SCALE = 1.5
+const OVER_HUNDRED_PIN_SCALE = 1.7
+const OVER_TWO_HUNDRED_PIN_SCALE = 1.9
+
+// pinの数字
+const MAX_PIN_NUMBER = 99
 // 検索関連
 const isOpenSearchDrawer = ref(false)
 
@@ -169,9 +177,9 @@ const renderMarker = async (pin) => {
             pinElement = new PinElement({
                 background: "#fde047",
                 borderColor: "#ffffff",
-                scale: 1.5,
+                scale: calcPinScale(pin.id),
                 glyphColor: "#ffffff",
-                glyphText: String(pin.reviewCount) || '0',
+                glyphText: calcPinNumber(pin.id),
         
             })
         }
@@ -180,9 +188,9 @@ const renderMarker = async (pin) => {
             pinElement = new PinElement({
                 background: "#00ffff",
                 borderColor: "#ffffff",
-                scale: 1.5,
+                scale: calcPinScale(pin.id),
                 glyphColor: "#ffffff",
-                glyphText: String(pin.reviewCount) || '0',
+                glyphText: calcPinNumber(pin.id),
             })
         }
     
@@ -196,7 +204,6 @@ const renderMarker = async (pin) => {
 
         marker.addListener('click', async () => {
             selectedPin.value = pin.id
-            console.log(selectedPin.value)
             emit('pin-clicked', pin.id)
         })
 
@@ -208,6 +215,30 @@ const renderMarker = async (pin) => {
     catch (error) {
         console.warn(`ピンID: ${pin.id} のマーカーの描画に失敗しました`, error)
     }
+}
+
+/**
+ * ピンのscaleを計算する関数
+ * @param pinId 
+ */
+const calcPinScale = (pinId) => {
+    const pin = pinStore.pinsById[pinId]
+    if (!pin) return DEFAULT_PIN_SCALE
+    if (pin.reviewCount >= 200) return OVER_TWO_HUNDRED_PIN_SCALE
+    if (pin.reviewCount >= 100) return OVER_HUNDRED_PIN_SCALE
+    if (pin.reviewCount >= 10) return OVER_TEN_PIN_SCALE
+    return DEFAULT_PIN_SCALE
+}
+
+/**
+ * ピンのglyphの数字を計算する関数
+ * @param pinId 
+ */
+const calcPinNumber = (pinId) => {
+    const pin = pinStore.pinsById[pinId]
+    if (!pin) return '0'
+    if (pin.reviewCount <= MAX_PIN_NUMBER) return String(pin.reviewCount)
+    return `${MAX_PIN_NUMBER}+`
 }
 
 // 選択されたピンの色を変更
@@ -224,9 +255,9 @@ watch(
         const newPinElement = new PinElement({
             background: "#ff0000",
             borderColor: "#ffffff",
-            scale: 1.5,
+            scale: calcPinScale(newPinId),
             glyphColor: "#ffffff",
-            glyphText: String(pinStore.pinsById[newPinId].reviewCount) || '0',
+            glyphText: calcPinNumber(newPinId),
         })
         newMarker.marker.content = newPinElement.element
 
@@ -238,9 +269,9 @@ watch(
                 const oldPinElement = new PinElement({
                     background: "#fde047",
                     borderColor: "#ffffff",
-                    scale: 1.5,
+                    scale: calcPinScale(oldPinId),
                     glyphColor: "#ffffff",
-                    glyphText: String(pinStore.pinsById[oldPinId].reviewCount) || '0',
+                    glyphText: calcPinNumber(oldPinId),
                 })
                 oldMarker.marker.content = oldPinElement.element
             }
@@ -248,9 +279,9 @@ watch(
                 const oldPinElement = new PinElement({
                     background: "#00ffff",
                     borderColor: "#ffffff",
-                    scale: 1.5,
+                    scale: calcPinScale(oldPinId),
                     glyphColor: "#ffffff",
-                    glyphText: String(pinStore.pinsById[oldPinId].reviewCount) || '0',
+                    glyphText: calcPinNumber(oldPinId),
                 })
                 oldMarker.marker.content = oldPinElement.element
             }
@@ -323,9 +354,9 @@ watch(
                 const pinElement = new PinElement({
                     background: "#fde047",
                     borderColor: "#ffffff",
-                    scale: 1.5,
+                    scale: calcPinScale(pinId),
                     glyphColor: "#ffffff",
-                    glyphText: String(pin.reviewCount) || '0',
+                    glyphText: calcPinNumber(pinId),
                 })
 
                 marker.marker.content = pinElement.element
@@ -342,9 +373,9 @@ watch(
                     const pinElement = new PinElement({
                         background: "#00ffff",
                         borderColor: "#ffffff",
-                        scale: 1.5,
+                        scale: calcPinScale(pinId),
                         glyphColor: "#ffffff",
-                        glyphText: String(pin.reviewCount) || '0',
+                        glyphText: calcPinNumber(pinId),
                     })
 
                     marker.marker.content = pinElement.element
