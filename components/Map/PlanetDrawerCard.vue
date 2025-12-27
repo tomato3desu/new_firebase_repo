@@ -1,5 +1,6 @@
 <script setup>
 import { usePinStore } from '~/composables/stores/pin'
+import { useAuthStore } from '~/composables/stores/auth'
 
 const { pinId } = defineProps({
     pinId: {
@@ -10,6 +11,7 @@ const { pinId } = defineProps({
 
 const toast = useToast()
 
+const authStore = useAuthStore()
 const pinStore = usePinStore()
 
 const pin = computed(() => pinStore.pinsById[pinId])
@@ -28,11 +30,15 @@ const isOpenPlanetInfoDialong = ref(false)
 const selectedStar = ref(null)
 
 const fetchPlanets = async () => {
-    stars.value = []
+    if (!authStore.isLoggedIn) {
+        alert('星座情報を取得するにはログインしてください')
+        return
+    }
     if (!date.value || !hour.value || !min.value || !lat.value || !lng.value) return
-
+    stars.value = []
     try {
         isLoading.value = true
+        const token = await authStore.getIdToken()
         const res = await $fetch(`/api/planet`, {
             query: {
                 lat: lat.value,
@@ -40,6 +46,9 @@ const fetchPlanets = async () => {
                 date: date.value,
                 hour: hour.value,
                 min: min.value
+            },
+            headers: {
+                Authorization: `Bearer ${token}`
             }
         })
 

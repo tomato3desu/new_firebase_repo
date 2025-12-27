@@ -348,7 +348,6 @@ watch(
         // 🔹 追加されたブックマーク → マーカー色変更
         for (const pinId of added) {
             const marker = markers.find(m => m.pinId === pinId)
-            const pin = pinStore.pinsById[pinId]
             if (marker) {
                 const { PinElement } = await $googleMaps.loadMarkerLib()
                 const pinElement = new PinElement({
@@ -366,7 +365,6 @@ watch(
         // 🔹 削除されたブックマーク → 元の色に戻す
         for (const pinId of removed) {
             const marker = markers.find(m => m.pinId === pinId)
-            const pin = pinStore.pinsById[pinId]
             if (marker) {
                 try {
                     const { PinElement } = await $googleMaps.loadMarkerLib()

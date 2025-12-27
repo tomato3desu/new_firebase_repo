@@ -1,5 +1,6 @@
 <script setup>
 import { usePinStore } from '~/composables/stores/pin'
+import { useAuthStore } from '~/composables/stores/auth'
 
 const { pinId } = defineProps({
     pinId: {
@@ -9,6 +10,7 @@ const { pinId } = defineProps({
 })
 
 const pinStore = usePinStore()
+const authStore = useAuthStore()
 
 const toast = useToast()
 
@@ -21,13 +23,21 @@ const isLoading = ref(false)
 
 const fetchWeather = async () => {
     if (!lat.value || !lng.value) return
+    if (!authStore.isLoggedIn) {
+        alert('天気情報を取得するにはログインしてください')
+        return
+    }
 
     try {
         isLoading.value = true
+        const token = await authStore.getIdToken()
         const res = await $fetch(`/api/weather`, {
             query: {
                 lat: lat.value,
                 lng: lng.value
+            },
+            headers: {
+                Authorization: `Bearer ${token}`
             }
         })
 
@@ -65,16 +75,10 @@ const formatMoonPhase = (mfStr) => {
     return '有明月'
 }
 
-onMounted(async () => {
-    await fetchWeather()
-})
-
 watch(
     () => pinId,
     async (newId) => {
         weatherData.value = null
-
-        await fetchWeather()
     },
     { immediate: true }
 )
@@ -84,6 +88,14 @@ watch(
     <div 
         class="text-slate-50 p-2"
     >
+        <div class="flex justify-center my-2">
+            <button
+                class="bg-slate-50 text-slate-800 hover:bg-slate-300 px-2 py-1 rounded"
+                @click="fetchWeather"
+            >
+                get weather
+            </button>
+        </div>
         <!-- loading -->
         <div
             v-if="isLoading"
@@ -93,6 +105,7 @@ watch(
                 now loading ...
             </p>
         </div>
+        
         <!-- weather -->
         <div
             v-if="weatherData"

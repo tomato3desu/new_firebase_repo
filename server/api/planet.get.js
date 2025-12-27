@@ -1,4 +1,10 @@
+import { requiredAuth } from "~/server/utils/api/requiredAuth"
+import { checkRateLimit } from "~/server/utils/api/rateLimmiter"
+
 export default defineEventHandler(async (event) => {
+    const { uid } = await requiredAuth(event)
+    checkRateLimit(uid, 6, 60_000)
+
     const config = useRuntimeConfig()
 
     const query = getQuery(event)
