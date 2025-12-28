@@ -86,95 +86,25 @@ onMounted(async () => {
                     placeholder="タイトル"
                 >
             </div>
-            <div>
-                <div class="flex items-center mt-2 mb-1">
-                    <font-awesome-icon
-                        icon="fa-solid fa-moon"
-                        class="h-4 w-4 mr-0.5"
-                    />
-                    <label class="block text-sm font-medium">暗さ</label>
-                </div>
-                <select 
+            <div class="flex">
+                <font-awesome-icon
+                    icon="fa-solid fa-moon"
+                    class="h-4 w-4 mr-1 mt-0.5"
+                />
+                <MapStarRating
                     v-model="minAvgDarkness"
-                    class="rounded-sm focus:outline-none focus:ring focus:ring-blue-300 text-slate-800"
-                >
-                    <option
-                        :value="1"
-                        selected
-                    >
-                        -----
-                    </option>
-                    <option
-                        :value="1"
-                    >
-                        1
-                    </option>
-                    <option
-                        :value="2"
-                    >
-                        2
-                    </option>
-                    <option
-                        :value="3"
-                    >
-                        3
-                    </option>
-                    <option
-                        :value="4"
-                    >
-                        4
-                    </option>
-                    <option
-                        :value="5"
-                    >
-                        5
-                    </option>
-                </select>
+                    label="暗さ"
+                />
             </div>
-            <div>
-                <div class="flex items-center mt-2 mb-1">
-                    <font-awesome-icon
-                        icon="fa-solid fa-route"
-                        class="h-4 w-4 mr-2"
-                    />
-                    <label class="block text-sm font-medium">アクセス</label>
-                </div>
-                <select 
+            <div class="flex">
+                <font-awesome-icon
+                    icon="fa-solid fa-route"
+                    class="h-4 w-4 mr-1 mt-0.5"
+                />
+                <MapStarRating
                     v-model="minAvgAccess"
-                    class="rounded-sm focus:outline-none focus:ring focus:ring-blue-300 text-slate-800"
-                >
-                    <option
-                        :value="1"
-                        selected
-                    >
-                        -----
-                    </option>
-                    <option
-                        :value="1"
-                    >
-                        1
-                    </option>
-                    <option
-                        :value="2"
-                    >
-                        2
-                    </option>
-                    <option
-                        :value="3"
-                    >
-                        3
-                    </option>
-                    <option
-                        :value="4"
-                    >
-                        4
-                    </option>
-                    <option
-                        :value="5"
-                    >
-                        5
-                    </option>
-                </select>
+                    label="アクセス"
+                />
             </div>
             <div v-if="prefStore.prefsById">
                 <div class="flex items-center mt-2 mb-1">

@@ -47,7 +47,7 @@ onMounted(() => {
 <template>
     <div
         v-if="isOpen"
-        class="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center"
+        class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center"
     >
         <!-- 閉じるボタン -->
         <font-awesome-icon 
@@ -59,7 +59,7 @@ onMounted(() => {
         <!-- 画像 -->
         <NuxtImg
             :src="`${config.public.r2PublicUrl}/${reviewImages[currentIndex]?.imagePath}`"
-            class="max-h-[80vh] max-w-[80vw] object-contain transition-all duration-300"
+            class="w-[90vw] h-[70vh] object-contain rounded shadow-lg"
         />
         <!-- 矢印 -->
         <font-awesome-icon 
@@ -72,5 +72,9 @@ onMounted(() => {
             class="absolute right-8 text-2xl text-slate-50 cursor-pointer select-none  h-6 w-6"
             @click="nextImage"
         />
+        <!-- カウンタ -->
+        <div class="absolute bottom-4 text-white text-sm">
+            {{ currentIndex + 1 }} / {{ reviewImages.length }}
+        </div>
     </div>
 </template>

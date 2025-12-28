@@ -423,7 +423,7 @@ watch(
         class="h-full w-full min-h-[calc(100vh-4rem)]"
     />
     <div 
-        class="absolute w-8 h-8 top-0 right-16 m-2 z-40 bg-neutral-700 shadow-lg rounded-sm"
+        class="absolute w-8 h-8 top-0 right-16 m-2 z-30 bg-neutral-700 shadow-lg rounded-sm"
     >
         <font-awesome-icon
             icon="fa-solid fa-magnifying-glass"

@@ -39,7 +39,7 @@ watch(() => bookmarks.value,
     <div v-if="mode">
         <!-- Drawer本体 -->
         <div
-            class="max-w-[calc(100vw-20px)] fixed top-0 right-0 h-full shadow-xl z-40 transition-all duration-300"
+            class="max-w-[calc(100vw-20px)] fixed top-0 right-0 h-full shadow-xl z-30 transition-all duration-300"
             :class="isOpen ? 'w-80' : 'w-0'"
         >
             <div class="h-6" />

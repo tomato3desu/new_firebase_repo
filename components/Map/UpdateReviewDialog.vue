@@ -39,32 +39,88 @@ const isUpdating = ref(false)
 const MAX_IMAGES = 10
 const errorFile = ref(null)
 
-/**
- * inputのファイル変更時にpreviewUrlsを変更
- * @param event 
- */
+const seasons = [
+    { label: '春', value: 'spring' },
+    { label: '夏', value: 'summer' },
+    { label: '秋', value: 'autumn' },
+    { label: '冬', value: 'winter' }
+]
+
+const isOpenImageGallery = ref(false)
+
+const openImageGallery = (image) => {
+    isOpenImageGallery.value = true
+}
+
+const isImageModalOpen = ref(false)
+const startIndex = ref(0)
+
+const openImage = (index) => {
+    startIndex.value = index
+    isImageModalOpen.value = true
+}
+
+const isDragging = ref(false)
+
+const handleFileChange = (event) => {
+    const selectedFiles = Array.from(event.target.files)
+    if (!selectedFiles || selectedFiles.length === 0) return
+    handleFiles(selectedFiles)
+    event.target.value = ''
+}
+
+const handleFileDrop = (event) => {
+    isDragging.value = false
+
+    const droppedFiles = Array.from(event.dataTransfer.files)
+    if (!droppedFiles.length) return
+
+    handleFiles(droppedFiles)
+    event.target.value = ''
+}
+
+const handleFiles = (newFiles) => {
+    const remaining = MAX_IMAGES - files.value.length - existReviewImages.value.length
+
+    if (remaining <= 0) {
+        errorFile.value = `画像は最大${MAX_IMAGES}枚までです`
+        return
+    }
+
+    const filesToAdd = newFiles
+        .filter(file => file.type.startsWith('image/'))
+        .slice(0, remaining)
+
+    files.value.push(...filesToAdd)
+    previewUrls.value = files.value.map(file =>
+        URL.createObjectURL(file)
+    )
+
+    errorFile.value
+        = newFiles.length > remaining
+            ? `画像は最大${MAX_IMAGES}枚までです`
+            : ''
+}
+
+const removeImage = (index) => {
+    files.value.splice(index, 1)
+    previewUrls.value.splice(index, 1)
+    errorFile.value = ''
+}
+
 // const handleFileChange = (event) => {
 //     const selectedFiles = event.target.files
 //     if (!selectedFiles || selectedFiles.length === 0) return
 
-//     files.value = Array.from(selectedFiles) // fileList => arrayに変換して格納
+//     const newFiles = Array.from(selectedFiles)
 
+//     if (files.value.length + newFiles.length + existReviewImages.value.length > MAX_IMAGES) {
+//         errorFile.value = `画像は最大${MAX_IMAGES}枚までです`
+//     }
+
+//     files.value = [...files.value, ...newFiles]
 //     previewUrls.value = files.value.map(file => URL.createObjectURL(file))
 // }
-
-const handleFileChange = (event) => {
-    const selectedFiles = event.target.files
-    if (!selectedFiles || selectedFiles.length === 0) return
-
-    const newFiles = Array.from(selectedFiles)
-
-    if (files.value.length + newFiles.length + existReviewImages.value.length > MAX_IMAGES) {
-        errorFile.value = `画像は最大${MAX_IMAGES}枚までです`
-    }
-
-    files.value = [...files.value, ...newFiles]
-    previewUrls.value = files.value.map(file => URL.createObjectURL(file))
-}
 
 /**
  * レビューを更新
@@ -218,81 +274,40 @@ watch(() => files.value.length + existReviewImages.value.length, (value) => {
                     レビュー編集
                 </h2>
 
-                <div class="mb-4 flex items-center justify-center">
+                <div class="mb-4 flex flex-col gap-2 justify-center">
                     <!-- TODO 星でレビューの評価を選択できる -->
-                    <div>
-                        <label class="block text-sm font-medium mb-1">暗さ</label>
-                        <select 
-                            v-model="darknessLevel"
-                            class="text-slate-800 border rounded p-1 focus:outline-none focus:ring focus:ring-blue-300"
-                        >
-                            <option :value="1">
-                                1
-                            </option>
-                            <option :value="2">
-                                2
-                            </option>
-                            <option
-                                :value="3"
-                            >
-                                3
-                            </option>
-                            <option :value="4">
-                                4
-                            </option>
-                            <option :value="5">
-                                5
-                            </option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1">アクセス</label>
-                        <select 
-                            v-model="accessLevel"
-                            class="text-slate-800 border rounded p-1 focus:outline-none focus:ring focus:ring-blue-300"
-                        >
-                            <option :value="1">
-                                1
-                            </option>
-                            <option :value="2">
-                                2
-                            </option>
-                            <option
-                                :value="3"
-                            >
-                                3
-                            </option>
-                            <option :value="4">
-                                4
-                            </option>
-                            <option :value="5">
-                                5
-                            </option>
-                        </select>
-                    </div>
+                    <MapStarRating
+                        v-model="darknessLevel"
+                        label="暗さ"
+                    />
+                    <MapStarRating
+                        v-model="accessLevel"
+                        label="アクセス"
+                    />
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">季節</label>
-                    <select
-                        v-model="season"
-                        required
-                        class="text-slate-800 border rounded p-1 focus:outline-none focus:ring focus:ring-blue-300"
-                    >
-                        <option value="spring">
-                            春
-                        </option>
-                        <option value="summer">
-                            夏
-                        </option>
-                        <option value="autumn">
-                            秋
-                        </option>
-                        <option value="winter">
-                            冬
-                        </option>
-                    </select>
+                    <label class="block text-sm font-medium mb-2">季節</label>
+
+                    <div class="flex gap-2">
+                        <label
+                            v-for="item in seasons"
+                            :key="item.value"
+                            class="px-4 py-2 rounded border cursor-pointer transition text-sm select-none"
+                            :class="season === item.value
+                                ? 'bg-yellow-400 text-slate-50 border-yellow-400'
+                                : 'bg-slate-50 text-slate-800 border-slate-300 hover:bg-slate-300'"
+                        >
+                            <input
+                                v-model="season"
+                                type="radio"
+                                class="hidden"
+                                :value="item.value"
+                            >
+                            {{ item.label }}
+                        </label>
+                    </div>
                 </div>
-                <div class="flex items-center mb-4">
+                <div class="flex items-center my-4 gap-2">
                     <div>
                         <label class="block text-sm font-medium mb-1">訪問日</label>
                         <input
@@ -355,23 +370,104 @@ watch(() => files.value.length + existReviewImages.value.length, (value) => {
                     既存画像
                 </p>
                 <div 
-                    v-for="existReveiewImage in existReviewImages" 
-                    :key="existReveiewImage.id"
-                    class="mb-4 flex items-center justify-between"
-                >
-                    <NuxtImg
-                        :src="`${config.public.r2PublicUrl}/${existReveiewImage.imagePath}`"
-                        class="mb-4"
-                    />
-                    <button 
-                        class="text-4xl text-red-500"
-                        @click="deleteReviewImage(existReveiewImage)"
+                    v-if="existReviewImages.length > 0"
+                    class="grid grid-cols-3 gap-3 mt-4">
+                    <div
+                        v-for="existReveiewImage in existReviewImages"
+                        :key="existReveiewImage.id"
+                        class="relative group"
                     >
-                        ×
-                    </button>
+                        <NuxtImg
+                            :src="`${config.public.r2PublicUrl}/${existReveiewImage.imagePath}`"
+                            class="w-full h-24 object-cover rounded"
+                            @click="openImageGallery(existReveiewImage)"
+                        />
+
+                        <MapImageGallery
+                            :reviewImages="existReviewImages"
+                            :start-index="existReviewImages.indexOf(existReveiewImage)"
+                            v-model="isOpenImageGallery"
+                        />
+
+                        <button
+                            class="absolute top-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 text-xs items-center justify-center"
+                            @click="deleteReviewImage(existReveiewImage)"
+                        >
+                            ✕
+                        </button>
+                    </div>
                 </div>
 
                 <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">
+                        画像（最大10枚）
+                    </label>
+
+                    <!-- アップロードエリア -->
+                    <label
+                        class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition hover:bg-slate-100"
+                        :class="errorFile ? 'border-red-500' : 'border-slate-300'"
+                        @dragover.prevent
+                        @dragenter.prevent="isDragging = true"
+                        @dragleave.prevent="isDragging = false"
+                        @drop.prevent="handleFileDrop"
+                    >
+                        <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            class="hidden"
+                            @change="handleFileChange"
+                        >
+
+                        <div class="text-center text-slate-500">
+                            <p class="text-sm">クリックして画像を選択</p>
+                            <p class="text-xs">またはドラッグ＆ドロップ</p>
+                        </div>
+                    </label>
+
+                    <!-- エラー -->
+                    <p
+                        v-if="errorFile"
+                        class="text-red-500 text-sm mt-1"
+                    >
+                        {{ errorFile }}
+                    </p>
+
+                    <!-- プレビュー -->
+                    <div
+                        v-if="previewUrls.length"
+                        class="grid grid-cols-3 gap-3 mt-4"
+                    >
+                        <div
+                            v-for="(url, index) in previewUrls"
+                            :key="url"
+                            class="relative group"
+                        >
+                            <NuxtImg
+                                :src="url"
+                                class="w-full h-24 object-cover rounded"
+                                @click="openImage(index)"
+                            />
+
+                            <MapImagePreviewModal
+                                v-model:isOpen="isImageModalOpen"
+                                :images="previewUrls"
+                                :start-index="startIndex"
+                            />
+
+                            <!-- 削除ボタン -->
+                            <button
+                                type="button"
+                                class="absolute top-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 text-xs items-center justify-center"
+                                @click="removeImage(index)"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="mb-4">
                     <label class="block text-sm font-medium mb-1">画像</label>
                     <input
                         type="file"
@@ -389,7 +485,7 @@ watch(() => files.value.length + existReviewImages.value.length, (value) => {
                         :src="previewUrl"
                         class="mb-4"
                     />
-                </div>
+                </div> -->
 
                 <div class="mb-4 text-red-500 text-lg">
                     {{ errorFile }}
