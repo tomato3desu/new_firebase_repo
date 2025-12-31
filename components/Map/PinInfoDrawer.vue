@@ -67,6 +67,8 @@ const isEditParmitted = computed(() => { // ログインユーザー＝ピン作
     // 作成者ならOK
     return user.id === p.createdUserId
 })
+
+const isOpenImageModal = ref(false) // 画像ギャラリーの表示フラグ
 const isOpenImageGallery = ref(false) // 画像ギャラリーの表示フラグ
 const selectedGaralleryImages = ref([]) // 表示中の画像一覧
 const selectedGaralleryIndex = ref(0) // 現在の選択index
@@ -74,6 +76,10 @@ const selectedGaralleryIndex = ref(0) // 現在の選択index
 const isBookmarked = computed(() => bookmarkStore.isBookmarkedByMe(pin.value.id))
 
 const config = useRuntimeConfig()
+
+const openImageModal = () => {
+    isOpenImageModal.value = true
+}
 
 // updateダイアログをopen
 const updatePin = () => {
@@ -123,6 +129,7 @@ onMounted(async () => {
         const userIds = fetchedReviews.map(r => r.review.createdUserId).filter(Boolean)
         await userStore.fetchUsersIfNeeded(userIds)
         await goodStore.fetchMyGoodReviews()
+        console.log(`${config.public.r2PublicUrl}/${pin.value.thumbnailImagePath}`)
     }
     catch (e) {
         toast.error({
@@ -162,6 +169,7 @@ watch(
                 :style="pin.thumbnailImagePath
                     ? { backgroundImage: `url(${config.public.r2PublicUrl}/${pin.thumbnailImagePath})` }
                     : { backgroundImage: `url('images/saturn.png')` }"
+                @click="openImageModal"
             >
                 <div class="text-slate-50 p-4 rounded-lg">
                     <h2 class="text-lg font-bold">
@@ -398,6 +406,11 @@ watch(
             </button>
         </div>
     </div>
+    <MapImagePreviewModal
+        v-model:is-open="isOpenImageModal"
+        :images="[config.public.r2PublicUrl + '/' + pin.thumbnailImagePath]"
+        :start-index="0"
+    />
     <MapImageGallery
         v-model="isOpenImageGallery"
         :review-images="selectedGaralleryImages"

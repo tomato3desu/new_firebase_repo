@@ -371,7 +371,8 @@ watch(() => files.value.length + existReviewImages.value.length, (value) => {
                 </p>
                 <div 
                     v-if="existReviewImages.length > 0"
-                    class="grid grid-cols-3 gap-3 mt-4">
+                    class="grid grid-cols-3 gap-3 mt-4"
+                >
                     <div
                         v-for="existReveiewImage in existReviewImages"
                         :key="existReveiewImage.id"
@@ -384,9 +385,9 @@ watch(() => files.value.length + existReviewImages.value.length, (value) => {
                         />
 
                         <MapImageGallery
-                            :reviewImages="existReviewImages"
-                            :start-index="existReviewImages.indexOf(existReveiewImage)"
                             v-model="isOpenImageGallery"
+                            :review-images="existReviewImages"
+                            :start-index="existReviewImages.indexOf(existReveiewImage)"
                         />
 
                         <button
@@ -451,7 +452,7 @@ watch(() => files.value.length + existReviewImages.value.length, (value) => {
                             />
 
                             <MapImagePreviewModal
-                                v-model:isOpen="isImageModalOpen"
+                                v-model:is-open="isImageModalOpen"
                                 :images="previewUrls"
                                 :start-index="startIndex"
                             />

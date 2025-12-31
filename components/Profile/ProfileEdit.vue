@@ -35,17 +35,54 @@ const isUploading = ref(false)
 const error = ref(null)
 const isActiveUpdateBtn = computed(() => !isUploading.value && !nicknameError.value && !commentError.value)
 
+const isImageModalOpen = ref(false)
+
+const openImage = () => {
+    isImageModalOpen.value = true
+}
+
+const isDragging = ref(false)
+
+const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0]
+    if (!selectedFile) return
+    handleFiles(selectedFile)
+    event.target.value = ''
+}
+
+const handleFileDrop = (event) => {
+    isDragging.value = false
+
+    const droppedFile = event.dataTransfer.files[0]
+    if (!droppedFile) return
+
+    handleFiles(droppedFile)
+    event.target.value = ''
+}
+
+const handleFiles = (newFile) => {
+    if (!newFile) return
+
+    file.value = newFile
+    previewUrl.value = URL.createObjectURL(file.value)
+}
+
+const removeImage = () => {
+    file.value = null
+    previewUrl.value = null
+}
+
 /**
  * ファイル変更時にpreviewUrlを変更
  * @param event 
  */
-const handleFileChange = (event) => {
-    const target = event.target
-    if (target.files && target.files[0]) {
-        file.value = target.files[0]
-        previewUrl.value = URL.createObjectURL(file.value)
-    }
-}
+// const handleFileChange = (event) => {
+//     const target = event.target
+//     if (target.files && target.files[0]) {
+//         file.value = target.files[0]
+//         previewUrl.value = URL.createObjectURL(file.value)
+//     }
+// }
 
 /**
  * tokenを取得してuserStoreのupdateProfileを実行
@@ -164,6 +201,16 @@ watch(comment, () => {
         <h2 class="text-2xl font-bold mb-4 text-center">
             プロフィール
         </h2>
+
+        <div class="flex justify-center items-center">
+            <NuxtImg
+                :src="currentProfile.iconImagePath
+                    ? `${config.public.r2PublicUrl}/${currentProfile.iconImagePath}`
+                    : '/images/default_user.jpeg'"
+                alt="プロフィール画像"
+                class="w-32 h-32 object-cover rounded-sm my-4"
+            />
+        </div>
         <p>
             ニックネーム：{{ currentProfile.nickname }}
         </p>
@@ -212,20 +259,93 @@ watch(comment, () => {
                 </option>
             </select>
         </div>
-        <NuxtImg
-            :src="currentProfile.iconImagePath 
-                ? `${config.public.r2PublicUrl}/${currentProfile.iconImagePath}` 
-                : '/images/default_user.jpeg'"
-            alt="プロフィール画像"
-            class="w-32 h-32 object-cover rounded-sm my-4"
-        />
-        <input
+
+        <!-- <input
             type="file"
             accept="image/*"
             class="mb-4 w-full border p-2 rounded"
             @change="handleFileChange"
-        >
-        <div
+        > -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium mb-2">
+                新規画像
+            </label>
+
+            <!-- アップロードエリア -->
+            <label
+                class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition hover:bg-slate-100 border-slate-300"
+                @dragover.prevent
+                @dragenter.prevent="isDragging = true"
+                @dragleave.prevent="isDragging = false"
+                @drop.prevent="handleFileDrop"
+            >
+                <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    class="hidden"
+                    @change="handleFileChange"
+                >
+
+                <div class="text-center text-slate-500">
+                    <p class="text-sm">クリックして画像を選択</p>
+                    <p class="text-xs">またはドラッグ＆ドロップ</p>
+                </div>
+            </label>
+
+            <!-- エラー -->
+            <!-- <p
+                v-if="errorFile"
+                class="text-red-500 text-sm mt-1"
+            >
+                {{ errorFile }}
+            </p> -->
+
+            <!-- プレビュー -->
+            <div
+                v-if="previewUrl"
+                class="mb-4"
+            >
+                <p class="font-semibold">
+                    プレビュー:
+                </p>
+                <Cropper
+                    ref="cropper"
+                    :src="previewUrl"
+                    :stencil-props="{
+                        aspectRatio: 1,
+                        movable: true,
+                        resizable: true,
+                    }"
+                    class="rounded-lg shadow w-full z-0"
+                />
+            </div>
+            <!-- <div
+                v-if="previewUrl"
+                class="relative group"
+            >
+                <NuxtImg
+                    :src="previewUrl"
+                    class="w-full h-full object-cover rounded my-2"
+                    @click="openImage"
+                />
+                <MapImagePreviewModal
+                    v-model:is-open="isImageModalOpen"
+                    :images="[previewUrl]"
+                    :start-index="0"
+                /> -->
+            <!-- 削除ボタン -->
+            <!-- <button
+                    type="button"
+                    class="absolute top-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 text-xs items-center justify-center"
+                    @click="removeImage"
+                >
+                    ✕
+                </button>
+            </div>  -->
+        </div>
+        
+        <!-- <div
             v-if="previewUrl"
             class="mb-4"
         >
@@ -242,7 +362,7 @@ watch(comment, () => {
                 }"
                 class="rounded-lg shadow w-full z-0"
             />
-        </div>
+        </div> -->
         <button
             :disabled="!isActiveUpdateBtn"
             class="w-full bg-teal-400 hover:bg-teal-500 py-2 rounded disabled:opacity-50"

@@ -42,6 +42,43 @@ const previewUrl = ref(null)
 
 const isAdding = ref(false)
 
+const isImageModalOpen = ref(false)
+
+const openImage = () => {
+    isImageModalOpen.value = true
+}
+
+const isDragging = ref(false)
+
+const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0]
+    if (!selectedFile) return
+    handleFiles(selectedFile)
+    event.target.value = ''
+}
+
+const handleFileDrop = (event) => {
+    isDragging.value = false
+
+    const droppedFile = event.dataTransfer.files[0]
+    if (!droppedFile) return
+
+    handleFiles(droppedFile)
+    event.target.value = ''
+}
+
+const handleFiles = (newFile) => {
+    if (!newFile) return
+
+    file.value = newFile
+    previewUrl.value = URL.createObjectURL(file.value)
+}
+
+const removeImage = () => {
+    file.value = null
+    previewUrl.value = null
+}
+
 const addPin = async () => {
     if (!props.latlng) {
         toast.error({
@@ -87,13 +124,13 @@ const addPin = async () => {
     }
 }
 
-const handleFileChange = (event) => {
-    const target = event.target
-    if (target.files && target.files[0]) {
-        file.value = target.files[0]
-        previewUrl.value = URL.createObjectURL(file.value)
-    }
-}
+// const handleFileChange = (event) => {
+//     const target = event.target
+//     if (target.files && target.files[0]) {
+//         file.value = target.files[0]
+//         previewUrl.value = URL.createObjectURL(file.value)
+//     }
+// }
 
 const close = () => {
     title.value = ''
@@ -214,6 +251,98 @@ watch(isOpen, async (value) => {
             </div>
 
             <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">
+                    画像
+                </label>
+
+                <!-- アップロードエリア -->
+                <label
+                    class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition hover:bg-slate-100 border-slate-300"
+                    @dragover.prevent
+                    @dragenter.prevent="isDragging = true"
+                    @dragleave.prevent="isDragging = false"
+                    @drop.prevent="handleFileDrop"
+                >
+                    <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        class="hidden"
+                        @change="handleFileChange"
+                    >
+
+                    <div class="text-center text-slate-500">
+                        <p class="text-sm">クリックして画像を選択</p>
+                        <p class="text-xs">またはドラッグ＆ドロップ</p>
+                    </div>
+                </label>
+
+                <!-- エラー -->
+                <!-- <p
+                    v-if="errorFile"
+                    class="text-red-500 text-sm mt-1"
+                >
+                    {{ errorFile }}
+                </p> -->
+
+                <!-- プレビュー -->
+                <div
+                    v-if="previewUrl"
+                    class="relative group"
+                >
+                    <NuxtImg
+                        :src="previewUrl"
+                        class="w-full h-full object-cover rounded my-2"
+                        @click="openImage"
+                    />
+                    <MapImagePreviewModal
+                        v-model:is-open="isImageModalOpen"
+                        :images="[previewUrl]"
+                        :start-index="0"
+                    />
+                    <!-- 削除ボタン -->
+                    <button
+                        type="button"
+                        class="absolute top-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 text-xs items-center justify-center"
+                        @click="removeImage"
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                <!-- <div
+                    v-if="previewUrls.length"
+                    class="grid grid-cols-3 gap-3 mt-4"
+                >
+                    <div
+                        v-for="(url, index) in previewUrls"
+                        :key="url"
+                        class="relative group"
+                    >
+                        <NuxtImg
+                            :src="url"
+                            class="w-full h-24 object-cover rounded"
+                            @click="openImage(index)"
+                        />
+
+                        <MapImagePreviewModal
+                            v-model:is-open="isImageModalOpen"
+                            :images="previewUrls"
+                            :start-index="startIndex"
+                        />
+
+                        <button
+                            type="button"
+                            class="absolute top-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 text-xs items-center justify-center"
+                            @click="removeImage(index)"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                </div> -->
+            </div>
+
+            <!-- <div class="mb-4">
                 <label class="block text-sm font-medium mb-1">画像</label>
                 <input
                     type="file"
@@ -227,7 +356,7 @@ watch(isOpen, async (value) => {
                     :src="previewUrl"
                     class="mb-4"
                 />
-            </div>
+            </div> -->
 
             <div class="flex justify-end space-x-3">
                 <button

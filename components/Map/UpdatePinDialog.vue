@@ -31,6 +31,43 @@ const error = ref(null)
 
 const isUpdating = ref(false)
 
+const isImageModalOpen = ref(false)
+
+const openImage = () => {
+    isImageModalOpen.value = true
+}
+
+const isDragging = ref(false)
+
+const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0]
+    if (!selectedFile) return
+    handleFiles(selectedFile)
+    event.target.value = ''
+}
+
+const handleFileDrop = (event) => {
+    isDragging.value = false
+
+    const droppedFile = event.dataTransfer.files[0]
+    if (!droppedFile) return
+
+    handleFiles(droppedFile)
+    event.target.value = ''
+}
+
+const handleFiles = (newFile) => {
+    if (!newFile) return
+
+    file.value = newFile
+    previewUrl.value = URL.createObjectURL(file.value)
+}
+
+const removeImage = () => {
+    file.value = null
+    previewUrl.value = null
+}
+
 /**
  * update時に行う処理
  */
@@ -97,18 +134,6 @@ const deletePin = async () => {
         }
         
         reviewStore.deleteReviewsByPinId(deletedPin.id) // reviewStoreからreview削除
-    }
-}
-
-/**
- * inputの画像の変更に合わせてpreviewUrlを変更
- * @param event 
- */
-const handleFileChange = (event) => {
-    const target = event.target
-    if (target.files && target.files[0]) {
-        file.value = target.files[0]
-        previewUrl.value = URL.createObjectURL(file.value)
     }
 }
 
@@ -193,24 +218,79 @@ watch(description, (value) => {
                 />
             </div>
 
-            <div class="mb-4">
+            <div>
+                <p class="text-sm font-medium">現在の画像</p>
                 <NuxtImg
-                    v-if="pin?.thumbnailImagePath"
                     :src="`${config.public.r2PublicUrl}/${pin.thumbnailImagePath}`"
-                    class="mb-4"
+                    class="mb-4 mt-2 rounded"
+                    @click="openImage"
                 />
-                <label class="block text-sm font-medium mb-1">画像</label>
-                <input
-                    type="file"
-                    accept="image/*"
-                    class="mb-4 w-full border p-2 rounded"
-                    @change="handleFileChange"
+                <MapImagePreviewModal
+                    v-model:is-open="isImageModalOpen"
+                    :images="[`${config.public.r2PublicUrl}/${pin.thumbnailImagePath}`]"
+                    :start-index="0"
+                />
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">
+                    新規画像
+                </label>
+
+                <!-- アップロードエリア -->
+                <label
+                    class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition hover:bg-slate-100 border-slate-300"
+                    @dragover.prevent
+                    @dragenter.prevent="isDragging = true"
+                    @dragleave.prevent="isDragging = false"
+                    @drop.prevent="handleFileDrop"
                 >
-                <NuxtImg
+                    <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        class="hidden"
+                        @change="handleFileChange"
+                    >
+
+                    <div class="text-center text-slate-500">
+                        <p class="text-sm">クリックして画像を選択</p>
+                        <p class="text-xs">またはドラッグ＆ドロップ</p>
+                    </div>
+                </label>
+
+                <!-- エラー -->
+                <!-- <p
+                    v-if="errorFile"
+                    class="text-red-500 text-sm mt-1"
+                >
+                    {{ errorFile }}
+                </p> -->
+
+                <!-- プレビュー -->
+                <div
                     v-if="previewUrl"
-                    :src="previewUrl"
-                    class="mb-4"
-                />
+                    class="relative group"
+                >
+                    <NuxtImg
+                        :src="previewUrl"
+                        class="w-full h-full object-cover rounded my-2"
+                        @click="openImage"
+                    />
+                    <MapImagePreviewModal
+                        v-model:is-open="isImageModalOpen"
+                        :images="[previewUrl]"
+                        :start-index="0"
+                    />
+                    <!-- 削除ボタン -->
+                    <button
+                        type="button"
+                        class="absolute top-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 text-xs items-center justify-center"
+                        @click="removeImage"
+                    >
+                        ✕
+                    </button>
+                </div>
             </div>
 
             <div class="flex justify-end space-x-3">

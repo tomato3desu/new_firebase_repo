@@ -14,6 +14,8 @@ const props = defineProps({
 
 const currentIndex = ref(props.startIndex)
 
+const isSwipable = computed(() => props.images.length > 1)
+
 watch(
     () => props.startIndex,
     (val) => {
@@ -61,6 +63,7 @@ onUnmounted(() => {
     >
         <!-- 左 -->
         <font-awesome-icon 
+            v-if="isSwipable"
             icon="fa-solid fa-angle-left" 
             class="absolute left-8 text-2xl text-slate-50 cursor-pointer select-none  h-6 w-6"
             @click="prev"
@@ -74,6 +77,7 @@ onUnmounted(() => {
 
         <!-- 右 -->
         <font-awesome-icon 
+            v-if="isSwipable"
             icon="fa-solid fa-angle-right" 
             class="absolute right-8 text-2xl text-slate-50 cursor-pointer select-none  h-6 w-6"
             @click="next"
