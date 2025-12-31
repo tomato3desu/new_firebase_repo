@@ -260,12 +260,6 @@ watch(comment, () => {
             </select>
         </div>
 
-        <!-- <input
-            type="file"
-            accept="image/*"
-            class="mb-4 w-full border p-2 rounded"
-            @change="handleFileChange"
-        > -->
         <div class="mb-4">
             <label class="block text-sm font-medium mb-2">
                 新規画像

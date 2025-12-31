@@ -14,6 +14,8 @@ const toast = useToast()
 const authStore = useAuthStore()
 const pinStore = usePinStore()
 
+const config = useRuntimeConfig()
+
 const pin = computed(() => pinStore.pinsById[pinId])
 const lat = computed(() => pin.value.latitude)
 const lng = computed(() => pin.value.longitude)
@@ -36,20 +38,23 @@ const fetchPlanets = async () => {
     }
     if (!date.value || !hour.value || !min.value || !lat.value || !lng.value) return
     stars.value = []
+
+    const requestBody = {
+        lat: lat.value,
+        lng: lng.value,
+        date: date.value,
+        hour: hour.value,
+        min: min.value
+    }
     try {
         isLoading.value = true
         const token = await authStore.getIdToken()
-        const res = await $fetch(`/api/planet`, {
-            query: {
-                lat: lat.value,
-                lng: lng.value,
-                date: date.value,
-                hour: hour.value,
-                min: min.value
-            },
+        const res = await $fetch(`${config.public.apiBase}/api/livlog/getConstellations`, {
+            method: 'POST',
             headers: {
                 Authorization: `Bearer ${token}`
-            }
+            },
+            body: requestBody
         })
 
         stars.value = []
@@ -60,7 +65,7 @@ const fetchPlanets = async () => {
     catch (error) {
         toast.error({
             title: '星座情報の取得に失敗しました。時間を置いて再度お試しください',
-            message: error.message
+            message: error?.response?._data?.message
         })
     }
     finally {

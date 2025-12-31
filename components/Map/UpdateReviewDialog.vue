@@ -275,7 +275,6 @@ watch(() => files.value.length + existReviewImages.value.length, (value) => {
                 </h2>
 
                 <div class="mb-4 flex flex-col gap-2 justify-center">
-                    <!-- TODO 星でレビューの評価を選択できる -->
                     <MapStarRating
                         v-model="darknessLevel"
                         label="暗さ"

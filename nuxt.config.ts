@@ -15,10 +15,6 @@ export default defineNuxtConfig({
         }
     },
     runtimeConfig: {
-        weatherApiKey: process.env.WEATHER_API_KEY,
-        weatherApiBase: process.env.WEATHER_API_BASE_URL,
-        livlogApiKey: process.env.LIVLOG_API_KEY,
-        livlogApiBase: process.env.LIVLOG_API_BASE_URL,
         firebaseAdmin: {
             projectId: process.env.FIREBASE_AUTH_PROJECT_ID,
             clientEmail: process.env.FIREBASE_AUTH_CLIENT_EMAIL,

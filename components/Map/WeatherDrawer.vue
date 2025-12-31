@@ -12,6 +12,8 @@ const { pinId } = defineProps({
 const pinStore = usePinStore()
 const authStore = useAuthStore()
 
+const config = useRuntimeConfig()
+
 const toast = useToast()
 
 const pin = computed(() => pinStore.pinsById[pinId])
@@ -28,17 +30,20 @@ const fetchWeather = async () => {
         return
     }
 
+    const requestBody = {
+        lat: lat.value,
+        lng: lng.value
+    }
+
     try {
         isLoading.value = true
         const token = await authStore.getIdToken()
-        const res = await $fetch(`/api/weather`, {
-            query: {
-                lat: lat.value,
-                lng: lng.value
-            },
+        const res = await $fetch(`${config.public.apiBase}/api/weather/get`, {
+            method: 'POST',
             headers: {
                 Authorization: `Bearer ${token}`
-            }
+            },
+            body: requestBody
         })
 
         weatherData.value = res
@@ -46,7 +51,7 @@ const fetchWeather = async () => {
     catch (error) {
         toast.error({
             title: '天気情報の取得に失敗しました。時間をおいて再度お試しください',
-            message: error.message
+            message: error?.response?._data?.message
         })
     }
     finally {
