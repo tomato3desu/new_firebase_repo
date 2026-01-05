@@ -27,7 +27,7 @@ export const useAuthStore = defineStore('authStore', () => {
      * @param {string} password 
      * @returns 
      */
-    const login = async (email, password) => {
+    const login = async (email, password, recaptchaToken) => {
         let userCred
         userCred = await signInWithEmailAndPassword($auth, email, password)
         const user = userCred.user
@@ -44,6 +44,9 @@ export const useAuthStore = defineStore('authStore', () => {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${token}`
+            },
+            body: {
+                recaptchaToken
             }
         })
 
@@ -189,7 +192,7 @@ export const useAuthStore = defineStore('authStore', () => {
         getIdToken
     }
 },
-{
-    persist: true
-}
+    {
+        persist: true
+    }
 )

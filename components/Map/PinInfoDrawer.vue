@@ -129,7 +129,6 @@ onMounted(async () => {
         const userIds = fetchedReviews.map(r => r.review.createdUserId).filter(Boolean)
         await userStore.fetchUsersIfNeeded(userIds)
         await goodStore.fetchMyGoodReviews()
-        console.log(`${config.public.r2PublicUrl}/${pin.value.thumbnailImagePath}`)
     }
     catch (e) {
         toast.error({

@@ -27,6 +27,8 @@ export default defineNuxtConfig({
             googleMapId: process.env.GOOGLE_MAP_ID,
             apiBase: process.env.API_BASE_URL,
             r2PublicUrl: process.env.R2_PUBLIC_URL,
+            // recaptcha
+            recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY,
         }
     }
 })

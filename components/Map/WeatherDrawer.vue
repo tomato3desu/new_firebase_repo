@@ -24,6 +24,7 @@ const weatherData = ref(null)
 const isLoading = ref(false)
 
 const fetchWeather = async () => {
+    if (weatherData.value) return // すでに天気データがある場合はreturn
     if (!lat.value || !lng.value) return
     if (!authStore.isLoggedIn) {
         alert('天気情報を取得するにはログインしてください')
@@ -98,7 +99,7 @@ watch(
                 class="bg-slate-50 text-slate-800 hover:bg-slate-300 px-2 py-1 rounded"
                 @click="fetchWeather"
             >
-                get weather
+                get
             </button>
         </div>
         <!-- loading -->

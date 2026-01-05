@@ -1,9 +1,12 @@
 <script setup>
+import { useReCaptcha } from 'vue-recaptcha-v3'
 import { useAuthStore } from '~/composables/stores/auth'
 import { useBookmarkStore } from '~/composables/stores/bookmark'
 
 const authStore = useAuthStore()
 const bookmarkStore = useBookmarkStore()
+
+const { executeRecaptcha, recaptchaLoaded } = useReCaptcha()
 
 const email = ref('')
 const password = ref('')
@@ -47,8 +50,14 @@ const login = async () => {
     isLoading.value = true
 
     try {
-        await authStore.login(email.value, password.value)
-        console.log('ログイン成功', authStore.loginUser)
+        await recaptchaLoaded()
+        const recaptchaToken = await executeRecaptcha('login')
+        
+        if (!recaptchaToken) {
+            throw new Error('recaptcha token is not available')
+        }
+        await authStore.login(email.value, password.value, recaptchaToken)
+        console.log("ログイン完了", authStore.loginUser)
         await bookmarkStore.fetchBookmarksByUserId(authStore.loginUser.id) // ブックマークを取得
         await navigateTo('/')
     }
