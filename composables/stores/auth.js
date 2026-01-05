@@ -75,8 +75,8 @@ export const useAuthStore = defineStore('authStore', () => {
      * パスワードリセットメール送信
      * @returns 
      */
-    const sendPasswordReset = async () => {
-        const email = loginUserEmail.value
+    const sendPasswordReset = async (optionalEmail) => {
+        const email = optionalEmail ?? loginUserEmail.value
         if (!email) {
             throw new Error("メールアドレスを取得できませんでした")
         }

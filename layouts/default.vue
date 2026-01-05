@@ -54,6 +54,7 @@ const isMapPage = computed(() => {
         || route.path.startsWith('/user/') 
         || route.path.startsWith('/login') 
         || route.path.startsWith('/register')
+        || route.path.startsWith('/forgot-password')
 })
 </script>
 
