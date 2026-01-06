@@ -283,29 +283,6 @@ watch(description, (value) => {
                     </p>
                 </div>
 
-                <!-- <div class="mb-4">
-                    <label class="block text-sm font-medium mb-1">画像</label>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        class="mb-4 w-full border p-2 rounded"
-                        @change="handleFileChange"
-                    >
-                    <p
-                        v-if="errorFile"
-                        class="text-red-500"
-                    >
-                        {{ errorFile }}
-                    </p>
-                    <NuxtImg
-                        v-for="previewUrl in previewUrls"
-                        :key="previewUrl"
-                        :src="previewUrl"
-                        class="mb-4"
-                    />
-                </div> -->
-
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">
                         画像（最大10枚）
@@ -359,7 +336,7 @@ watch(description, (value) => {
                             />
 
                             <MapImagePreviewModal
-                                v-model:is-open="isImageModalOpen"
+                                v-model:isOpen="isImageModalOpen"
                                 :images="previewUrls"
                                 :start-index="startIndex"
                             />

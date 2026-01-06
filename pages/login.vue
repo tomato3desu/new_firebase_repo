@@ -126,8 +126,14 @@ const cancel = () => {
                     </p>
                 </div>
                 <div class="relative mb-6 flex flex-col justify-center items-center">
-                    <NuxtLink to="/register" class="text-sky-300 hover:underline">新規登録はこちら</NuxtLink>
-                    <NuxtLink to="/forgot-password" class="text-sky-300 hover:underline">パスワードを忘れた方はこちら</NuxtLink>
+                    <NuxtLink
+                        to="/register"
+                        class="text-sky-300 hover:underline"
+                    >新規登録はこちら</NuxtLink>
+                    <NuxtLink
+                        to="/forgot-password"
+                        class="text-sky-300 hover:underline"
+                    >パスワードを忘れた方はこちら</NuxtLink>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <button

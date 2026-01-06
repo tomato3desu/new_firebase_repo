@@ -76,17 +76,13 @@ export const useReportStore = defineStore('reportStore', () => {
      * @param {*} token 
      */
     const sendUserReport = async (reportRequest, token) => {
-        const res = await $fetch(`${config.public.apiBase}/api/report/user`, {
+        await $fetch(`${config.public.apiBase}/api/report/user`, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${token}`
             },
             body: reportRequest
         })
-
-        if (res !== undefined) {
-            throw new Error('バックエンドエラー')
-        }
     }
 
     /**
@@ -95,17 +91,13 @@ export const useReportStore = defineStore('reportStore', () => {
      * @param {*} token 
      */
     const sendPinReport = async (reportRequest, token) => {
-        const res = await $fetch(`${config.public.apiBase}/api/report/pin`, {
+        await $fetch(`${config.public.apiBase}/api/report/pin`, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${token}`
             },
             body: reportRequest
         })
-
-        if (res !== undefined) {
-            throw new Error('バックエンドエラー')
-        }
     }
 
     /**
@@ -114,17 +106,13 @@ export const useReportStore = defineStore('reportStore', () => {
      * @param {*} token 
      */
     const sendReviewReport = async (reportRequest, token) => {
-        const res = await $fetch(`${config.public.apiBase}/api/report/review`, {
+        await $fetch(`${config.public.apiBase}/api/report/review`, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${token}`
             },
             body: reportRequest
         })
-
-        if (res !== undefined) {
-            throw new Error('バックエンドエラー')
-        }
     }
 
     /**
@@ -191,7 +179,7 @@ export const useReportStore = defineStore('reportStore', () => {
     }
 
     const banUser = async (userId, token) => {
-        const res = await $fetch(`${config.public.apiBase}/api/report/user/ban/${userId}`, {
+        const res = await $fetch(`${config.public.apiBase}/api/user/ban/${userId}`, {
             method: 'PUT',
             headers: {
                 Authorization: `Bearer ${token}`

@@ -219,7 +219,9 @@ watch(description, (value) => {
             </div>
 
             <div>
-                <p class="text-sm font-medium">現在の画像</p>
+                <p class="text-sm font-medium">
+                    現在の画像
+                </p>
                 <NuxtImg
                     :src="`${config.public.r2PublicUrl}/${pin.thumbnailImagePath}`"
                     class="mb-4 mt-2 rounded"

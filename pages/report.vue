@@ -3,6 +3,7 @@ import { useAuthStore } from '~/composables/stores/auth'
 import { useReportStore } from '~/composables/stores/report'
 import { useReviewStore } from '~/composables/stores/review'
 import { useUserStore } from '~/composables/stores/user'
+import { usePinStore } from '~/composables/stores/pin'
 import { useRouter } from 'vue-router'
 
 definePageMeta({
@@ -13,13 +14,14 @@ const authStore = useAuthStore()
 const reportStore = useReportStore()
 const reviewStore = useReviewStore()
 const userStore = useUserStore()
+const pinStore = usePinStore()
 
 const router = useRouter()
 
 const toast = useToast()
 
 const user = computed(() => authStore.loginUser)
-const isDisplayPermitted = computed(() => user.value.role === 'admin')
+const isDisplayPermitted = computed(() => user?.value?.role === 'admin')
 
 const userReportIds = computed(() => reportStore.displayUserReportsId || [])
 const pinReportIds = computed(() => reportStore.displayPinReportsId || [])
@@ -49,6 +51,11 @@ const showUser = async (reportId) => {
             message: error?.response?._data?.message
         })
     }
+}
+
+const showCreatedUser = (userId) => {
+    selectedUserId.value = userId
+    selectedUser.value = userStore.usersById[userId]
 }
 
 const closeUser = () => {
@@ -292,6 +299,9 @@ onMounted(async () => {
                                 show
                             </th>
                             <th class="py-3 px-4 text-left">
+                                createdUser
+                            </th>
+                            <th class="py-3 px-4 text-left">
                                 status
                             </th>
                             <th class="py-3 px-4 text-left">
@@ -322,6 +332,11 @@ onMounted(async () => {
                             <td class="py-2 px-4 text-sky-500">
                                 <button @click="showPin(reportStore.pinReportsById[reportId].pinId)">
                                     showPin
+                                </button>
+                            </td>
+                            <td class="py-2 px-4 text-sky-500">
+                                <button @click="showCreatedUser(pinStore.pinsById[reportStore.pinReportsById[reportId].pinId].createdUserId)">
+                                    showCreatedUser
                                 </button>
                             </td>
                             <td class="py-2 px-4">
@@ -368,6 +383,9 @@ onMounted(async () => {
                                 show
                             </th>
                             <th class="py-3 px-4 text-left">
+                                createdUser
+                            </th>
+                            <th class="py-3 px-4 text-left">
                                 status
                             </th>
                             <th class="py-3 px-4 text-left">
@@ -398,6 +416,11 @@ onMounted(async () => {
                             <td class="py-2 px-4 text-sky-500">
                                 <button @click="showReview(reviewStore.reviewsById[reportStore.reviewReportsById[reportId].reviewId].review.reviewedPinId, reportStore.reviewReportsById[reportId].reviewId)">
                                     showReview
+                                </button>
+                            </td>
+                            <td class="py-2 px-4 text-sky-500">
+                                <button @click="showCreatedUser(reviewStore.reviewsById[reportStore.reviewReportsById[reportId].reviewId].review.createdUserId)">
+                                    showCreatedUser
                                 </button>
                             </td>
                             <td class="py-2 px-4">
