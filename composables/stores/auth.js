@@ -1,16 +1,4 @@
 import { defineStore } from 'pinia'
-import {
-    createUserWithEmailAndPassword,
-    sendEmailVerification,
-    signInWithEmailAndPassword,
-    getAuth,
-    onAuthStateChanged,
-    sendPasswordResetEmail,
-    verifyBeforeUpdateEmail,
-    EmailAuthProvider,
-    reauthenticateWithCredential,
-    deleteUser
-} from 'firebase/auth'
 import { useUserStore } from './user'
 
 export const useAuthStore = defineStore('authStore', () => {
@@ -28,6 +16,7 @@ export const useAuthStore = defineStore('authStore', () => {
      * @returns 
      */
     const login = async (email, password, recaptchaToken) => {
+        const { signInWithEmailAndPassword, sendEmailVerification } = await import('firebase/auth')
         let userCred
         userCred = await signInWithEmailAndPassword($auth, email, password)
         const user = userCred.user
@@ -65,6 +54,7 @@ export const useAuthStore = defineStore('authStore', () => {
      * @param {string} password 
      */
     const register = async (email, password) => {
+        const { createUserWithEmailAndPassword, sendEmailVerification } = await import('firebase/auth')
         const userCred = await createUserWithEmailAndPassword($auth, email, password)
         console.log("登録成功")
         await sendEmailVerification(userCred.user)
@@ -76,6 +66,7 @@ export const useAuthStore = defineStore('authStore', () => {
      * @returns 
      */
     const sendPasswordReset = async (optionalEmail) => {
+        const { sendPasswordResetEmail } = await import('firebase/auth')
         const email = optionalEmail ?? loginUserEmail.value
         if (!email) {
             throw new Error("メールアドレスを取得できませんでした")
@@ -92,6 +83,8 @@ export const useAuthStore = defineStore('authStore', () => {
      */
     const updateEmailAddress = async (currentPassword, newEmail) => {
         if (!loginUser.value) throw new Error("ログインしていません")
+
+        const { reauthenticateWithCredential, verifyBeforeUpdateEmail, EmailAuthProvider } = await import('firebase/auth')
 
         const email = loginUserEmail.value
         // 再認証
@@ -113,6 +106,7 @@ export const useAuthStore = defineStore('authStore', () => {
         const email = loginUserEmail.value
         if (!email) throw new Error("メールアドレスが取得できません")
 
+        const { reauthenticateWithCredential, EmailAuthProvider, deleteUser } = await import('firebase/auth')
         // 再認証
         const credential = EmailAuthProvider.credential(email, currentPassword)
         await reauthenticateWithCredential(user, credential)
@@ -164,6 +158,7 @@ export const useAuthStore = defineStore('authStore', () => {
     }
 
     const getIdToken = async () => {
+        const { getAuth, onAuthStateChanged } = await import('firebase/auth')
         const auth = getAuth()
         let user = auth.currentUser
         if (!user) {
@@ -192,7 +187,7 @@ export const useAuthStore = defineStore('authStore', () => {
         getIdToken
     }
 },
-{
-    persist: true
-}
+    {
+        persist: true
+    }
 )
