@@ -19,7 +19,7 @@ export default defineNuxtPlugin(() => {
     return {
         provide: {
             googleMaps: {
-                // マップのロード関数（必要なときだけ読み込む）
+                // マップのロード関数
                 loadMap: async (el, options) => {
                     const { Map } = await importLibrary("maps")
                     return new Map(el, options)

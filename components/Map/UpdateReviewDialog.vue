@@ -48,7 +48,7 @@ const seasons = [
 
 const isOpenImageGallery = ref(false)
 
-const openImageGallery = (image) => {
+const openImageGallery = () => {
     isOpenImageGallery.value = true
 }
 

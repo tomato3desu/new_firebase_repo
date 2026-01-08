@@ -336,7 +336,7 @@ watch(description, (value) => {
                             />
 
                             <MapImagePreviewModal
-                                v-model:isOpen="isImageModalOpen"
+                                v-model:is-open="isImageModalOpen"
                                 :images="previewUrls"
                                 :start-index="startIndex"
                             />

@@ -175,17 +175,11 @@ watch(
                         {{ pin.title }}
                     </h2>
                 </div>
-                <font-awesome-icon 
-                    v-if="isBookmarked"
+                <font-awesome-icon
                     icon="fa-solid fa-bookmark"
-                    class="text-yellow-300 w-6 h-6 absolute top-4 right-4"
-                    @click="toggleBookmark"
-                />
-                <font-awesome-icon 
-                    v-else
-                    icon="fa-solid fa-bookmark"
-                    class="text-slate-50 hover:text-yellow-300 h-6 w-6 absolute top-4 right-4"
-                    @click="toggleBookmark"
+                    class="text-slate-50 hover:text-yellow-300 w-6 h-6 absolute top-4 right-4"
+                    :class="{ 'text-yellow-300': isBookmarked }"
+                    @click.stop="toggleBookmark"
                 />
             </div>
             <!-- pin情報 -->

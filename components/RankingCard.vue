@@ -29,6 +29,7 @@ const onCardClicked = () => {
 
 <template>
     <div
+        v-if="pin && pref"
         class="flex items-center gap-4 w-full bg-slate-50 hover:bg-slate-200 rounded-xl shadow-sm hover:shadow-md transition p-4 border border-slate-300 cursor-pointer"
         @click="onCardClicked"
     >
@@ -64,5 +65,13 @@ const onCardClicked = () => {
                 {{ pref.name }}
             </p>
         </div>
+    </div>
+    <div
+        v-else
+        class="flex items-center justify-center w-full h-24"
+    >
+        <p class="animate-pulse text-slate-50">
+            now loading...
+        </p>
     </div>
 </template>
