@@ -57,7 +57,6 @@ const login = async () => {
             throw new Error('recaptcha token is not available')
         }
         await authStore.login(email.value, password.value, recaptchaToken)
-        console.log("ログイン完了", authStore.loginUser)
         await bookmarkStore.fetchBookmarksByUserId(authStore.loginUser.id) // ブックマークを取得
         await navigateTo('/')
     }

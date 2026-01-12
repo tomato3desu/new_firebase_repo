@@ -5,8 +5,6 @@ let initialized = false
 export default defineNuxtPlugin(() => {
     const config = useRuntimeConfig()
 
-    console.log(initialized)
-
     if (!initialized) {
         setOptions({
             key: config.public.googleMapApiKey,

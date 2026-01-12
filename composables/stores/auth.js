@@ -56,9 +56,7 @@ export const useAuthStore = defineStore('authStore', () => {
     const register = async (email, password) => {
         const { createUserWithEmailAndPassword, sendEmailVerification } = await import('firebase/auth')
         const userCred = await createUserWithEmailAndPassword($auth, email, password)
-        console.log("登録成功")
         await sendEmailVerification(userCred.user)
-        console.log("メール送信成功")
     }
 
     /**
