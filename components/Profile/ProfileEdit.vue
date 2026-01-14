@@ -97,24 +97,29 @@ const updateProfile = async () => {
             }
 
             // canvasから画像生成
-            canvas.toBlob(async (blob) => {
-                if (!blob) {
-                    throw new Error('blobの作成に失敗しました')
-                }
+            const blob = await new Promise((resolve, reject) => {
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        resolve(blob)
+                    }
+                    else {
+                        reject(new Error('blobの作成に失敗しました'))
+                    }
+                }, 'image/jpg')
+            })
 
-                await sendToBackend({
-                    nickname: nickname.value,
-                    comment: comment.value,
-                    iconImage: blob,
-                    prefId: prefId.value
-                })
+            await sendToBackend({
+                nickname: nickname.value,
+                comment: comment.value,
+                iconImage: blob,
+                prefId: prefId.value
+            })
 
-                currentProfile.value = authStore.loginUser // currentProfileを更新
+            currentProfile.value = authStore.loginUser // currentProfileを更新
 
-                nickname.value = ''
-                comment.value = ''
-                previewUrl.value = null
-            }, 'image/jpg')
+            nickname.value = ''
+            comment.value = ''
+            previewUrl.value = null
         }
         // なければ現在の画像パスをそのまま送信
         else {
