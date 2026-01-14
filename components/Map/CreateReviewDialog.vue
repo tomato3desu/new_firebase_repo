@@ -175,11 +175,8 @@ watch(title, (value) => {
 })
 
 watch(description, (value) => {
-    if (!value) {
-        errorDesc.value = '詳細を入力してください'
-    }
-    else if (value.length >= 2000) {
-        errorDesc.value = '1~2000文字で入力してください'
+    if (value.length > 2000) {
+        errorDesc.value = '2000文字以内で入力してください'
     }
     else {
         errorDesc.value = null
