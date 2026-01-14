@@ -33,7 +33,7 @@ const openSignDrawer = () => {
             to="/"
             class="text-4xl font-bit text-yellow-300 hover:text-yellow-400 mr-4 flex items-center"
         >
-            StarSeeker
+            StarPursuer
         </NuxtLink>
         <div class="flex items-center ml-auto">
             <div class="hidden sm:flex items-center">
