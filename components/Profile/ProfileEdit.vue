@@ -298,10 +298,9 @@ watch(comment, () => {
             更新
         </button>
         <div
-            v-if="isUploading"
-            class="mt-3 text-slate-50 text-center my-2 animate-pulse"
+            class="mt-3 text-slate-50 text-center my-2 animate-pulse min-h-[1.5rem]"
         >
-            <p>更新中...</p>
+            <p v-if="isUploading">更新中...</p>
         </div>
         <p
             v-if="error"
