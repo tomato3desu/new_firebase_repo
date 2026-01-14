@@ -35,12 +35,6 @@ const isUploading = ref(false)
 const error = ref(null)
 const isActiveUpdateBtn = computed(() => !isUploading.value && !nicknameError.value && !commentError.value)
 
-const isImageModalOpen = ref(false)
-
-const openImage = () => {
-    isImageModalOpen.value = true
-}
-
 const isDragging = ref(false)
 
 const handleFileChange = (event) => {
@@ -67,23 +61,6 @@ const handleFiles = (newFile) => {
     previewUrl.value = URL.createObjectURL(file.value)
 }
 
-const removeImage = () => {
-    file.value = null
-    previewUrl.value = null
-}
-
-/**
- * ファイル変更時にpreviewUrlを変更
- * @param event 
- */
-// const handleFileChange = (event) => {
-//     const target = event.target
-//     if (target.files && target.files[0]) {
-//         file.value = target.files[0]
-//         previewUrl.value = URL.createObjectURL(file.value)
-//     }
-// }
-
 /**
  * tokenを取得してuserStoreのupdateProfileを実行
  * @param profileData 
@@ -107,10 +84,10 @@ const sendToBackend = async (profileData) => {
 const updateProfile = async () => {
     // バリデーションエラーがあればreturn
     if (nicknameError.value || commentError.value) return
-    isUploading.value = true
-    error.value = false
 
     try {
+        isUploading.value = true
+        error.value = false
         // 画像があればfirebase storageに保存
         if (cropper.value) {
             // Cropperからcanvasを取得
@@ -287,14 +264,6 @@ watch(comment, () => {
                 </div>
             </label>
 
-            <!-- エラー -->
-            <!-- <p
-                v-if="errorFile"
-                class="text-red-500 text-sm mt-1"
-            >
-                {{ errorFile }}
-            </p> -->
-
             <!-- プレビュー -->
             <div
                 v-if="previewUrl"
@@ -314,56 +283,21 @@ watch(comment, () => {
                     class="rounded-lg shadow w-full z-0"
                 />
             </div>
-            <!-- <div
-                v-if="previewUrl"
-                class="relative group"
-            >
-                <NuxtImg
-                    :src="previewUrl"
-                    class="w-full h-full object-cover rounded my-2"
-                    @click="openImage"
-                />
-                <MapImagePreviewModal
-                    v-model:is-open="isImageModalOpen"
-                    :images="[previewUrl]"
-                    :start-index="0"
-                /> -->
-            <!-- 削除ボタン -->
-            <!-- <button
-                    type="button"
-                    class="absolute top-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 text-xs items-center justify-center"
-                    @click="removeImage"
-                >
-                    ✕
-                </button>
-            </div>  -->
         </div>
-        
-        <!-- <div
-            v-if="previewUrl"
-            class="mb-4"
-        >
-            <p class="font-semibold">
-                プレビュー:
-            </p>
-            <Cropper
-                ref="cropper"
-                :src="previewUrl"
-                :stencil-props="{
-                    aspectRatio: 1,
-                    movable: true,
-                    resizable: true,
-                }"
-                class="rounded-lg shadow w-full z-0"
-            />
-        </div> -->
+
         <button
             :disabled="!isActiveUpdateBtn"
             class="w-full bg-teal-400 hover:bg-teal-500 py-2 rounded disabled:opacity-50"
             @click="updateProfile"
         >
-            {{ isUploading ? "更新中..." : "更新" }}
+            更新
         </button>
+        <div
+            v-if="isUploading"
+            class="mt-3 text-slate-50 text-center my-2 animate-pulse"
+        >
+            <p>更新中...</p>
+        </div>
         <p
             v-if="error"
             class="text-red-500 mt-3"
