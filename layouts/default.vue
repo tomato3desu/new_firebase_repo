@@ -59,7 +59,7 @@ const isMapPage = computed(() => {
 </script>
 
 <template>
-    <div class="flex flex-col min-h-screen">
+    <div class="flex flex-col min-h-[100dvh]">
         <HeaderBar />
         <div class="flex-1 relative">
             <div v-show="isMapPage">

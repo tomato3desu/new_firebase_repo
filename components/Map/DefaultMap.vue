@@ -474,7 +474,7 @@ watch(
 <template>
     <div
         ref="mapElement"
-        class="h-full w-full min-h-[calc(100vh-4rem)]"
+        class="h-full w-full min-h-[calc(100dvh-4rem)]"
     />
     <div class="absolute top-0 left-0 m-2 z-30">
         <div class="relative w-64">
