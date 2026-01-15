@@ -32,6 +32,11 @@ export default defineNuxtPlugin(() => {
                 loadCoreLib: async () => {
                     const { ColorScheme } = await importLibrary('core')
                     return ColorScheme
+                },
+
+                loadPlacesLib: async () => {
+                    const { Place } = await importLibrary('places')
+                    return Place
                 }
             }
         }

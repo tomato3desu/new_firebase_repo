@@ -48,6 +48,10 @@ let markers = []
 // const isInitialized = ref(false)
 let ColorScheme
 
+// place検索
+const searchQuery = ref('')
+const placeMarkers = ref([])
+
 onMounted(async () => {
     try {
         await prefStore.setAllPrefs()
@@ -152,6 +156,56 @@ const onMapClick = async (e) => {
     clickedLatLng.value = { lat, lng }
     await getAddressFromLatLng(lat, lng)
     isOpenPinAddDialog.value = true
+}
+
+/**
+ * google placesを検索する関数
+ */
+const searchPlaces = async () => {
+    if (!searchQuery.value) return
+    const Place = await $googleMaps.loadPlacesLib()
+    const { AdvancedMarkerElement } = await $googleMaps.loadMarkerLib()
+
+    // 既存の検索結果を削除
+    placeMarkers.value.forEach(marker => marker.map = null)
+    placeMarkers.value = []
+
+    const request = {
+        textQuery: searchQuery.value,
+        fields: ['displayName', 'location', 'businessStatus'],
+        language: 'ja',
+        region: 'JP',
+    }
+
+    const { places } = await Place.searchByText(request)
+
+    if (!places || places.length === 0) {
+        toast.error({
+            title: '検索結果がありません',
+            message: '検索結果がありません'
+        })
+        return
+    }
+
+    places.forEach(place => {
+        const marker = new AdvancedMarkerElement({
+            map,
+            position: place.location,
+            title: place.displayName
+        })
+        placeMarkers.value.push(marker)
+    })
+
+    // 最初の検索結果へ地図を移動
+    map.setCenter(places[0].location)
+    map.setZoom(15)
+}
+
+const deleteSearchQuery = () => {
+    searchQuery.value = ''
+    // 既存の検索結果を削除
+    placeMarkers.value.forEach(marker => marker.map = null)
+    placeMarkers.value = []
 }
 
 /**
@@ -422,6 +476,30 @@ watch(
         ref="mapElement"
         class="h-full w-full min-h-[calc(100vh-4rem)]"
     />
+    <div class="absolute top-0 left-0 m-2 z-30">
+        <div class="relative w-64">
+            <input
+                type="text"
+                v-model="searchQuery"
+                placeholder="場所を検索"
+                class="w-full h-8 bg-neutral-700 text-white rounded-sm pl-2 pr-16"
+            />
+
+            <!-- 検索アイコン -->
+            <font-awesome-icon
+                icon="fa-solid fa-magnifying-glass"
+                class="absolute right-8 top-1/2 -translate-y-1/2 w-4 h-4 text-white cursor-pointer"
+                @click="searchPlaces"
+            />
+
+            <!-- クリアアイコン -->
+            <font-awesome-icon
+                icon="fa-solid fa-xmark"
+                class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-white cursor-pointer"
+                @click="deleteSearchQuery"
+            />
+        </div>
+    </div>
     <div 
         class="absolute w-8 h-8 top-0 right-16 m-2 z-30 bg-neutral-700 shadow-lg rounded-sm"
     >
