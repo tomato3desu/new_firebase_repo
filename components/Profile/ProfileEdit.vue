@@ -74,6 +74,8 @@ const sendToBackend = async (profileData) => {
         toast.error({
             title: 'プロフィールの更新に失敗しました。時間をおいて再度お試しください',
             message: error?.response?._data?.message
+                ?? error?.message
+                ?? '不明なエラーが発生しました'
         })
     }
 }
@@ -153,6 +155,8 @@ onMounted(() => {
         toast.error({
             title: 'プロフィールの取得に失敗しました。時間をおいて再度お試しください',
             message: error?.response?._data?.message
+                ?? error?.message
+                ?? '不明なエラーが発生しました'
         })
     }
 })
