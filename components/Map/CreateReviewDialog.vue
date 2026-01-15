@@ -175,7 +175,10 @@ watch(title, (value) => {
 })
 
 watch(description, (value) => {
-    if (value.length > 2000) {
+    if (!value) {
+        errorDesc.value = null
+    }
+    else if (value.length > 2000) {
         errorDesc.value = '2000文字以内で入力してください'
     }
     else {

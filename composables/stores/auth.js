@@ -185,7 +185,7 @@ export const useAuthStore = defineStore('authStore', () => {
         getIdToken
     }
 },
-    {
-        persist: true
-    }
+{
+    persist: true
+}
 )
