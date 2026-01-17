@@ -15,13 +15,17 @@ export default defineNuxtConfig({
         }
     },
     runtimeConfig: {
-        firebaseAdmin: {
-            projectId: process.env.FIREBASE_AUTH_PROJECT_ID,
-            clientEmail: process.env.FIREBASE_AUTH_CLIENT_EMAIL,
-            privateKey: process.env.FIREBASE_AUTH_PRIVATE_KEY,
-        },
+        // firebaseAdmin: {
+        //     projectId: process.env.FIREBASE_AUTH_PROJECT_ID,
+        //     clientEmail: process.env.FIREBASE_AUTH_CLIENT_EMAIL,
+        //     privateKey: process.env.FIREBASE_AUTH_PRIVATE_KEY,
+        // },
         public: {
             firebaseAuthApiKey: process.env.FIREBASE_AUTH_API_KEY,
+            firebaseAuthDomain: process.env.AUTH_DOMAIN,
+            firebaseAuthProjectId: process.env.PROJECT_ID,
+            firebaseAuthMessagingSenderId: process.env.MESSAGING_SENDER_ID,
+            firebaseAuthAppId: process.env.APP_ID,
             // firebaseStorageBucket: process.env.FIREBASE_STORAGE_BUCKET,
             googleMapApiKey: process.env.GOOGLE_MAP_API_KEY,
             googleMapId: process.env.GOOGLE_MAP_ID,

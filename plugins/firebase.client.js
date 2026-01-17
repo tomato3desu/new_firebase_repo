@@ -6,10 +6,10 @@ export default defineNuxtPlugin(() => {
 
     const firebaseConfig = {
         apiKey: runtimeConfig.public.firebaseAuthApiKey,
-        authDomain: "fir-auth-2b651.firebaseapp.com",
-        projectId: "fir-auth-2b651",
-        messagingSenderId: "661832924829",
-        appId: "1:661832924829:web:466dca9206d6da37b29e74",
+        authDomain: runtimeConfig.public.firebaseAuthDomain,
+        projectId: runtimeConfig.public.firebaseAuthProjectId,
+        messagingSenderId: runtimeConfig.public.firebaseAuthMessagingSenderId,
+        appId: runtimeConfig.public.firebaseAuthAppId,
     }
 
     const app = initializeApp(firebaseConfig)
