@@ -32,6 +32,7 @@ const sendResetPasswordMail = async () => {
     try {
         await authStore.sendPasswordReset(email.value)
         alert('パスワード再設定用のメールを送信しました')
+        navigateTo('/login')
     }
     catch (error) {
         alert('メールアドレスが正しくありません')
