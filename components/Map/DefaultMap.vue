@@ -172,7 +172,7 @@ const searchPlaces = async () => {
 
     const request = {
         textQuery: searchQuery.value,
-        fields: ['displayName', 'location', 'businessStatus'],
+        fields: ['id', 'displayName', 'location'],
         language: 'ja',
         region: 'JP',
     }
@@ -193,6 +193,26 @@ const searchPlaces = async () => {
             position: place.location,
             title: place.displayName
         })
+
+        // marker.addListener('click', async () => {
+        //     const detailPlace = new Place({ id: place.id })
+            
+        //     await detailPlace.fetchFields({
+        //         fields: ['photos', 'displayName', 'formattedAddress']
+        //     })
+
+        //     const photo = detailPlace.photos?.[0]
+        //     let photoUrl = photo ? photo.getURI({ maxWidth: 400 }) : null
+
+        //     if (!photoUrl) {
+        //         photoUrl = `${config.public.r2PublicUrl}/place/no_image.jpg`
+        //     }
+
+        //     // 独自Uiを表示
+        //     console.log(detailPlace.displayName)
+        //     console.log(detailPlace.formattedAddress)
+        //     console.log(photoUrl)
+        // })
         placeMarkers.value.push(marker)
     })
 
@@ -476,7 +496,7 @@ watch(
         ref="mapElement"
         class="h-full w-full min-h-[calc(100dvh-4rem)]"
     />
-    <div class="absolute top-0 left-0 m-2 z-30">
+    <div class="absolute bottom-0 left-0 m-2 z-30">
         <div class="relative w-64">
             <input
                 type="text"
