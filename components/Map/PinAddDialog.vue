@@ -35,6 +35,7 @@ const errorTitle = ref('')
 const description = ref('')
 const errorDesc = ref('')
 const address = ref('')
+const errorAddress = ref('')
 const prefectureId = ref(null)
 const isActiveAddBtn = computed(() => !errorTitle.value && !errorDesc.value && authStore.isLoggedIn)
 const file = ref(null)
@@ -169,6 +170,14 @@ watch(description, (value) => {
 })
 
 // TODO address not nullのバリデーション作成
+watch(address, (value) => {
+    if (!value) {
+        errorAddress.value = '住所を入力してください'
+    }
+    else {
+        errorAddress.value = null
+    }
+})
 
 watch(isOpen, async (value) => {
     if (value) {
@@ -243,6 +252,9 @@ watch(isOpen, async (value) => {
                         {{ pref.name }}
                     </option>
                 </select>
+                <p class="text-red-500">
+                    {{ errorAddress }}
+                </p>
                 <input
                     v-model="address"
                     type="text"

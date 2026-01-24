@@ -230,10 +230,6 @@ const searchPlaces = async () => {
             photoUrl.value = fetchedPhotoUrl
             placeLatLng.value = { lat: place.location.lat(), lng: place.location.lng() }
 
-            console.log(displayName.value)
-            console.log(formattedAddress.value)
-            console.log(photoUrl.value)
-
             isOpenPlaceDrawer.value = true
         })
         placeMarkers.value.push(marker)
