@@ -163,8 +163,8 @@ onMounted(() => {
 
 // nicknameのバリデーションチェック
 watch(nickname, () => {
-    if (nickname.value.length > 16) {
-        nicknameError.value = '16文字以内で入力してください'
+    if (nickname.value.length > 25) {
+        nicknameError.value = '25文字以内で入力してください'
     }
     else {
         nicknameError.value = ''

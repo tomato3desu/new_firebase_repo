@@ -51,6 +51,11 @@ let ColorScheme
 // place検索
 const searchQuery = ref('')
 const placeMarkers = ref([])
+const isOpenPlaceDrawer = ref(false)
+const displayName = ref('')
+const formattedAddress = ref('')
+const photoUrl = ref()
+const placeLatLng = ref(null)
 
 onMounted(async () => {
     try {
@@ -159,6 +164,18 @@ const onMapClick = async (e) => {
 }
 
 /**
+ * PlaceDrawerから呼び出される：Place検索結果からピン追加ダイアログを開く
+ */
+const openPinAddFromPlace = async () => {
+    if (placeLatLng.value) {
+        clickedLatLng.value = placeLatLng.value
+        await getAddressFromLatLng(placeLatLng.value.lat, placeLatLng.value.lng)
+        isOpenPlaceDrawer.value = false
+        isOpenPinAddDialog.value = true
+    }
+}
+
+/**
  * google placesを検索する関数
  */
 const searchPlaces = async () => {
@@ -194,25 +211,31 @@ const searchPlaces = async () => {
             title: place.displayName
         })
 
-        // marker.addListener('click', async () => {
-        //     const detailPlace = new Place({ id: place.id })
+        marker.addListener('click', async () => {
+            const detailPlace = new Place({ id: place.id })
             
-        //     await detailPlace.fetchFields({
-        //         fields: ['photos', 'displayName', 'formattedAddress']
-        //     })
+            await detailPlace.fetchFields({
+                fields: ['photos', 'displayName', 'formattedAddress']
+            })
 
-        //     const photo = detailPlace.photos?.[0]
-        //     let photoUrl = photo ? photo.getURI({ maxWidth: 400 }) : null
+            const photo = detailPlace.photos?.[0]
+            let fetchedPhotoUrl = photo ? photo.getURI({ maxWidth: 400 }) : null
 
-        //     if (!photoUrl) {
-        //         photoUrl = `${config.public.r2PublicUrl}/place/no_image.jpg`
-        //     }
+            if (!fetchedPhotoUrl) {
+                fetchedPhotoUrl = `${config.public.r2PublicUrl}/place/no_image.jpg`
+            }
 
-        //     // 独自Uiを表示
-        //     console.log(detailPlace.displayName)
-        //     console.log(detailPlace.formattedAddress)
-        //     console.log(photoUrl)
-        // })
+            displayName.value = detailPlace.displayName
+            formattedAddress.value = detailPlace.formattedAddress
+            photoUrl.value = fetchedPhotoUrl
+            placeLatLng.value = { lat: place.location.lat(), lng: place.location.lng() }
+
+            console.log(displayName.value)
+            console.log(formattedAddress.value)
+            console.log(photoUrl.value)
+
+            isOpenPlaceDrawer.value = true
+        })
         placeMarkers.value.push(marker)
     })
 
@@ -537,5 +560,13 @@ watch(
     />
     <MapSearchDrawer
         v-model="isOpenSearchDrawer"
+    />
+    <MapPlaceDrawer
+        v-model="isOpenPlaceDrawer"
+        :displayName="displayName"
+        :formattedAddress="formattedAddress"
+        :latlng="placeLatLng"
+        @open-pin-add="openPinAddFromPlace"
+        :photoUrl="photoUrl"
     />
 </template>

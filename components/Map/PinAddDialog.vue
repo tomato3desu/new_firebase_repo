@@ -148,8 +148,8 @@ watch(title, (value) => {
     if (!value) {
         errorTitle.value = 'タイトルは必須です'
     }
-    else if (value.length > 20) {
-        errorTitle.value = '20文字以内で入力してください'
+    else if (value.length > 50) {
+        errorTitle.value = '50文字以内で入力してください'
     }
     else {
         errorTitle.value = null
@@ -167,6 +167,8 @@ watch(description, (value) => {
         errorDesc.value = null
     }
 })
+
+// TODO address not nullのバリデーション作成
 
 watch(isOpen, async (value) => {
     if (value) {
@@ -277,14 +279,6 @@ watch(isOpen, async (value) => {
                     </div>
                 </label>
 
-                <!-- エラー -->
-                <!-- <p
-                    v-if="errorFile"
-                    class="text-red-500 text-sm mt-1"
-                >
-                    {{ errorFile }}
-                </p> -->
-
                 <!-- プレビュー -->
                 <div
                     v-if="previewUrl"
@@ -309,54 +303,7 @@ watch(isOpen, async (value) => {
                         ✕
                     </button>
                 </div>
-
-                <!-- <div
-                    v-if="previewUrls.length"
-                    class="grid grid-cols-3 gap-3 mt-4"
-                >
-                    <div
-                        v-for="(url, index) in previewUrls"
-                        :key="url"
-                        class="relative group"
-                    >
-                        <NuxtImg
-                            :src="url"
-                            class="w-full h-24 object-cover rounded"
-                            @click="openImage(index)"
-                        />
-
-                        <MapImagePreviewModal
-                            v-model:is-open="isImageModalOpen"
-                            :images="previewUrls"
-                            :start-index="startIndex"
-                        />
-
-                        <button
-                            type="button"
-                            class="absolute top-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 text-xs items-center justify-center"
-                            @click="removeImage(index)"
-                        >
-                            ✕
-                        </button>
-                    </div>
-                </div> -->
             </div>
-
-            <!-- <div class="mb-4">
-                <label class="block text-sm font-medium mb-1">画像</label>
-                <input
-                    type="file"
-                    accept="image/*"
-                    class="mb-4 w-full border p-2 rounded"
-                    @change="handleFileChange"
-                >
-                <NuxtImg
-                    v-if="previewUrl"
-                    :key="previewUrl"
-                    :src="previewUrl"
-                    class="mb-4"
-                />
-            </div> -->
 
             <div class="flex justify-end space-x-3">
                 <button

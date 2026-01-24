@@ -21,7 +21,7 @@ const longitude = computed(() => pin.value?.longitude)
 const thumbnailImagePath = computed(() => pin.value?.thumbnailImagePath)
 
 /**
- * 検索結果のクリックされた座標をsearchResultDrawerにemit
+ * 検索結果のクリックされた座標をmapStoreにemitしてマップを移動
  */
 const onclickSearchResult = () => {
     mapStore.move(latitude.value, longitude.value)
@@ -31,16 +31,12 @@ const onclickSearchResult = () => {
 <template>
     <div 
         v-if="pin"
-        class="h-20 border text-slate-50 border-slate-500 rounded-md bg-cover bg-center"
+        class="h-20 border text-slate-50 border-slate-500 rounded-md bg-cover bg-center cursor-pointer"
         :style="{ backgroundImage: `url(${config.public.r2PublicUrl}/${thumbnailImagePath})` }"
+        @click="onclickSearchResult"
     >
         <p class="ml-2">
             {{ title }}
         </p>
-        <font-awesome-icon 
-            icon="fa-solid fa-paper-plane" 
-            class="w-4 h-4 text-teal-400 hover:text-teal-500 ml-2 mt-2"
-            @click="onclickSearchResult"
-        />
     </div>
 </template>
