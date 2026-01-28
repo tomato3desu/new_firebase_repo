@@ -31,7 +31,7 @@ const openSignDrawer = () => {
     <div class="bg-gradient-to-tl from-slate-900 from- via-slate-700 via- to-slate-400 to- border-b border-slate-400 shadow-md h-16 flex items-center px-4 sticky top-0 z-40">
         <NuxtLink
             to="/"
-            class="text-4xl font-bit text-yellow-300 hover:text-yellow-400 mr-4 flex items-center"
+            class="text-3xl md:text-4xl font-bit text-yellow-300 hover:text-yellow-400 mr-4 flex items-center"
         >
             StarPursuer
         </NuxtLink>

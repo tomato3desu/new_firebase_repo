@@ -516,7 +516,7 @@ watch(
         class="h-full w-full min-h-[calc(100dvh-4rem)]"
     />
     <div class="absolute bottom-0 left-0 m-2 z-30">
-        <div class="relative w-64">
+        <div class="relative w-56 md:w-64">
             <input
                 type="text"
                 v-model="searchQuery"
