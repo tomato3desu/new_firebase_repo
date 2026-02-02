@@ -1,75 +1,16 @@
-# Nuxt Minimal Starter
+# Star Pursuer
+「　星空特化のGoogle Map　」
+バイクで星空スポットを巡る中で、星空がきれいに見える場所を視覚的に地図上で探せたら便利だと感じ、本アプリの開発を始めました。
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+# デモ
+gif作成
 
-## Setup
+https://www.starpursue.com/
 
-Make sure to install dependencies:
+# 機能・詳細
 
-```bash
-# npm
-npm install
+# 使用方法
 
-# pnpm
-pnpm install
+# 自己紹介
 
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+# 外部API/ライブラリ
