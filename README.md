@@ -5,7 +5,9 @@
 # デモ
 gif作成
 
-https://www.starpursue.com/
+作品URL： https://www.starpursue.com/
+
+バックエンド： https://github.com/tomato3desu/spring_new_firebase
 
 # 機能・詳細
 
