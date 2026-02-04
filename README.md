@@ -7,11 +7,11 @@
 
 バックエンド： https://github.com/tomato3desu/spring_new_firebase
 
-# 機能・詳細
-
-# 使用方法
-
-# 自己紹介
+# 仕様技術
+## フロントエンド
+Nuxt, vue.js, tailwindcss
+## バックエンド
+spring boot, postgresql, redis
 
 # API/クラウドサービス
 ・google maps api
