@@ -9,7 +9,7 @@
 
 # 仕様技術
 ・フロントエンド<br />
-Nuxt, vue.js, tailwindcss
+Nuxt, vue.js, tailwindcss<br />
 ・バックエンド<br />
 spring boot, postgresql, redis
 
