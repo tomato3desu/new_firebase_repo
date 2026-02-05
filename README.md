@@ -7,7 +7,7 @@
 
 バックエンド： https://github.com/tomato3desu/spring_new_firebase
 
-# 仕様技術
+# 使用技術
 ・フロントエンド<br />
 Nuxt, vue.js, tailwindcss<br />
 ・バックエンド<br />
